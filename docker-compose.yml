@@ -1,0 +1,46 @@
+version: "3"
+services:
+  db_server:
+    image: mysql/mysql-server
+    container_name: db_server
+    restart: always
+    volumes:
+      - "./database/my.cnf:/etc/my.cnf"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - pl4
+  backend_server:
+    image: backend_img
+    container_name: backend_server
+    build: ./backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db_server
+      DB_USER: admin222
+      DB_PASSWORD: admin222
+      DB_NAME: oasip_db
+      DB_PORT: 3306
+    networks:
+      - pl4
+    depends_on:
+      - db_server
+  frontend_server:
+    image: frontend_img
+    build: ./frontend
+    restart: always
+    container_name: frontend_server
+    depends_on:
+      - db_server
+      - backend_server
+    networks:
+      - pl4
+    ports:
+      - "3000:80"
+networks:
+  pl4:
+    driver: bridge
