@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/tt1/',
+  base: '/pl4/',
   // server: {
   //   proxy: {
   //     '/api': {

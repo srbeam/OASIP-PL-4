@@ -11,7 +11,7 @@ import AddSuccess from '../views/AddSuccess.vue'
 import AboutUs from '../views/AboutUs.vue'
 import ListUser from '../views/ListUser.vue'
 
-const history = createWebHistory('/tt1/')
+const history = createWebHistory('/pl4/')
 const routes = [
     { path: '/', name: 'Home', component: Home },
     { path: '/events', name: 'ListAll', component: ListAllEvent },
