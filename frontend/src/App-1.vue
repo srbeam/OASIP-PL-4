@@ -19,10 +19,9 @@ onBeforeMount(async () => {
 </script>
  
 <template>
-<div>
 <h1 class="font-black text-xl">Test</h1>
-<!-- {{ events }} -->
 
+<!-- {{ events }} -->
 <div v-for="(event, index) in events" :key="index" class="border-2 border-black rounded-md p-2 my-3"> 
   <p>Booking Name : {{ event.bookingName }}</p>
   <p>Event Category : {{ event.eventCategory.id }}</p>
@@ -30,7 +29,7 @@ onBeforeMount(async () => {
   <p>Time : {{ event.eventStartTime.slice(11) }}</p>
   <p>Duration : {{ event.eventDuration }}</p>
 </div>
-</div>
+
 </template>
  
 <style>

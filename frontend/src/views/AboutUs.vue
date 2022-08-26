@@ -1,9 +1,7 @@
-<script setup>
+<script setup></script>
 
-</script>
- 
 <template>
-    <div style="width: 130%" class="grid grid-cols-3 gap-10 ml-64 mt-5">
+	<!-- <div style="width: 130%" class="grid grid-cols-3 gap-10 ml-64 mt-5">
         <div class="girl">
             <img src="../assets/images/016.png">
             <span>Chomkanok Chuenpapai</span> <br>
@@ -28,19 +26,16 @@
                 <img src="../assets/images/git.png" width="30" class="git">
             </a>
         </div>
-    </div>
-
+    </div> -->
 </template>
- 
+
 <style>
 .girl {
-    text-align: center;
-    /* border: 1px solid black; */
+	text-align: center;
+	/* border: 1px solid black; */
 }
 
 .git {
-    margin-left: 45%;
+	margin-left: 45%;
 }
-
-
 </style>

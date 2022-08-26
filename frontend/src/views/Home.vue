@@ -14,7 +14,7 @@ console.log(date1)
           <div>
             <div style="font-size: 65px; color: white;" class="mt-10">bookiing</div>
             <div style="color: white;">
-              <a>OASIP-TT1</a><br>
+              <a>OASIP-PL4</a><br>
               <a>website for booking clinics of INT221 subject</a>
             </div>
             <router-link :to="{ name: 'Page', params: {page: 1} }">
