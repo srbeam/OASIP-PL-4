@@ -33,6 +33,11 @@ public class UserCreateDTO {
            message = "Email is invalid")
     private String email;
 
+    @NotBlank(message = "password must not be blank")
+    @Size(max = 14, message = "password size must not be more than 14")
+    @Size(min = 8, message = "password size must be at least 8")
+    private String password;
+
 //    @NotNull(message = "Start time must not be null")
 //    @Future(message = "Start time must be a future date")
 //    @JsonFormat(pattern="dd/MM/yyyy, HH:mm:ss")

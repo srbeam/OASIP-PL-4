@@ -76,6 +76,7 @@ public class UserService {
             User user = modelMapper.map(newUser, User.class);
             user.setName(newUser.getName().trim());
             user.setEmail(newUser.getEmail().trim());
+            user.setPassword(newUser.getPassword());
             user.setRole(newUser.getRole()==null? Role.student : newUser.getRole());
             return usersRepository.saveAndFlush(user);
 
@@ -124,6 +125,7 @@ public class UserService {
     if(checkUnique(updateUser , id)){
         user.setName(updateUser.getName().trim());
         user.setEmail(updateUser.getEmail().trim());
+//        user.setPassword(updateUser.getPassword());
         user.setRole((updateUser.getRole() == null) ? user.getRole() : updateUser.getRole());
         usersRepository.saveAndFlush(user);
     }

@@ -15,6 +15,8 @@ public class UserDTO {
     private Integer id;
     private String name;
     private String email;
+//    private String password;
+
     private Role role = Role.student;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;

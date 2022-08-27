@@ -57,13 +57,14 @@ create table users(
 userId int not null auto_increment,
 name varchar(100) not null unique,
 email varchar(50) not null unique,
+password varchar(90) not null ,
 role enum('admin','lecturer','student') not null default 'student',
 createdOn timestamp  not null default current_timestamp ,
 updatedOn timestamp not null default current_timestamp on update current_timestamp,
 primary key (userId)
 );
 
-insert into users (name,email,role) value('admin','admin','admin');
+insert into users (name,email,password,role) value('admin','admin','adminadmin','admin');
 
 create user 'admin222'@'%' identified by 'admin222';
 grant all privileges on *.* to 'admin222'@'%';
