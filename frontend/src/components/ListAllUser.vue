@@ -301,199 +301,213 @@ const checkDupInputEdit = () => {
 		)
 	}
 }
+const clearInput = () => {
+	editingUserName.value = ''
+	editingUserEmail.value = ''
+	editingUserRole.value = 'student'
+	userId.value = ''
+	editUserMode.value = false
+}
 </script>
 
 <template>
-	<div class="all-user-container">
-		<div id="insertBar">
-			<div>
-				<div class="flex mb-4">
-					<div id="edit-user-mode" v-if="editUserMode" class="flex">
-						<label>Name :</label>
-						<div class="nameInput">
-							<input
-								type="text"
-								placeholder="Type you name here..."
-								class="rounded-md w-90 text-black"
-								v-model="editingUserName"
-								maxlength="100"
-							/>
-							<p
-								v-show="nameIsNull === true && isDupplicateName === false"
-								class="error"
-							>
-								{{ nameIsNullMsg }}
-							</p>
-							<p
-								v-show="nameIsNull === false && isDupplicateName === true"
-								class="error"
-							>
-								{{ dupplicateNameMsg }}
-							</p>
+	<div>
+		<div class="all-user-container">
+			<div id="insertBar">
+				<div>
+					<div class="flex mb-4">
+						<div id="edit-user-mode" v-if="editUserMode" class="flex">
+							<label>Name :</label>
+							<div class="nameInput">
+								<input
+									type="text"
+									placeholder="Type you name here..."
+									class="rounded-md w-90 text-black"
+									v-model="editingUserName"
+									maxlength="100"
+								/>
+								<p
+									v-show="nameIsNull === true && isDupplicateName === false"
+									class="error"
+								>
+									{{ nameIsNullMsg }}
+								</p>
+								<p
+									v-show="nameIsNull === false && isDupplicateName === true"
+									class="error"
+								>
+									{{ dupplicateNameMsg }}
+								</p>
+							</div>
+							<div class="emailInput">
+								<label>Email :</label>
+								<input
+									type="text"
+									placeholder="Type you email here..."
+									class="rounded-md w-90 text-black"
+									v-model="editingUserEmail"
+									maxlength="50"
+								/>
+								<p v-show="emailIsNull === true" class="error">
+									{{ emailNullMsg }}
+								</p>
+								<p
+									v-show="isInvalidEmail === true && emailIsNull === false"
+									class="error"
+								>
+									{{ emailNotValidMsg }}
+								</p>
+								<p v-show="isDupplicateEmail === true" class="error">
+									{{ dupplicateEmailMsg }}
+								</p>
+							</div>
+							<div class="roleInput">
+								<label>Role :</label>
+								<select
+									class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
+									v-model="editingUserRole"
+								>
+									<option value="student" selected>Student</option>
+									<option value="admin">Admin</option>
+									<option value="lecturer">Lecturer</option>
+								</select>
+							</div>
 						</div>
-						<div class="emailInput">
-							<label>Email :</label>
-							<input
-								type="text"
-								placeholder="Type you email here..."
-								class="rounded-md w-90 text-black"
-								v-model="editingUserEmail"
-								maxlength="50"
-							/>
-							<p v-show="emailIsNull === true" class="error">
-								{{ emailNullMsg }}
-							</p>
-							<p
-								v-show="isInvalidEmail === true && emailIsNull === false"
-								class="error"
-							>
-								{{ emailNotValidMsg }}
-							</p>
-							<p v-show="isDupplicateEmail === true" class="error">
-								{{ dupplicateEmailMsg }}
-							</p>
-						</div>
-						<div class="roleInput">
-							<label>Role :</label>
-							<select
-								class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
-								v-model="editingUserRole"
-							>
-								<option value="student" selected>Student</option>
-								<option value="admin">Admin</option>
-								<option value="lecturer">Lecturer</option>
-							</select>
-						</div>
-					</div>
-					<div id="add-user-mode" v-else class="flex">
-						<label>Name :</label>
-						<div class="nameInput">
-							<input
-								type="text"
-								placeholder="Type you name here..."
-								class="rounded-md w-90 text-black"
-								v-model="userName"
-								maxlength="100"
-							/>
-							<p
-								v-show="nameIsNull === true && isDupplicateName === false"
-								class="error"
-							>
-								{{ nameIsNullMsg }}
-							</p>
-							<p
-								v-show="nameIsNull === false && isDupplicateName === true"
-								class="error"
-							>
-								{{ dupplicateNameMsg }}
-							</p>
-						</div>
-						<div class="emailInput">
-							<label>Email :</label>
-							<input
-								type="text"
-								placeholder="Type you email here..."
-								class="rounded-md w-90 text-black"
-								v-model="userEmail"
-								maxlength="50"
-							/>
-							<p v-show="emailIsNull === true" class="error">
-								{{ emailNullMsg }}
-							</p>
-							<p v-show="isInvalidEmail === true" class="error">
-								{{ emailNotValidMsg }}
-							</p>
-							<p v-show="isDupplicateEmail === true" class="error">
-								{{ dupplicateEmailMsg }}
-							</p>
-						</div>
-						<div class="roleInput">
-							<label>Role :</label>
-							<select
-								class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
-								v-model="userRole"
-							>
-								<option value="student" selected>Student</option>
-								<option value="admin">Admin</option>
-								<option value="lecturer">Lecturer</option>
-							</select>
-						</div>
-					</div>
+						<!-- <div id="add-user-mode" v-else class="flex">
+							<label>Name :</label>
+							<div class="nameInput">
+								<input
+									type="text"
+									placeholder="Type you name here..."
+									class="rounded-md w-90 text-black"
+									v-model="userName"
+									maxlength="100"
+								/>
+								<p
+									v-show="nameIsNull === true && isDupplicateName === false"
+									class="error"
+								>
+									{{ nameIsNullMsg }}
+								</p>
+								<p
+									v-show="nameIsNull === false && isDupplicateName === true"
+									class="error"
+								>
+									{{ dupplicateNameMsg }}
+								</p>
+							</div>
+							<div class="emailInput">
+								<label>Email :</label>
+								<input
+									type="text"
+									placeholder="Type you email here..."
+									class="rounded-md w-90 text-black"
+									v-model="userEmail"
+									maxlength="50"
+								/>
+								<p v-show="emailIsNull === true" class="error">
+									{{ emailNullMsg }}
+								</p>
+								<p v-show="isInvalidEmail === true" class="error">
+									{{ emailNotValidMsg }}
+								</p>
+								<p v-show="isDupplicateEmail === true" class="error">
+									{{ dupplicateEmailMsg }}
+								</p>
+							</div>
+							<div class="roleInput">
+								<label>Role :</label>
+								<select
+									class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
+									v-model="userRole"
+								>
+									<option value="student" selected>Student</option>
+									<option value="admin">Admin</option>
+									<option value="lecturer">Lecturer</option>
+								</select>
+							</div>
+						</div> -->
 
-					<div class="" id="buttonsearch">
-						<button
-							class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
-							@click="addUser"
-							v-if="editUserMode === false"
-						>
-							Add
-						</button>
-						<button
-							v-else
-							class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
-							@click="updateUser()"
-						>
-							Save
-						</button>
+						<div id="buttonsearch" v-if="editUserMode">
+							<button
+								class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
+								@click="updateUser()"
+							>
+								Save
+							</button>
+							<button
+								class="bg-gray-200 hover:bg-gray-100 p-2 px-3 rounded-md ml-5 text-black"
+								@click="clearInput()"
+							>
+								Cancel
+							</button>
+							<!-- <button
+								class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
+								@click="addUser"
+								v-if="editUserMode === false"
+							>
+								Add
+							</button> -->
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="table">
-			<div v-if="users.length == 0" class="no-user">
-				<h1>No Users</h1>
-				<p>Let's Add new user</p>
+			<div class="table">
+				<div v-if="users.length == 0" class="no-user">
+					<h1>No Users</h1>
+					<p>Let's Add new user</p>
+				</div>
+				<table v-else>
+					<thead>
+						<tr class="head">
+							<th>Name</th>
+							<th>Email</th>
+							<th>Role</th>
+							<th>Created On</th>
+							<th>Updated On</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="datas" tr-hover v-for="user in users" :key="user.id">
+							<td>{{ user.name }}</td>
+							<td>{{ user.email }}</td>
+							<td>{{ user.role }}</td>
+							<td>{{ user.createdOn }}</td>
+							<td>{{ user.updatedOn }}</td>
+
+							<td>
+								<button
+									type="button"
+									class="btn btn-dark"
+									style="opacity: 1; color: white"
+									@click="toEditUserMode(user)"
+								>
+									Edit</button
+								>&nbsp;
+								<button
+									type="button"
+									class="btn btn-danger"
+									style="opacity: 1; color: white"
+									@click="showConfirmDelete(user.id)"
+								>
+									Delete
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-			<table v-else>
-				<thead>
-					<tr class="head">
-						<th>Name</th>
-						<th>Email</th>
-						<th>Role</th>
-						<th>Created On</th>
-						<th>Updated On</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr class="datas" tr-hover v-for="user in users" :key="user.id">
-						<td>{{ user.name }}</td>
-						<td>{{ user.email }}</td>
-						<td>{{ user.role }}</td>
-						<td>{{ user.createdOn }}</td>
-						<td>{{ user.updatedOn }}</td>
-
-						<td>
-							<button
-								type="button"
-								class="btn btn-dark"
-								style="opacity: 1; color: white"
-								@click="toEditUserMode(user)"
-							>
-								Edit</button
-							>&nbsp;
-							<button
-								type="button"
-								class="btn btn-danger"
-								style="opacity: 1; color: white"
-								@click="showConfirmDelete(user.id)"
-							>
-								Delete
-							</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
+			<UpdateSuccessModal v-if="isUpdateSuccess === true" />
+			<ConfirmDeleteUserModal
+				@confirm="deleteUsers"
+				@closeModal="closeConfirmModal"
+				v-if="isShowConfirm"
+			/>
+			<DeleteSuccessModal v-if="isDeleteSuccess === true" />
 		</div>
-		<AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
-		<UpdateSuccessModal v-if="isUpdateSuccess === true" />
-		<ConfirmDeleteUserModal
-			@confirm="deleteUsers"
-			@closeModal="closeConfirmModal"
-			v-if="isShowConfirm"
-		/>
-		<DeleteSuccessModal v-if="isDeleteSuccess === true" />
 	</div>
 </template>
 
