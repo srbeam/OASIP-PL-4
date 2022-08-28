@@ -308,6 +308,18 @@ const clearInput = () => {
 	userId.value = ''
 	editUserMode.value = false
 }
+const extractDate = (date) => {
+	const d = new Date(date + "UTC")
+	return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+}
+const extractTime = (time) => {
+	const t = new Date(time + "UTC")
+	const minute = computed(() =>{
+		if (t.getMinutes() <10) return "0" + t.getMinutes();
+		else return t.getMinutes();
+	});
+	return `${t.getHours()}:${minute.value} น.`
+}
 </script>
 
 <template>
@@ -474,20 +486,8 @@ const clearInput = () => {
 							<td>{{ user.name }}</td>
 							<td>{{ user.email }}</td>
 							<td>{{ user.role }}</td>
-							<td>{{new Date(user.createdOn).toLocaleDateString("th-TH") }},
-								{{new Date(user.createdOn).toLocaleDateString("en-CA",{
-									timeZoneName:'short',
-									hour: "2-digit",
-									minute:"2-digit",
-									hour12:true
-								})}}</td>
-							<td>{{new Date(user.updatedOn).toLocaleDateString("th-TH") }},
-								{{new Date(user.updatedOn).toLocaleDateString("en-CA",{
-									timeZoneName:'short',
-									hour: "2-digit",
-									minute:"2-digit",
-									hour12:true
-								})}}</td>
+							<td>{{ extractDate(user.createdOn) }} , {{extractTime(user.createdOn)}}</td>
+							<td>{{ extractDate(user.updatedOn) }} , {{extractTime(user.updatedOn)}}</td>
 
 							<td>
 								<button
