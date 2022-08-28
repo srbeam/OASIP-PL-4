@@ -474,8 +474,20 @@ const clearInput = () => {
 							<td>{{ user.name }}</td>
 							<td>{{ user.email }}</td>
 							<td>{{ user.role }}</td>
-							<td>{{ user.createdOn }}</td>
-							<td>{{ user.updatedOn }}</td>
+							<td>{{new Date(user.createdOn).toLocaleDateString("th-TH") }},
+								{{new Date(user.createdOn).toLocaleDateString("en-CA",{
+									timeZoneName:'short',
+									hour: "2-digit",
+									minute:"2-digit",
+									hour12:true
+								})}}</td>
+							<td>{{new Date(user.updatedOn).toLocaleDateString("th-TH") }},
+								{{new Date(user.updatedOn).toLocaleDateString("en-CA",{
+									timeZoneName:'short',
+									hour: "2-digit",
+									minute:"2-digit",
+									hour12:true
+								})}}</td>
 
 							<td>
 								<button
