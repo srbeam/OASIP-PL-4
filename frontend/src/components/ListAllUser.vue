@@ -308,6 +308,7 @@ const clearInput = () => {
 	userId.value = ''
 	editUserMode.value = false
 }
+let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const extractDate = (date) => {
 	const d = new Date(date + "UTC")
 	return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
