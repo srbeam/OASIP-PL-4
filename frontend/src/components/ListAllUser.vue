@@ -486,8 +486,8 @@ const extractTime = (time) => {
 							<td>{{ user.name }}</td>
 							<td>{{ user.email }}</td>
 							<td>{{ user.role }}</td>
-							<td>{{ extractDate(user.createdOn) }} , {{extractTime(user.createdOn)}}</td>
-							<td>{{ extractDate(user.updatedOn) }} , {{extractTime(user.updatedOn)}}</td>
+							<td>{{ extractDate(user.createdOn) }}  {{extractTime(user.createdOn)}}</td>
+							<td>{{ extractDate(user.updatedOn) }}  {{extractTime(user.updatedOn)}}</td>
 
 							<td>
 								<button
