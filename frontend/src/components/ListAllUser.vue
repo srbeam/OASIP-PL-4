@@ -308,19 +308,6 @@ const clearInput = () => {
 	userId.value = ''
 	editUserMode.value = false
 }
-let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const extractDate = (date) => {
-	const d = new Date(date + "UTC")
-	return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-}
-const extractTime = (time) => {
-	const t = new Date(time + "UTC")
-	const minute = computed(() =>{
-		if (t.getMinutes() <10) return "0" + t.getMinutes();
-		else return t.getMinutes();
-	});
-	return `${t.getHours()}:${minute.value} น.`
-}
 </script>
 
 <template>
@@ -487,8 +474,8 @@ const extractTime = (time) => {
 							<td>{{ user.name }}</td>
 							<td>{{ user.email }}</td>
 							<td>{{ user.role }}</td>
-							<td>{{ extractDate(user.createdOn) }}  {{extractTime(user.createdOn)}}</td>
-							<td>{{ extractDate(user.updatedOn) }}  {{extractTime(user.updatedOn)}}</td>
+							<td>{{ user.createdOn }}</td>
+							<td>{{ user.updatedOn }}</td>
 
 							<td>
 								<button
