@@ -1,3 +1,4 @@
+
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
@@ -69,7 +70,10 @@ updatedOn timestamp not null default current_timestamp on update current_timesta
 primary key (userId)
 );
 
-insert into users (name,email,password,role) value('admin','admin','adminadmin','admin');
+insert into users(name,email,password,role,createdOn,updatedOn) value('OASIP ADMIN','oasip.admin@kmutt.ac.th','oasipadmin','admin','2022-08-01 00:00:00+07:00','2022-08-01 00:00:00+07:00');
+insert into users(name,email,password,role,createdOn,updatedOn) value('Somchai Jaidee','somchai.jai@kmutt.ac.th','somchaijai','lecturer','2022-08-08 15:00:00+07:00','2022-08-08 15:00:00+07:00');
+insert into users(name,email,password,role,createdOn,updatedOn) value('Komkrid Rakdee','komkrid.rak@mail.kmutt.ac.th','komkridrak','student','2022-08-08 15:00:01+07:00','2022-08-08 15:00:01+07:00');
+insert into users(name,email,password,role,createdOn,updatedOn) value('สมเกียรติ ขยันเรียน','somkiat.kay@kmutt.ac.th','somkiat.kay','student','2022-08-16 09:00:00+07:00','2022-08-16 09:00:00+07:00');
 commit;
 
 create user 'admin222'@'%' identified by 'admin222';
@@ -77,3 +81,4 @@ grant all privileges on *.* to 'admin222'@'%';
 flush privileges;
 
 
+select * from users;
