@@ -309,14 +309,20 @@ const clearInput = () => {
 	editUserMode.value = false
 }
 
-const formatDate = (dateTime) => {
-	return dateTime.toLocaleString('en-US', {
-		day: '2-digit',
-		month: 'long',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit'
-	})
+let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const extractDate = (date) => {
+//  console.log(date);
+ const d = new Date(date + " UTC")
+//  console.log(d);
+ return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+}
+const extractTime = (time) => {
+ const t = new Date(time + " UTC")
+ const minute = computed(() =>{
+  if (t.getMinutes() <10) return "0" + t.getMinutes();
+  else return t.getMinutes();
+ });
+ return `${t.getHours()}:${minute.value} น.`
 }
 </script>
 
@@ -484,8 +490,8 @@ const formatDate = (dateTime) => {
 							<td>{{ user.name }}</td>
 							<td>{{ user.email }}</td>
 							<td>{{ user.role }}</td>
-							<td>{{ formatDate(user.createdOn) }}</td>
-							<td>{{ formatDate(user.updatedOn) }}</td>
+							<td>{{ extractDate(user.createdOn) }} {{extractTime(user.createdOn)}}</td>
+							<td>{{ extractDate(user.updatedOn) }} {{extractTime(user.updatedOn)}}</td>
 
 							<td>
 								<button
