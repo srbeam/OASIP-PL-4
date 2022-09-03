@@ -7,7 +7,7 @@ import javax.validation.constraints.Email;
 
 @Getter
 @Setter
-public class UserSignInDTO {
+public class UserLoginDTO {
 //    private String name;
 @Email(message = "invalid email format")
 private String email;

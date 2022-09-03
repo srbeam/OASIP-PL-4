@@ -6,7 +6,7 @@
 			<div class="modal-container">
 				<div class="modal-content">
 					<i class="fa fa-check-circle fa-4x"></i>
-					<h3>Password Matched</h3>
+					<h3>Login Successful</h3>
 				</div>
 			</div>
 		</div>

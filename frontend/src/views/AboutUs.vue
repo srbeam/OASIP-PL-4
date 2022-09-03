@@ -2,8 +2,8 @@
 
 <template>
 	<div>
-		<div class="aboutas-container">
-			<div class="grid grid-cols-3 gap-10 mt-5">
+		<div class="aboutus-container">
+			<div class="aboutus-container-grid">
 				<div class="girl">
 					<img src="../assets/images/036.png" class="girl-img" />
 					<p>Nitchakarn Pasanee<br />63130500036</p>
@@ -32,8 +32,14 @@
 </template>
 
 <style scoped>
-.aboutas-container {
+.aboutus-container {
 	padding: 0 5%;
+}
+.aboutus-container-grid {
+	display: grid;
+	grid-template-columns: repeat(3, auto);
+	grid-column-gap: 40px;
+	margin-top: 20px;
 }
 .girl {
 	/* text-align: center; */
@@ -53,5 +59,27 @@ p {
 }
 .git {
 	/* margin-left: 45%; */
+}
+@media screen and (max-width: 768px) {
+	.aboutus-container {
+		padding: 30px 0 60px 0;
+	}
+	.aboutus-container-grid {
+		grid-template-columns: none;
+		grid-template-rows: repeat(3, auto);
+		grid-row-gap: 70px;
+	}
+	.girl {
+		min-height: auto;
+	}
+	.girl-img {
+		width: 30%;
+	}
+}
+@media screen and (max-width: 640px) {
+}
+@media screen and (max-width: 480px) {
+}
+@media screen and (max-width: 375px) {
 }
 </style>

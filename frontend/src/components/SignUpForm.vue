@@ -203,7 +203,7 @@ const validateMatchPass = () => {
 			<div id="left">
 				<p id="web-name">bookiing</p>
 
-				<p>
+				<p class="description">
 					OASIP-PL4 Website for booking clinics <br />
 					INT222 Integrated IT Project II
 				</p>
@@ -240,6 +240,7 @@ const validateMatchPass = () => {
 								name="username"
 								placeholder="YOUR NAME"
 								v-model="userName"
+								maxlength="100"
 							/>
 						</div>
 						<div class="input">
@@ -262,6 +263,7 @@ const validateMatchPass = () => {
 								name="email"
 								placeholder="YOUR E-MAIL"
 								v-model="userEmail"
+								maxlength="50"
 							/>
 						</div>
 						<div class="input">
@@ -322,23 +324,23 @@ const validateMatchPass = () => {
 										Sign Up
 									</button>
 									<!-- <button class="text-white btn btn-primary" id="getstart">
-                        Get Start !
-                    </button> -->
+							Get Start !
+						</button> -->
 								</div>
 
 								<!-- <router-link :to="{ name: 'Page', params: { page: 1 } }">
-									<div>
-										<button class="text-white btn btn-primary" @click="addUser">
-											Sign Up
-										</button>
-										
-									</div>
-								</router-link> -->
+										<div>
+											<button class="text-white btn btn-primary" @click="addUser">
+												Sign Up
+											</button>
+											
+										</div>
+									</router-link> -->
 							</div>
 							<div id="go-to-signIn">
 								<p>
 									Already have an account?
-									<router-link :to="{ name: 'SignInForm' }">SIGN IN</router-link>
+									<router-link :to="{ name: 'Home' }">SIGN IN</router-link>
 								</p>
 							</div>
 						</div>
@@ -424,5 +426,43 @@ input {
 .btn-area button {
 	width: 100%;
 	margin-bottom: 10px;
+}
+#go-to-signIn a:hover {
+	background-color: rgb(255, 255, 255, 0);
+}
+@media screen and (max-width: 768px) {
+	#home {
+		flex-direction: column;
+		padding: 10%;
+	}
+	#left {
+		width: 100%;
+		align-items: center;
+		margin: 0 0 -38px 0;
+	}
+	#web-name {
+		text-align: center;
+	}
+	.description {
+		text-align: center;
+	}
+	#right {
+		width: 100%;
+	}
+}
+@media screen and (max-width: 640px) {
+	#left {
+		margin: 0 0 -32px 0;
+	}
+}
+@media screen and (max-width: 480px) {
+	#left {
+		margin: 0 0 -24px 0;
+	}
+}
+@media screen and (max-width: 375px) {
+	#left {
+		margin: 0 0 -20px 0;
+	}
 }
 </style>

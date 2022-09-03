@@ -2,23 +2,25 @@ package sit.int221.oasipbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sit.int221.oasipbackend.dtos.UserSignInDTO;
+import sit.int221.oasipbackend.dtos.UserLoginDTO;
+import sit.int221.oasipbackend.entities.User;
 import sit.int221.oasipbackend.services.UserService;
 
 import javax.validation.Valid;
-
-@CrossOrigin
 @RestController
-@RequestMapping("/api/match")
-public class UserSignInController {
+@RequestMapping("/api/login")
+//@RequestMapping("/api/match")
+public class UserLoginController {
+
     @Autowired
     private UserService userService;
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserSignInDTO signIn(@Valid @RequestBody UserSignInDTO userSignIn) {
-        return userService.signIn(userSignIn);
+    public ResponseEntity loginDTO
+            (@Valid @RequestBody UserLoginDTO userLogin) throws Exception {
+        return userService.loginDTO(userLogin);
     }
 }

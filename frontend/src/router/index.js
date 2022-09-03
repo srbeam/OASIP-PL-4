@@ -11,6 +11,7 @@ import AddSuccess from '../views/AddSuccess.vue'
 import AboutUs from '../views/AboutUs.vue'
 import ListUser from '../views/ListUser.vue'
 import SignInForm from '../components/SignInForm.vue'
+import SignUpForm from '../components/SignUpForm.vue'
 
 const history = createWebHistory('/pl4/')
 const routes = [
@@ -25,7 +26,8 @@ const routes = [
 	{ path: '/events/page/:page', name: 'Page', component: Page },
 	{ path: '/about-us', name: 'AboutUs', component: AboutUs },
 	{ path: '/listalluser', name: 'ListUser', component: ListUser },
-	{ path: '/signin', name: 'SignInForm', component: SignInForm }
+	,
+	{ path: '/signup', name: 'SignUpForm', component: SignUpForm }
 	// { path: '/important', name: 'Important', component: ImportantList },
 	// {
 	//     path: '/:category',

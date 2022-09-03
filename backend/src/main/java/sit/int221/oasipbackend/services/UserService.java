@@ -4,17 +4,25 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.oasipbackend.Role;
+import sit.int221.oasipbackend.config.JwtTokenUtil;
 import sit.int221.oasipbackend.dtos.UserCreateDTO;
 import sit.int221.oasipbackend.dtos.UserDTO;
-import sit.int221.oasipbackend.dtos.UserSignInDTO;
+import sit.int221.oasipbackend.dtos.UserLoginDTO;
 import sit.int221.oasipbackend.dtos.UserUpdateDTO;
 import sit.int221.oasipbackend.entities.User;
 import sit.int221.oasipbackend.exceptions.ValidationHandler;
+import sit.int221.oasipbackend.model.JwtResponse;
 import sit.int221.oasipbackend.repositories.UsersRepository;
 import sit.int221.oasipbackend.utils.ListMapper;
 
@@ -31,6 +39,12 @@ public class UserService {
     private ListMapper listMapper;
     @Autowired
     private Argon2PasswordEncoder argon2;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private JwtUserDetailsService userDetailsService;
 
 
     public List<UserDTO> getAllUsers() {
@@ -90,13 +104,6 @@ public class UserService {
     }
 
 
-//    public UserDTO save(@Valid CreateUserDTO user) {
-//        User newUser = modelMapper.map(user, User.class);
-//        newUser.setName(user.getName().trim());
-//        newUser.setEmail(user.getEmail().trim());
-//        userRepository.saveAndFlush(newUser);
-//        return modelMapper.map(newUser, UserDTO.class);}
-
     public void delete(@PathVariable Integer id) {
         usersRepository.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -104,27 +111,7 @@ public class UserService {
         usersRepository.deleteById(id);
     }
 
-//    public Object updateUser(UserUpdateDTO updateUser, Integer id) {
-//        User existingUser = usersRepository.findById(id).orElseThrow(
-//                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " Dose not exits!!!"));
-//        if(!validateDuplicateName(id,updateUser.getName())){
-//            return ValidationHandler.showError("name", "name is NOT unique");
-//        }else if(!validateDuplicateEmail(id, updateUser.getEmail())){
-//            return ValidationHandler.showError("email", "email is NOT unique");
-//        }
-////        else if(updateUser.getRole() == null) {
-////            updateUser.setRole(existingUser.getRole());
-////        }else if(existingUser.getRole().equals(updateUser.getRole())){
-////            existingUser.setRole(updateUser.getRole());
-////        }
-//        else {
-//            existingUser.setName(updateUser.getName().trim());
-//            existingUser.setEmail(updateUser.getEmail().trim());
-//            existingUser.setRole((updateUser.getRole() == null)? existingUser.getRole(): (updateUser.getRole()));
-//            usersRepository.saveAndFlush(existingUser);
-//        }
-//        return existingUser;
-//    }
+
     public Object updateUser(UserUpdateDTO updateUser, Integer id){
         User user = usersRepository.findById(id).orElseThrow(()->
             new ResponseStatusException(HttpStatus.NOT_FOUND, id + "does not exist!!!"));
@@ -137,6 +124,7 @@ public class UserService {
     }
     return updateUser;
 }
+
     public boolean checkUnique (UserUpdateDTO user ,Integer id){
         List<User> allUser = usersRepository.findAll();
         for(User users : allUser){
@@ -151,11 +139,35 @@ public class UserService {
         return true;
     }
 
-    public UserSignInDTO signIn(UserSignInDTO userSignIn) {
-        if (usersRepository.existsByEmail(userSignIn.getEmail())) {
-            User user = usersRepository.findByEmail(userSignIn.getEmail());
-            if (argon2.matches(userSignIn.getPassword(), user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
+//    public UserLoginDTO signIn(UserLoginDTO userSignIn) {
+//        if (usersRepository.existsByEmail(userSignIn.getEmail())) {
+//            User user = usersRepository.findByEmail(userSignIn.getEmail());
+//            if (argon2.matches(userSignIn.getPassword(), user.getPassword())) {
+//                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
+//            } else {
+//                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
+//            }
+//        } else {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
+//        }
+//    }
+
+
+    public ResponseEntity loginDTO(UserLoginDTO userLogin) throws  Exception {
+        if (usersRepository.existsByEmail(userLogin.getEmail())) {
+            User user = usersRepository.findByEmail(userLogin.getEmail());
+            if (argon2.matches(userLogin.getPassword(), user.getPassword())) {
+                authenticate(userLogin.getEmail() , userLogin.getPassword());
+//                authenticate(userLogin.getEmail(), userLogin.getPassword());
+
+                final UserDetails userDetails = userDetailsService
+                        .loadUserByUsername(userLogin.getEmail());
+
+                final String token = jwtTokenUtil.generateToken(userDetails);
+
+//                return ResponseEntity.ok(new JwtResponse(token));
+                return ResponseEntity.ok(new JwtResponse(token));
+//                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
             } else {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
             }
@@ -163,4 +175,15 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
         }
     }
+
+    private void authenticate(String email, String password) throws Exception {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        } catch (DisabledException e) {
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
+        }
+    }
 }
+

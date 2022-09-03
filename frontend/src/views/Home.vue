@@ -1,11 +1,12 @@
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue'
 import SignUpForm from '../components/SignUpForm.vue'
+import SignInForm from '../components/SignInForm.vue'
 </script>
 
 <template>
 	<div>
-		<SignUpForm></SignUpForm>
+		<!-- <SignUpForm></SignUpForm> -->
+		<SignInForm></SignInForm>
 	</div>
 </template>
 

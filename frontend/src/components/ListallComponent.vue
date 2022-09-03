@@ -24,13 +24,11 @@ const formatTime = (dateTime) => {
 <template>
 	<div>
 		<div id="no-events" v-show="events.length == 0">
-			<h1 class="mx-60 pt-60">No Scheduled Events</h1>
+			<h1>No Scheduled Events</h1>
 		</div>
 
 		<div>
 			<div v-show="events.length > 0" class="grid grid-cols-3 gap-1">
-				<!-- <h1 style="color: #5c5c5c">Have Scheduled Events</h1> -->
-
 				<div
 					id="showall"
 					v-for="(event, index) in events"
