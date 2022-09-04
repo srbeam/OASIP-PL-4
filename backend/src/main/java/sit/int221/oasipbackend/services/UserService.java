@@ -26,6 +26,8 @@ import sit.int221.oasipbackend.model.JwtResponse;
 import sit.int221.oasipbackend.repositories.UsersRepository;
 import sit.int221.oasipbackend.utils.ListMapper;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,7 +155,7 @@ public class UserService {
 //    }
 
 
-    public ResponseEntity loginDTO(UserLoginDTO userLogin) throws  Exception {
+    public ResponseEntity loginDTO( UserLoginDTO userLogin) throws  Exception {
         if (usersRepository.existsByEmail(userLogin.getEmail())) {
             User user = usersRepository.findByEmail(userLogin.getEmail());
             if (argon2.matches(userLogin.getPassword(), user.getPassword())) {

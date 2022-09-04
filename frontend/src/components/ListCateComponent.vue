@@ -213,7 +213,7 @@ const goSuccess = () => appRouter.go(0)
 
 <style scoped>
 #category-container {
-	padding: 0 8%;
+	padding: 0 8% 4% 8%;
 }
 .category-box {
 	background-color: rgba(255, 255, 255, 0.5);
@@ -221,7 +221,7 @@ const goSuccess = () => appRouter.go(0)
 	/* height: 12em; */
 	color: #383838;
 	/* margin-left: 20%; */
-	margin-bottom: 3%;
+	margin-top: 3%;
 	padding: 2.5%;
 	display: flex;
 	border-radius: 10px;
@@ -291,5 +291,8 @@ textarea {
 	background-color: rgba(220, 220, 220, 0.4);
 	padding: 1.5%;
 	font-size: 0.9em;
+}
+
+@media screen and (max-width: 768px) {
 }
 </style>

@@ -37,7 +37,9 @@ function toggleMenu() {
 								<img src="./assets/images/background/logo.png" id="logo" />
 							</router-link>
 						</div>
-
+						<router-link :to="{ name: 'Home' }" id="menu-home">
+							<button class="menu">Home</button>
+						</router-link>
 						<router-link :to="{ name: 'AddEvent' }">
 							<button class="menu">Reserve</button>
 						</router-link>
@@ -89,16 +91,16 @@ function toggleMenu() {
 	font-size: 16px;
 	color: white;
 	overflow: hidden;
-	background-repeat: no-repeat;
-	background-position: bottom;
-	background-attachment: fixed;
+	/* background-repeat: no-repeat; */
+	/* background-position: bottom; */
+	/* background-attachment: fixed; */
 }
 
 html,
 body {
 	background: url(./assets/images/background/background11.gif);
 	/* background-size: 100%; */
-	background-size: 100%;
+	background-size: 135%;
 	background-repeat: no-repeat;
 	/* background-attachment: fixed; */
 	padding-top: 0.3%;
@@ -193,7 +195,9 @@ li {
 .logo-mobile {
 	display: none;
 }
-
+#menu-home {
+	display: none;
+}
 @media screen and (max-width: 1024px) {
 	html,
 	body {
@@ -222,6 +226,10 @@ li {
 		margin-top: 1rem;
 		margin-bottom: -10px;
 	}
+	#menu-home {
+		display: inline;
+		padding: 0;
+	}
 	nav {
 		height: auto;
 		/* flex-direction: column; */
@@ -243,7 +251,7 @@ li {
 	}
 	.nav-container-grid {
 		grid-template-columns: none;
-		grid-template-rows: repeat(6, auto);
+		grid-template-rows: repeat(7, auto);
 		grid-row-gap: 20px;
 		grid-column-gap: 0;
 

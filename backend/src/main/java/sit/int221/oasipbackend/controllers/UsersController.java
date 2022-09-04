@@ -1,6 +1,7 @@
 package sit.int221.oasipbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sit.int221.oasipbackend.dtos.SimpleEventCategoryDTO;
 import sit.int221.oasipbackend.dtos.UserCreateDTO;
@@ -40,5 +41,10 @@ public class UsersController {
     @PutMapping("/{id}")
     public Object updateUser(@Valid @RequestBody UserUpdateDTO updateUser, @PathVariable Integer id) {
         return userService.updateUser(updateUser, id);
+    }
+    @PostMapping("/signup")
+    @ResponseStatus(HttpStatus.OK)
+    public Object createUser(@Valid @RequestBody UserCreateDTO newUser) {
+        return userService.create(newUser);
     }
 }
