@@ -413,59 +413,59 @@ const extractTime = (time) => {
 							</div>
 						</div>
 						<!-- <div id="add-user-mode" v-else class="flex">
-								<label>Name :</label>
-								<div class="nameInput">
-									<input
-										type="text"
-										placeholder="Type you name here..."
-										class="rounded-md w-90 text-black"
-										v-model="userName"
-										maxlength="100"
-									/>
-									<p
-										v-show="nameIsNull === true && isDupplicateName === false"
-										class="error"
-									>
-										{{ nameIsNullMsg }}
-									</p>
-									<p
-										v-show="nameIsNull === false && isDupplicateName === true"
-										class="error"
-									>
-										{{ dupplicateNameMsg }}
-									</p>
-								</div>
-								<div class="emailInput">
-									<label>Email :</label>
-									<input
-										type="text"
-										placeholder="Type you email here..."
-										class="rounded-md w-90 text-black"
-										v-model="userEmail"
-										maxlength="50"
-									/>
-									<p v-show="emailIsNull === true" class="error">
-										{{ emailNullMsg }}
-									</p>
-									<p v-show="isInvalidEmail === true" class="error">
-										{{ emailNotValidMsg }}
-									</p>
-									<p v-show="isDupplicateEmail === true" class="error">
-										{{ dupplicateEmailMsg }}
-									</p>
-								</div>
-								<div class="roleInput">
-									<label>Role :</label>
-									<select
-										class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
-										v-model="userRole"
-									>
-										<option value="student" selected>Student</option>
-										<option value="admin">Admin</option>
-										<option value="lecturer">Lecturer</option>
-									</select>
-								</div>
-							</div> -->
+									<label>Name :</label>
+									<div class="nameInput">
+										<input
+											type="text"
+											placeholder="Type you name here..."
+											class="rounded-md w-90 text-black"
+											v-model="userName"
+											maxlength="100"
+										/>
+										<p
+											v-show="nameIsNull === true && isDupplicateName === false"
+											class="error"
+										>
+											{{ nameIsNullMsg }}
+										</p>
+										<p
+											v-show="nameIsNull === false && isDupplicateName === true"
+											class="error"
+										>
+											{{ dupplicateNameMsg }}
+										</p>
+									</div>
+									<div class="emailInput">
+										<label>Email :</label>
+										<input
+											type="text"
+											placeholder="Type you email here..."
+											class="rounded-md w-90 text-black"
+											v-model="userEmail"
+											maxlength="50"
+										/>
+										<p v-show="emailIsNull === true" class="error">
+											{{ emailNullMsg }}
+										</p>
+										<p v-show="isInvalidEmail === true" class="error">
+											{{ emailNotValidMsg }}
+										</p>
+										<p v-show="isDupplicateEmail === true" class="error">
+											{{ dupplicateEmailMsg }}
+										</p>
+									</div>
+									<div class="roleInput">
+										<label>Role :</label>
+										<select
+											class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
+											v-model="userRole"
+										>
+											<option value="student" selected>Student</option>
+											<option value="admin">Admin</option>
+											<option value="lecturer">Lecturer</option>
+										</select>
+									</div>
+								</div> -->
 
 						<div id="buttonsearch" v-if="editUserMode">
 							<button
@@ -481,12 +481,12 @@ const extractTime = (time) => {
 								Cancel
 							</button>
 							<!-- <button
-									class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
-									@click="addUser"
-									v-if="editUserMode === false"
-								>
-									Add
-								</button> -->
+										class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
+										@click="addUser"
+										v-if="editUserMode === false"
+									>
+										Add
+									</button> -->
 						</div>
 					</div>
 				</div>
@@ -602,6 +602,6 @@ input {
 	color: red;
 }
 /* label {
-	 align-self: center;
-	} */
+		 align-self: center;
+		} */
 </style>

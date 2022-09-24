@@ -254,7 +254,7 @@ const editMode = () => {
 			<p class="font-semibold">Note :</p>
 
 			<!-- <p v-if="event.eventNote != undefined || event.eventNote != '' || event.eventNote != null">{{ event.eventNote }}</p>
-      <p v-else>no note</p> -->
+		  <p v-else>no note</p> -->
 			<p>{{ event.eventNote }}</p>
 
 			<button

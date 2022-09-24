@@ -161,9 +161,9 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 	/* margin-left: auto; */
 	/* margin-left: 18%; */
 	/* background-color: rgba(255, 255, 255, 0.4);
-  color: #5c5c5c;
-  width: 900px;
-  height: 550px; */
+	  color: #5c5c5c;
+	  width: 900px;
+	  height: 550px; */
 	display: flex;
 	justify-content: center;
 	align-items: center;

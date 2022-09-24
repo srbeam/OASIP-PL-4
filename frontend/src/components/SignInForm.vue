@@ -137,13 +137,13 @@ const checklengthPass = () => {
 								</div>
 
 								<!-- <router-link :to="{ name: 'Page', params: { page: 1 } }">
-										<div>
-											<button class="text-white btn btn-primary">Sign In</button>
-											<button class="text-white btn btn-primary" id="getstart">
-												Get Start !
-											</button>
-										</div>
-									</router-link> -->
+											<div>
+												<button class="text-white btn btn-primary">Sign In</button>
+												<button class="text-white btn btn-primary" id="getstart">
+													Get Start !
+												</button>
+											</div>
+										</router-link> -->
 							</div>
 							<div id="go-to-signUp">
 								<p>
