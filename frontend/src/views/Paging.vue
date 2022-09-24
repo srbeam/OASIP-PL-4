@@ -10,11 +10,18 @@ const appRouter = useRouter()
 
 const response = ref([])
 const events = ref([])
+const author = localStorage.getItem('token')
 const getEvents = async () => {
 	const res = await fetch(
 		`${import.meta.env.VITE_BACK_URL}/events/page?page=${
 			currentPage - 1
-		}&pageSize=6`
+		}&pageSize=6`,
+		{
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${author}`
+			}
+		}
 	)
 	if (res.status === 200) {
 		response.value = await res.json()

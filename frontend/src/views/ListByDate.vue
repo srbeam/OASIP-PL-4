@@ -7,9 +7,14 @@ const events = ref([])
 const filterEvents = ref([])
 const showNoEvent = ref('Please select your filter')
 const appRouter = useRouter()
-
+const author = localStorage.getItem('token')
 const getEvents = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${author}`
+		}
+	})
 	if (res.status === 200) {
 		events.value = await res.json()
 		filterEvents.value = events.value.reverse()
@@ -53,7 +58,8 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/events/${eventId}`,
 			{
-				method: 'DELETE'
+				method: 'DELETE',
+				Authorization: `Bearer ${author}`
 			}
 		)
 		if (res.status === 200) {

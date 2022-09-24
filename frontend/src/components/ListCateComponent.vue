@@ -54,14 +54,15 @@ const save = () => {
 		editCategory()
 	}
 }
-
+const author = localStorage.getItem('token')
 const editCategory = async () => {
 	const res = await fetch(
 		`${import.meta.env.VITE_BACK_URL}/categories/${currentEdit.value.id}`,
 		{
 			method: 'PUT',
 			headers: {
-				'content-type': 'application/json'
+				'content-type': 'application/json',
+				Authorization: `Bearer ${author}`
 			},
 			body: JSON.stringify({
 				eventCategoryName: updateName.value.trim(),

@@ -2,8 +2,14 @@
 import { ref, onBeforeMount, computed } from 'vue'
 import AddSuccessModal from './AddSuccessModal.vue'
 const users = ref([])
+const author = localStorage.getItem('token')
 const getUsers = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${author}`
+		}
+	})
 	if (res.status === 200) {
 		users.value = await res.json()
 	} else {
@@ -127,7 +133,8 @@ const fetchAddUser = async (newUser) => {
 		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
 			method: 'POST',
 			headers: {
-				'content-type': 'application/json'
+				'content-type': 'application/json',
+				Authorization: `Bearer ${author}`
 			},
 
 			body: JSON.stringify(newUser)

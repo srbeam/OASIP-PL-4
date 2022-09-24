@@ -3,8 +3,14 @@ import { ref, onBeforeMount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const categories = ref([])
+const author = localStorage.getItem('token')
 const getCategory = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${author}`
+		}
+	})
 	if (res.status === 200) {
 		categories.value = await res.json()
 		console.log(categories.value)
@@ -20,7 +26,12 @@ onBeforeMount(async () => {
 const events = ref([])
 let filterEvents = ref([])
 const getEvents = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${author}`
+		}
+	})
 	if (res.status === 200) {
 		events.value = await res.json()
 		for (let event of events.value) {
@@ -109,7 +120,8 @@ const addEventToDB = async (newEvent) => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
 		headers: {
-			'content-type': 'application/json'
+			'content-type': 'application/json',
+			Authorization: `Bearer ${author}`
 		},
 		//ยัด newEvent ลงใน body ส่งให้ backend
 		body: JSON.stringify(newEvent)

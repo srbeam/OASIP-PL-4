@@ -13,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.server.ResponseStatusException;
+import sit.int221.oasipbackend.HandleValidationErrors;
 import sit.int221.oasipbackend.Role;
 import sit.int221.oasipbackend.config.JwtTokenUtil;
 import sit.int221.oasipbackend.dtos.UserCreateDTO;
@@ -28,8 +30,8 @@ import sit.int221.oasipbackend.utils.ListMapper;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -140,7 +142,55 @@ public class UserService {
         }
         return true;
     }
+    public ResponseEntity loginDTO(@Valid UserLoginDTO userLogin, HttpServletResponse httpServletResponse, ServletWebRequest request) throws Exception {
+        Map<String,String> errorMap = new HashMap<>();
+        String status;
 
+        if (usersRepository.existsByEmail(userLogin.getEmail())) {
+            User user = usersRepository.findByEmail(userLogin.getEmail());
+            if (argon2.matches(userLogin.getPassword(), user.getPassword())) {
+                authenticate(userLogin.getEmail(), userLogin.getPassword());
+//                authenticate(userLogin.getEmail(), userLogin.getPassword());
+
+                final UserDetails userDetails = userDetailsService
+                        .loadUserByUsername(userLogin.getEmail());
+
+                final String token = jwtTokenUtil.generateToken(userDetails);
+
+                final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+                return ResponseEntity.ok(new JwtResponse("Login Success",token,refreshToken));
+//                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
+            } else {
+                errorMap.put("message","Password NOT Matched");
+                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                status = HttpStatus.UNAUTHORIZED.toString();
+//            }
+
+            }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
+        }
+
+        HandleValidationErrors errors = new HandleValidationErrors(
+                Date.from(Instant.now()),
+                httpServletResponse.getStatus(),
+                status,
+                errorMap.get("message"),
+                request.getRequest().getRequestURI());
+        return ResponseEntity.status(httpServletResponse.getStatus()).body(errors);
+
+    }
+
+
+    private void authenticate(String email, String password) throws Exception {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        } catch (DisabledException e) {
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
+        }
+    }
 //    public UserLoginDTO signIn(UserLoginDTO userSignIn) {
 //        if (usersRepository.existsByEmail(userSignIn.getEmail())) {
 //            User user = usersRepository.findByEmail(userSignIn.getEmail());
@@ -155,37 +205,37 @@ public class UserService {
 //    }
 
 
-    public ResponseEntity loginDTO( UserLoginDTO userLogin) throws  Exception {
-        if (usersRepository.existsByEmail(userLogin.getEmail())) {
-            User user = usersRepository.findByEmail(userLogin.getEmail());
-            if (argon2.matches(userLogin.getPassword(), user.getPassword())) {
-                authenticate(userLogin.getEmail() , userLogin.getPassword());
-//                authenticate(userLogin.getEmail(), userLogin.getPassword());
-
-                final UserDetails userDetails = userDetailsService
-                        .loadUserByUsername(userLogin.getEmail());
-
-                final String token = jwtTokenUtil.generateToken(userDetails);
-
+//    public ResponseEntity loginDTO( UserLoginDTO userLogin) throws  Exception {
+//        if (usersRepository.existsByEmail(userLogin.getEmail())) {
+//            User user = usersRepository.findByEmail(userLogin.getEmail());
+//            if (argon2.matches(userLogin.getPassword(), user.getPassword())) {
+//                authenticate(userLogin.getEmail() , userLogin.getPassword());
+////                authenticate(userLogin.getEmail(), userLogin.getPassword());
+//
+//                final UserDetails userDetails = userDetailsService
+//                        .loadUserByUsername(userLogin.getEmail());
+//
+//                final String token = jwtTokenUtil.generateToken(userDetails);
+//
+////                return ResponseEntity.ok(new JwtResponse(token));
 //                return ResponseEntity.ok(new JwtResponse(token));
-                return ResponseEntity.ok(new JwtResponse(token));
-//                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
-            } else {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
-            }
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
-        }
-    }
-
-    private void authenticate(String email, String password) throws Exception {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
-    }
+////                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
+//            } else {
+//                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
+//            }
+//        } else {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
+//        }
+//    }
+//
+//    private void authenticate(String email, String password) throws Exception {
+//        try {
+//            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+//        } catch (DisabledException e) {
+//            throw new Exception("USER_DISABLED", e);
+//        } catch (BadCredentialsException e) {
+//            throw new Exception("INVALID_CREDENTIALS", e);
+//        }
+//    }
 }
 

@@ -4,8 +4,14 @@ import { useRouter } from 'vue-router'
 import ListCategory from '../components/ListCateComponent.vue'
 
 const categories = ref([])
+const author = localStorage.getItem('token')
 const getCategory = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${author}`
+		}
+	})
 	if (res.status === 200) {
 		categories.value = await res.json()
 		console.log(categories.value)

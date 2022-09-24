@@ -6,8 +6,14 @@ import UpdateSuccessModal from './UpdateSuccessModal.vue'
 import DeleteSuccessModal from './DeleteSuccessModal.vue'
 import ConfirmDeleteUserModal from './ConfirmDeleteUserModal.vue'
 const users = ref([])
+const author = localStorage.getItem('token')
 const getUsers = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${author}`
+		}
+	})
 	if (res.status === 200) {
 		users.value = await res.json()
 	} else {
@@ -169,7 +175,10 @@ const deleteUsers = async () => {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/users/${selectedUser.value}`,
 			{
-				method: 'DELETE'
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${author}`
+				}
 			}
 		)
 		if (res.status == 200) {
@@ -232,7 +241,8 @@ const updateUsersfetch = async (id) => {
 		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/${id}`, {
 			method: 'PUT',
 			headers: {
-				'content-type': 'application/json'
+				'content-type': 'application/json',
+				Authorization: `Bearer ${author}`
 			},
 			body: JSON.stringify({
 				name: editingUserName.value.trim(),
@@ -309,20 +319,33 @@ const clearInput = () => {
 	editUserMode.value = false
 }
 
-let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+let monthNames = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'Jun',
+	'Jul',
+	'Aug',
+	'Sep',
+	'Oct',
+	'Nov',
+	'Dec'
+]
 const extractDate = (date) => {
-//  console.log(date);
- const d = new Date(date + " UTC")
-//  console.log(d);
- return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+	//  console.log(date);
+	const d = new Date(date + ' UTC')
+	//  console.log(d);
+	return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`
 }
 const extractTime = (time) => {
- const t = new Date(time + " UTC")
- const minute = computed(() =>{
-  if (t.getMinutes() <10) return "0" + t.getMinutes();
-  else return t.getMinutes();
- });
- return `${t.getHours()}:${minute.value} น.`
+	const t = new Date(time + ' UTC')
+	const minute = computed(() => {
+		if (t.getMinutes() < 10) return '0' + t.getMinutes()
+		else return t.getMinutes()
+	})
+	return `${t.getHours()}:${minute.value} น.`
 }
 </script>
 
@@ -490,8 +513,12 @@ const extractTime = (time) => {
 							<td>{{ user.name }}</td>
 							<td>{{ user.email }}</td>
 							<td>{{ user.role }}</td>
-							<td>{{ extractDate(user.createdOn) }} {{extractTime(user.createdOn)}}</td>
-							<td>{{ extractDate(user.updatedOn) }} {{extractTime(user.updatedOn)}}</td>
+							<td>
+								{{ extractDate(user.createdOn) }} {{ extractTime(user.createdOn) }}
+							</td>
+							<td>
+								{{ extractDate(user.updatedOn) }} {{ extractTime(user.updatedOn) }}
+							</td>
 
 							<td>
 								<button

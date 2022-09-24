@@ -6,8 +6,8 @@ const userPass = ref('')
 const validateMsg = ref('')
 const isPasswordMatch = ref(false)
 const isInvalidEmail = ref(false)
+let token = ref()
 const fetchMatchPass = async () => {
-	console.log(typeof userEmail.value)
 	if (userEmail.value === '' || userPass.value === '') {
 		isInvalidEmail.value = true
 		validateMsg.value = 'Please fill out both fields.'
@@ -42,6 +42,8 @@ const fetchMatchPass = async () => {
 			userEmail.value = ''
 			userPass.value = ''
 			validateMsg.value = ''
+			token.value = await res.json()
+			saveLocal()
 		} else if (res.status === 401) {
 			isPasswordMatch.value = false
 			validateMsg.value = 'Password Incorrect'
@@ -52,6 +54,9 @@ const fetchMatchPass = async () => {
 			validateMsg.value = ''
 		}
 	}
+}
+const saveLocal = () => {
+	localStorage.setItem('token', `${token.value.accessToken}`)
 }
 const togglePassMatch = () => {
 	if (isPasswordMatch.value === true) {
