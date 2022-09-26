@@ -55,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                การดักเข้าได้เฉพาะ login
                 .authorizeRequests().antMatchers("/api/login","/api/users/signup").permitAll().
                 // all other requests need to be authenticated
-                        anyRequest().authenticated().and().
+                        anyRequest().permitAll().and().
                 // make sure we use stateless session; session won't be used to
                 // store user's state.
                         exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
