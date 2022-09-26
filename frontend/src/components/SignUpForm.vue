@@ -130,7 +130,7 @@ const isAddSuccess = ref(false)
 const fetchAddUser = async (newUser) => {
 	if (validInput.value) {
 		//ใช้ตัวแปร env แทนการเขียน path
-		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
+		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/signup`, {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json',
