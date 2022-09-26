@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue'
+import { ref } from 'vue'
 import PasswordMatchModal from './PasswordMatchModal.vue'
 const userEmail = ref('')
 const userPass = ref('')
@@ -7,7 +7,6 @@ const validateMsg = ref('')
 const isPasswordMatch = ref(false)
 const isInvalidEmail = ref(false)
 let token = ref()
-
 const fetchMatchPass = async () => {
 	if (userEmail.value === '' || userPass.value === '') {
 		isInvalidEmail.value = true
@@ -57,10 +56,8 @@ const fetchMatchPass = async () => {
 	}
 }
 const saveLocal = () => {
-	localStorage.setItem('token', `${token.value.accessToken}`),
-		localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	localStorage.setItem('token', `${token.value.accessToken}`)
 }
-
 const togglePassMatch = () => {
 	if (isPasswordMatch.value === true) {
 		isPasswordMatch.value = false

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeMount, computed, onUpdated, onUnmounted } from 'vue'
+import { ref, onBeforeMount, computed } from 'vue'
 
 function toggleMenu() {
 	const nav = document.querySelector('.nav-container')
@@ -123,9 +123,16 @@ a:hover {
 	border-radius: 10px;
 	padding: 10px 0px;
 }
+.menu:hover {
+	/* background-color: rgba(255, 255, 255, 0.2); */
+}
 
 .navMenu {
 	color: white;
+}
+
+.navMenu:hover {
+	/* background-color: rgba(255, 255, 255, 0.2); */
 }
 
 .selectcategory {
@@ -190,11 +197,6 @@ li {
 }
 #menu-home {
 	display: none;
-}
-header {
-	display: flex;
-}
-.signOut-btn {
 }
 @media screen and (max-width: 1024px) {
 	html,
