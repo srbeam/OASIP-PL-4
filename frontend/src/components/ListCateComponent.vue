@@ -171,9 +171,9 @@ const goSuccess = () => appRouter.go(0)
 		<div id="category-container">
 			<div class="category-box" v-for="category in categories">
 				<!-- <div
-						class="category-box flex flex-row items-center rounded-xl"
-						v-for="category in categories"
-					> -->
+							class="category-box flex flex-row items-center rounded-xl"
+							v-for="category in categories"
+						> -->
 				<div class="img-area">
 					<img src="../assets/images/category.png" />
 				</div>

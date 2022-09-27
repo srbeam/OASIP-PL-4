@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import PasswordMatchModal from './PasswordMatchModal.vue'
 const userEmail = ref('')
 const userPass = ref('')
@@ -7,6 +7,7 @@ const validateMsg = ref('')
 const isPasswordMatch = ref(false)
 const isInvalidEmail = ref(false)
 let token = ref()
+
 const fetchMatchPass = async () => {
 	if (userEmail.value === '' || userPass.value === '') {
 		isInvalidEmail.value = true
@@ -56,8 +57,10 @@ const fetchMatchPass = async () => {
 	}
 }
 const saveLocal = () => {
-	localStorage.setItem('token', `${token.value.accessToken}`)
+	localStorage.setItem('token', `${token.value.accessToken}`),
+		localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
 }
+
 const togglePassMatch = () => {
 	if (isPasswordMatch.value === true) {
 		isPasswordMatch.value = false
@@ -137,13 +140,13 @@ const checklengthPass = () => {
 								</div>
 
 								<!-- <router-link :to="{ name: 'Page', params: { page: 1 } }">
-											<div>
-												<button class="text-white btn btn-primary">Sign In</button>
-												<button class="text-white btn btn-primary" id="getstart">
-													Get Start !
-												</button>
-											</div>
-										</router-link> -->
+												<div>
+													<button class="text-white btn btn-primary">Sign In</button>
+													<button class="text-white btn btn-primary" id="getstart">
+														Get Start !
+													</button>
+												</div>
+											</router-link> -->
 							</div>
 							<div id="go-to-signUp">
 								<p>

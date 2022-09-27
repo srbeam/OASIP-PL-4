@@ -130,7 +130,7 @@ const isAddSuccess = ref(false)
 const fetchAddUser = async (newUser) => {
 	if (validInput.value) {
 		//ใช้ตัวแปร env แทนการเขียน path
-		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
+		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/signup`, {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json',
@@ -331,18 +331,18 @@ const validateMatchPass = () => {
 										Sign Up
 									</button>
 									<!-- <button class="text-white btn btn-primary" id="getstart">
-								Get Start !
-							</button> -->
+									Get Start !
+								</button> -->
 								</div>
 
 								<!-- <router-link :to="{ name: 'Page', params: { page: 1 } }">
-											<div>
-												<button class="text-white btn btn-primary" @click="addUser">
-													Sign Up
-												</button>
-												
-											</div>
-										</router-link> -->
+												<div>
+													<button class="text-white btn btn-primary" @click="addUser">
+														Sign Up
+													</button>
+													
+												</div>
+											</router-link> -->
 							</div>
 							<div id="go-to-signIn">
 								<p>

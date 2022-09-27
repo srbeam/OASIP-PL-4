@@ -29,17 +29,17 @@ onBeforeMount(async () => {
 
 <style scoped>
 /* img {
-	  padding: 5%;
-	  margin: 5%;
-	  border: 0.2em solid white;
-	  border-radius: 4%;
-	} */
+		  padding: 5%;
+		  margin: 5%;
+		  border: 0.2em solid white;
+		  border-radius: 4%;
+		} */
 
 /* img:hover {
-	  border: 0.2em solid white;
-	  border-radius: 4%;
-	  background-color: rgba(255, 255, 255, 0.3);
-	} */
+		  border: 0.2em solid white;
+		  border-radius: 4%;
+		  background-color: rgba(255, 255, 255, 0.3);
+		} */
 
 .category-box {
 	background-color: rgba(255, 255, 255, 0.5);

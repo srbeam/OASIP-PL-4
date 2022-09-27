@@ -5,8 +5,11 @@ import AddSuccessModal from './AddSuccessModal.vue'
 import UpdateSuccessModal from './UpdateSuccessModal.vue'
 import DeleteSuccessModal from './DeleteSuccessModal.vue'
 import ConfirmDeleteUserModal from './ConfirmDeleteUserModal.vue'
+import NoLoginModal from './NoLoginModal.vue'
 const users = ref([])
-const author = localStorage.getItem('token')
+let author = localStorage.getItem('token')
+let refreshToken = localStorage.getItem('refreshToken')
+const token = ref()
 const getUsers = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
 		method: 'GET',
@@ -16,6 +19,8 @@ const getUsers = async () => {
 	})
 	if (res.status === 200) {
 		users.value = await res.json()
+	} else if (res.status == 401) {
+		getRefreshToken()
 	} else {
 		console.log('Error,cannot get events from backend')
 	}
@@ -24,6 +29,27 @@ onBeforeMount(async () => {
 	await getUsers()
 })
 
+const getRefreshToken = async () => {
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${refreshToken}`
+		}
+	})
+	if (res.status === 200) {
+		is401.value = false
+		token.value = await res.json()
+		saveLocal()
+	} else if (res.status === 401) {
+		is401.value = true
+	} else {
+		console.log('Error,cannot get refresh token from backend')
+	}
+}
+const saveLocal = () => {
+	localStorage.setItem('token', `${token.value.accessToken}`)
+	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+}
 const userName = ref('')
 const userEmail = ref('')
 const userRole = ref('student')
@@ -191,6 +217,11 @@ const deleteUsers = async () => {
 			isDeleteSuccess.value = true
 			setTimeout(toggleDeleteSuccess, 3000)
 			getUsers()
+		} else if (res.status === 401) {
+			getRefreshToken()
+			isChooseConfirm.value = true
+			isShowConfirm.value = false
+			isDeleteSuccess.value = false
 		} else {
 			console.log('Error!! Can not delete this user.')
 		}
@@ -259,7 +290,11 @@ const updateUsersfetch = async (id) => {
 			editingUserEmail.value = ''
 			editingUserRole.value = ''
 			editUserMode.value = false
-		} else console.log('error, cannot be added')
+		} else if (res.status === 401) {
+			getRefreshToken()
+		} else {
+			console.log('error, cannot be added')
+		}
 	}
 }
 const isUpdateSuccess = ref(false)
@@ -347,10 +382,17 @@ const extractTime = (time) => {
 	})
 	return `${t.getHours()}:${minute.value} น.`
 }
+const is401 = ref()
+const signOut = () => {
+	localStorage.clear()
+	author = ''
+	refreshToken = ''
+}
 </script>
 
 <template>
 	<div>
+		<NoLoginModal v-if="is401" />
 		<div class="all-user-container">
 			<div id="insertBar">
 				<div>
@@ -413,59 +455,59 @@ const extractTime = (time) => {
 							</div>
 						</div>
 						<!-- <div id="add-user-mode" v-else class="flex">
-									<label>Name :</label>
-									<div class="nameInput">
-										<input
-											type="text"
-											placeholder="Type you name here..."
-											class="rounded-md w-90 text-black"
-											v-model="userName"
-											maxlength="100"
-										/>
-										<p
-											v-show="nameIsNull === true && isDupplicateName === false"
-											class="error"
-										>
-											{{ nameIsNullMsg }}
-										</p>
-										<p
-											v-show="nameIsNull === false && isDupplicateName === true"
-											class="error"
-										>
-											{{ dupplicateNameMsg }}
-										</p>
-									</div>
-									<div class="emailInput">
-										<label>Email :</label>
-										<input
-											type="text"
-											placeholder="Type you email here..."
-											class="rounded-md w-90 text-black"
-											v-model="userEmail"
-											maxlength="50"
-										/>
-										<p v-show="emailIsNull === true" class="error">
-											{{ emailNullMsg }}
-										</p>
-										<p v-show="isInvalidEmail === true" class="error">
-											{{ emailNotValidMsg }}
-										</p>
-										<p v-show="isDupplicateEmail === true" class="error">
-											{{ dupplicateEmailMsg }}
-										</p>
-									</div>
-									<div class="roleInput">
-										<label>Role :</label>
-										<select
-											class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
-											v-model="userRole"
-										>
-											<option value="student" selected>Student</option>
-											<option value="admin">Admin</option>
-											<option value="lecturer">Lecturer</option>
-										</select>
-									</div>
-								</div> -->
+										<label>Name :</label>
+										<div class="nameInput">
+											<input
+												type="text"
+												placeholder="Type you name here..."
+												class="rounded-md w-90 text-black"
+												v-model="userName"
+												maxlength="100"
+											/>
+											<p
+												v-show="nameIsNull === true && isDupplicateName === false"
+												class="error"
+											>
+												{{ nameIsNullMsg }}
+											</p>
+											<p
+												v-show="nameIsNull === false && isDupplicateName === true"
+												class="error"
+											>
+												{{ dupplicateNameMsg }}
+											</p>
+										</div>
+										<div class="emailInput">
+											<label>Email :</label>
+											<input
+												type="text"
+												placeholder="Type you email here..."
+												class="rounded-md w-90 text-black"
+												v-model="userEmail"
+												maxlength="50"
+											/>
+											<p v-show="emailIsNull === true" class="error">
+												{{ emailNullMsg }}
+											</p>
+											<p v-show="isInvalidEmail === true" class="error">
+												{{ emailNotValidMsg }}
+											</p>
+											<p v-show="isDupplicateEmail === true" class="error">
+												{{ dupplicateEmailMsg }}
+											</p>
+										</div>
+										<div class="roleInput">
+											<label>Role :</label>
+											<select
+												class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
+												v-model="userRole"
+											>
+												<option value="student" selected>Student</option>
+												<option value="admin">Admin</option>
+												<option value="lecturer">Lecturer</option>
+											</select>
+										</div>
+									</div> -->
 
 						<div id="buttonsearch" v-if="editUserMode">
 							<button
@@ -481,12 +523,12 @@ const extractTime = (time) => {
 								Cancel
 							</button>
 							<!-- <button
-										class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
-										@click="addUser"
-										v-if="editUserMode === false"
-									>
-										Add
-									</button> -->
+											class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
+											@click="addUser"
+											v-if="editUserMode === false"
+										>
+											Add
+										</button> -->
 						</div>
 					</div>
 				</div>
@@ -542,6 +584,14 @@ const extractTime = (time) => {
 					</tbody>
 				</table>
 			</div>
+			<router-link class="signOut-btn" :to="{ name: 'Home' }">
+				<button
+					class="bg-gray-200 hover:bg-gray-100 p-2 px-3 rounded-md text-black"
+					@click="signOut"
+				>
+					Sign Out
+				</button>
+			</router-link>
 			<AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
 			<UpdateSuccessModal v-if="isUpdateSuccess === true" />
 			<ConfirmDeleteUserModal
@@ -601,7 +651,10 @@ input {
 	margin-right: 10px;
 	color: red;
 }
+.signOut-btn:hover {
+	padding: 0;
+}
 /* label {
-		 align-self: center;
-		} */
+			 align-self: center;
+			} */
 </style>
