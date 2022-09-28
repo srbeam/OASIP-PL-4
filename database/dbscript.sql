@@ -74,6 +74,7 @@ insert into users(name,email,password,role,createdOn,updatedOn) value('OASIP ADM
 insert into users(name,email,password,role,createdOn,updatedOn) value('Somchai Jaidee','somchai.jai@kmutt.ac.th','somchaijai','lecturer','2022-08-08 15:00:00+07:00','2022-08-08 15:00:00+07:00');
 insert into users(name,email,password,role,createdOn,updatedOn) value('Komkrid Rakdee','komkrid.rak@mail.kmutt.ac.th','komkridrak','student','2022-08-08 15:00:01+07:00','2022-08-08 15:00:01+07:00');
 insert into users(name,email,password,role,createdOn,updatedOn) value('สมเกียรติ ขยันเรียน','somkiat.kay@kmutt.ac.th','somkiat.kay','student','2022-08-16 09:00:00+07:00','2022-08-16 09:00:00+07:00');
+insert into users(name,email,password,role) value ("admin","admin@gmail.com","$argon2id$v=19$m=16,t=2,p=1$o96rj2zPHrhw23uhdp3ElQ$lyQNNVpjVNeGkiyhV+s1LZ2csivQ/wsTTuPyneo","admin");
 commit;
 
 create user 'admin222'@'%' identified by 'admin222';

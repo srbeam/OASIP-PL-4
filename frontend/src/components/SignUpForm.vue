@@ -3,22 +3,22 @@ import { ref, onBeforeMount, computed } from 'vue'
 import AddSuccessModal from './AddSuccessModal.vue'
 const users = ref([])
 const author = localStorage.getItem('token')
-const getUsers = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${author}`
-		}
-	})
-	if (res.status === 200) {
-		users.value = await res.json()
-	} else {
-		console.log('Error,cannot get events from backend')
-	}
-}
-onBeforeMount(async () => {
-	await getUsers()
-})
+// const getUsers = async () => {
+// 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
+// 		method: 'GET',
+// 		headers: {
+// 			Authorization: `Bearer ${author}`
+// 		}
+// 	})
+// 	if (res.status === 200) {
+// 		users.value = await res.json()
+// 	} else {
+// 		console.log('Error,cannot get events from backend')
+// 	}
+// }
+// onBeforeMount(async () => {
+// 	await getUsers()
+// })
 const userName = ref('')
 const userEmail = ref('')
 const userPass = ref('')
@@ -39,24 +39,24 @@ const isDupplicateEmail = ref(false)
 const dupplicateNameMsg = ref(' This name is already use')
 const dupplicateEmailMsg = ref(' This email is already use')
 
-const checkDupplicateName = (name) => {
-	if (users.value.length <= 0) {
-		isDupplicateName.value = false
-	} else {
-		isDupplicateName.value = users.value.some(
-			(u) => u.name.toLowerCase() == name.toLowerCase()
-		)
-	}
-}
-const checkDupplicateEmail = (email) => {
-	if (users.value.length <= 0) {
-		isDupplicateEmail.value = false
-	} else {
-		isDupplicateEmail.value = users.value.some(
-			(u) => u.email.toLowerCase() == email.toLowerCase()
-		)
-	}
-}
+// const checkDupplicateName = (name) => {
+// 	if (users.value.length <= 0) {
+// 		isDupplicateName.value = false
+// 	} else {
+// 		isDupplicateName.value = users.value.some(
+// 			(u) => u.name.toLowerCase() == name.toLowerCase()
+// 		)
+// 	}
+// }
+// const checkDupplicateEmail = (email) => {
+// 	if (users.value.length <= 0) {
+// 		isDupplicateEmail.value = false
+// 	} else {
+// 		isDupplicateEmail.value = users.value.some(
+// 			(u) => u.email.toLowerCase() == email.toLowerCase()
+// 		)
+// 	}
+// }
 const passIsNull = ref(false)
 const confirmPassIsNull = ref(false)
 const addUser = () => {
@@ -64,15 +64,17 @@ const addUser = () => {
 		nameIsNull.value = true
 		validInput.value = false
 		isDupplicateName.value = false
+		isNotUniqe.value = false
 	} else {
 		nameIsNull.value = false
 		validInput.value = true
 		isDupplicateName.value = false
-		checkDupplicateName(userName.value)
+		// checkDupplicateName(userName.value)
 	}
 	if (userPass.value == '') {
 		passIsNull.value = true
 		validInput.value = false
+		isNotUniqe.value = false
 	} else {
 		passIsNull.value = false
 		validInput.value = true
@@ -81,6 +83,7 @@ const addUser = () => {
 	if (confirmUserPass.value == '') {
 		confirmPassIsNull.value = true
 		validInput.value = false
+		isNotUniqe.value = false
 	} else {
 		confirmPassIsNull.value = false
 		validInput.value = true
@@ -92,25 +95,25 @@ const addUser = () => {
 		isInvalidEmail.value = false
 		isDupplicateEmail.value = false
 		validInput.value = false
+		isNotUniqe.value = false
 	} else if (!validateEmail(userEmail.value.trim())) {
 		isInvalidEmail.value = true
 		emailIsNull.value = false
 		isDupplicateEmail.value = false
 		validInput.value = false
+		isNotUniqe.value = false
 	} else {
 		emailIsNull.value = false
 		isInvalidEmail.value = false
 		validInput.value = true
 		isDupplicateEmail.value = false
 	}
-	checkDupplicateEmail(userEmail.value)
+	// checkDupplicateEmail(userEmail.value)
 	validateMatchPass()
 	if (
 		nameIsNull.value === false &&
-		isDupplicateName.value === false &&
 		emailIsNull.value === false &&
 		isInvalidEmail.value === false &&
-		isDupplicateEmail.value === false &&
 		passIsNull.value === false &&
 		confirmPassIsNull.value === false &&
 		passLengthNotValid.value === false &&
@@ -126,8 +129,10 @@ const addUser = () => {
 		fetchAddUser(newUser)
 	}
 }
+const isNotUniqe = ref(false)
 const isAddSuccess = ref(false)
 const fetchAddUser = async (newUser) => {
+	isNotUniqe.value = false
 	if (validInput.value) {
 		//ใช้ตัวแปร env แทนการเขียน path
 		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/signup`, {
@@ -143,7 +148,7 @@ const fetchAddUser = async (newUser) => {
 		if (res.status === 200) {
 			console.log('added sucessfully')
 			console.log(res)
-			getUsers()
+			// getUsers()
 			validInput.value = false
 			isAddSuccess.value = true
 
@@ -154,13 +159,16 @@ const fetchAddUser = async (newUser) => {
 			userPass.value = ''
 			confirmUserPass.value = ''
 			userRole.value = 'student'
+			isNotUniqe.value = false
+		} else if (res.status === 400) {
+			isNotUniqe.value = true
 		} else console.log('error, cannot be added')
 	}
 }
 const toggleAddSuccess = () => {
 	if (isAddSuccess.value === true) {
 		isAddSuccess.value = false
-		getUsers()
+		// getUsers()
 	} else {
 		isAddSuccess.value = true
 	}
@@ -325,24 +333,27 @@ const validateMatchPass = () => {
 							</select>
 						</div>
 						<div class="btn-area">
+							<p class="error" v-if="isNotUniqe && validInput">
+								This name or email is already use
+							</p>
 							<div>
 								<div>
 									<button class="text-white btn btn-primary" @click="addUser">
 										Sign Up
 									</button>
 									<!-- <button class="text-white btn btn-primary" id="getstart">
-									Get Start !
-								</button> -->
+										Get Start !
+									</button> -->
 								</div>
 
 								<!-- <router-link :to="{ name: 'Page', params: { page: 1 } }">
-												<div>
-													<button class="text-white btn btn-primary" @click="addUser">
-														Sign Up
-													</button>
-													
-												</div>
-											</router-link> -->
+													<div>
+														<button class="text-white btn btn-primary" @click="addUser">
+															Sign Up
+														</button>
+														
+													</div>
+												</router-link> -->
 							</div>
 							<div id="go-to-signIn">
 								<p>
@@ -360,6 +371,11 @@ const validateMatchPass = () => {
 </template>
 
 <style scoped>
+.error {
+	color: red;
+	margin: 0;
+	text-align: left;
+}
 #home {
 	background-color: rgb(255, 255, 255, 0);
 	color: black;
