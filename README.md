@@ -10,4 +10,4 @@ This projects is integrated project between sophomore and junior.
 - MySQL (Database)
 - Docker (Infrastructure)
 
-website: [OASIP](https://intproj21.sit.kmutt.ac.th/pl4/listalluser)
+website: [OASIP](https://intproj21.sit.kmutt.ac.th/pl4/)
