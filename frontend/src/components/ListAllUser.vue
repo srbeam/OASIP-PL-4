@@ -584,13 +584,14 @@ const signOut = () => {
 					</tbody>
 				</table>
 			</div>
-			<router-link class="signOut-btn" :to="{ name: 'Home' }">
+			<!-- <router-link class="signOut-btn" :to="{ name: 'Home' }">
+				<div class="logout">
 				<button
-					class="bg-gray-200 hover:bg-gray-100 p-2 px-3 rounded-md text-black"
-					@click="signOut"
+					class="btn btn-warning rounded-md text-black"
+					@click="SIGNOUT"
 				>
 					Sign Out
-				</button>
+				</button></div>
 			</router-link>
 			<AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
 			<UpdateSuccessModal v-if="isUpdateSuccess === true" />
@@ -599,7 +600,7 @@ const signOut = () => {
 				@closeModal="closeConfirmModal"
 				v-if="isShowConfirm"
 			/>
-			<DeleteSuccessModal v-if="isDeleteSuccess === true" />
+			<DeleteSuccessModal v-if="isDeleteSuccess === true" /> -->
 		</div>
 	</div>
 </template>
@@ -653,6 +654,9 @@ input {
 }
 .signOut-btn:hover {
 	padding: 0;
+}
+.logout{
+	margin-top: -200px;
 }
 /* label {
 			 align-self: center;

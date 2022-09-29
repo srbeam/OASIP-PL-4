@@ -59,6 +59,16 @@ function toggleMenu() {
 						<router-link :to="{ name: 'AboutUs' }">
 							<button class="menu">About Us</button>
 						</router-link>
+						<router-link :to="{ name: 'Home' }">
+							<button class="menu btn btn-warning rounded-md text-black">SignOut</button>
+						</router-link>
+						<AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
+						<UpdateSuccessModal v-if="isUpdateSuccess === true" />
+						<ConfirmDeleteUserModal
+						@confirm="deleteUsers"
+						@closeModal="closeConfirmModal"
+						v-if="isShowConfirm"/>
+						<DeleteSuccessModal v-if="isDeleteSuccess === true" />
 					</div>
 				</div>
 			</nav>
@@ -106,14 +116,18 @@ body {
 	padding-top: 0.3%;
 }
 #navBar {
-	width: 80%;
+	width: 100%;
+}
+.logout{
+	margin-left: 1400px;
+	margin-top: -60px;
 }
 .nav-container-grid {
 	display: grid;
-	grid-template-columns: 250px auto auto auto auto auto auto;
+	grid-template-columns:250px 80px 150px 100px 150px 150px 150px 100px;
 	text-align: center;
 	align-items: center;
-	grid-gap: 15px;
+	grid-gap: 5px; 
 }
 .menu {
 	color: white;
@@ -139,7 +153,7 @@ a:hover {
 }
 
 #button {
-	size: 5px;
+	size: 2px;
 }
 
 ul {
