@@ -55,6 +55,8 @@ const save = () => {
 	}
 }
 const author = localStorage.getItem('token')
+let refreshToken = localStorage.getItem('refreshToken')
+const token = ref()
 const editCategory = async () => {
 	const res = await fetch(
 		`${import.meta.env.VITE_BACK_URL}/categories/${currentEdit.value.id}`,
@@ -75,9 +77,31 @@ const editCategory = async () => {
 		console.log('edited successfully')
 		// cancelEdit()
 		goSuccess()
+	} else if (res.status == 401) {
+		getRefreshToken()
 	} else console.log('error, cannot be added')
 }
-
+const getRefreshToken = async () => {
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${refreshToken}`
+		}
+	})
+	if (res.status === 200) {
+		is401.value = false
+		token.value = await res.json()
+		saveLocal()
+	} else if (res.status === 401) {
+		is401.value = true
+	} else {
+		console.log('Error,cannot get refresh token from backend')
+	}
+}
+const saveLocal = () => {
+	localStorage.setItem('token', `${token.value.accessToken}`)
+	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+}
 const validateDuration = (duration) => {
 	return duration <= 480 && duration >= 1
 }
@@ -175,12 +199,14 @@ const goSuccess = () => appRouter.go(0)
 							v-for="category in categories"
 						> -->
 				<div class="img-area">
-					<img src="../assets/images/category.png" />
+					<img src="../assets/images/briefcase.png" />
 				</div>
 				<div class="content">
-					<div class="">
-						<p class="text-4xl mb-2">{{ category.eventCategoryName }}</p>
-						<p>Description : {{ category.eventCategoryDescription }}</p>
+					<div>
+						<p class="categoryName">{{ category.eventCategoryName }}</p>
+						<p class="cateDesc">
+							Description : {{ category.eventCategoryDescription }}
+						</p>
 						<span
 							id="duration"
 							class="rounded-full w-44 h-7 p-1 px-3 text-black text-sm"
@@ -214,18 +240,22 @@ const goSuccess = () => appRouter.go(0)
 
 <style scoped>
 #category-container {
-	padding: 0 8% 4% 8%;
+	padding: 3% 15%;
+	display: grid;
+	grid-row-gap: 30px;
 }
 .category-box {
-	background-color: rgba(255, 255, 255, 0.5);
+	/* background-color: rgba(255, 255, 255, 0.5); */
 	/* width: 150%; */
 	/* height: 12em; */
 	color: #383838;
 	/* margin-left: 20%; */
-	margin-top: 3%;
+	/* margin-top: 3%; */
 	padding: 2.5%;
 	display: flex;
 	border-radius: 10px;
+	border: 1px solid lightgrey;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 .img-area {
 	/* background-color: red; */
@@ -292,6 +322,11 @@ textarea {
 	background-color: rgba(220, 220, 220, 0.4);
 	padding: 1.5%;
 	font-size: 0.9em;
+}
+.categoryName {
+	color: #495ab6;
+	font-size: 36px;
+	margin: 0;
 }
 
 @media screen and (max-width: 768px) {

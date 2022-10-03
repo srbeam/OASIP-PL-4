@@ -6,6 +6,7 @@ import UpdateSuccessModal from './UpdateSuccessModal.vue'
 import DeleteSuccessModal from './DeleteSuccessModal.vue'
 import ConfirmDeleteUserModal from './ConfirmDeleteUserModal.vue'
 import NoLoginModal from './NoLoginModal.vue'
+import ForAdminModal from './ForAdminModal.vue'
 const users = ref([])
 let author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
@@ -21,6 +22,8 @@ const getUsers = async () => {
 		users.value = await res.json()
 	} else if (res.status == 401) {
 		getRefreshToken()
+	} else if (res.status === 403) {
+		is403.value = true
 	} else {
 		console.log('Error,cannot get events from backend')
 	}
@@ -383,6 +386,7 @@ const extractTime = (time) => {
 	return `${t.getHours()}:${minute.value} น.`
 }
 const is401 = ref()
+const is403 = ref()
 const signOut = () => {
 	localStorage.clear()
 	author = ''
@@ -393,13 +397,14 @@ const signOut = () => {
 <template>
 	<div>
 		<NoLoginModal v-if="is401" />
+		<ForAdminModal v-if="is403" />
 		<div class="all-user-container">
 			<div id="insertBar">
-				<div>
+				<div class="bar">
 					<div class="flex mb-4">
 						<div id="edit-user-mode" v-if="editUserMode" class="flex">
-							<label>Name :</label>
 							<div class="nameInput">
+								<label class="name-label">Name :</label>
 								<input
 									type="text"
 									placeholder="Type you name here..."
@@ -454,60 +459,6 @@ const signOut = () => {
 								</select>
 							</div>
 						</div>
-						<!-- <div id="add-user-mode" v-else class="flex">
-										<label>Name :</label>
-										<div class="nameInput">
-											<input
-												type="text"
-												placeholder="Type you name here..."
-												class="rounded-md w-90 text-black"
-												v-model="userName"
-												maxlength="100"
-											/>
-											<p
-												v-show="nameIsNull === true && isDupplicateName === false"
-												class="error"
-											>
-												{{ nameIsNullMsg }}
-											</p>
-											<p
-												v-show="nameIsNull === false && isDupplicateName === true"
-												class="error"
-											>
-												{{ dupplicateNameMsg }}
-											</p>
-										</div>
-										<div class="emailInput">
-											<label>Email :</label>
-											<input
-												type="text"
-												placeholder="Type you email here..."
-												class="rounded-md w-90 text-black"
-												v-model="userEmail"
-												maxlength="50"
-											/>
-											<p v-show="emailIsNull === true" class="error">
-												{{ emailNullMsg }}
-											</p>
-											<p v-show="isInvalidEmail === true" class="error">
-												{{ emailNotValidMsg }}
-											</p>
-											<p v-show="isDupplicateEmail === true" class="error">
-												{{ dupplicateEmailMsg }}
-											</p>
-										</div>
-										<div class="roleInput">
-											<label>Role :</label>
-											<select
-												class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
-												v-model="userRole"
-											>
-												<option value="student" selected>Student</option>
-												<option value="admin">Admin</option>
-												<option value="lecturer">Lecturer</option>
-											</select>
-										</div>
-									</div> -->
 
 						<div id="buttonsearch" v-if="editUserMode">
 							<button
@@ -522,13 +473,6 @@ const signOut = () => {
 							>
 								Cancel
 							</button>
-							<!-- <button
-											class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
-											@click="addUser"
-											v-if="editUserMode === false"
-										>
-											Add
-										</button> -->
 						</div>
 					</div>
 				</div>
@@ -565,7 +509,7 @@ const signOut = () => {
 							<td>
 								<button
 									type="button"
-									class="btn btn-dark"
+									class="edit-btn"
 									style="opacity: 1; color: white"
 									@click="toEditUserMode(user)"
 								>
@@ -573,7 +517,7 @@ const signOut = () => {
 								>&nbsp;
 								<button
 									type="button"
-									class="btn btn-danger"
+									class="delete-btn"
 									style="opacity: 1; color: white"
 									@click="showConfirmDelete(user.id)"
 								>
@@ -584,23 +528,6 @@ const signOut = () => {
 					</tbody>
 				</table>
 			</div>
-			<!-- <router-link class="signOut-btn" :to="{ name: 'Home' }">
-				<div class="logout">
-				<button
-					class="btn btn-warning rounded-md text-black"
-					@click="SIGNOUT"
-				>
-					Sign Out
-				</button></div>
-			</router-link>
-			<AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
-			<UpdateSuccessModal v-if="isUpdateSuccess === true" />
-			<ConfirmDeleteUserModal
-				@confirm="deleteUsers"
-				@closeModal="closeConfirmModal"
-				v-if="isShowConfirm"
-			/>
-			<DeleteSuccessModal v-if="isDeleteSuccess === true" /> -->
 		</div>
 	</div>
 </template>
@@ -622,7 +549,11 @@ const signOut = () => {
 	padding: 0 5%;
 }
 #insertBar {
-	width: 100%;
+	width: 95%;
+	margin-top: 30px;
+
+	display: flex;
+	justify-content: right;
 }
 input[type='text'],
 select {
@@ -637,15 +568,19 @@ table {
 	width: 100%;
 	text-align: center;
 }
+th {
+	color: #495ab6;
+}
 tr {
-	height: 65px;
+	height: 60px;
 }
 .datas {
-	color: white;
+	color: black;
 }
 label,
 input {
 	margin-right: 10px;
+	margin-top: 0;
 }
 .error {
 	text-align: right;
@@ -655,10 +590,24 @@ input {
 .signOut-btn:hover {
 	padding: 0;
 }
-.logout{
+.logout {
 	margin-top: -200px;
 }
-/* label {
-			 align-self: center;
-			} */
+button {
+	color: white;
+	padding: 5px 10px;
+	border-radius: 5px;
+}
+.edit-btn {
+	background-color: black;
+}
+.delete-btn {
+	background-color: #d9534f;
+}
+label {
+	color: #495ab6;
+}
+input {
+	border: 2px solid lightgray;
+}
 </style>

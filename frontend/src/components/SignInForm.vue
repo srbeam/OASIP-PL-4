@@ -1,13 +1,13 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
 import PasswordMatchModal from './PasswordMatchModal.vue'
+defineEmits(['isHasToken'])
 const userEmail = ref('')
 const userPass = ref('')
 const validateMsg = ref('')
 const isPasswordMatch = ref(false)
 const isInvalidEmail = ref(false)
-let token = ref()
-
+const token = ref()
 const fetchMatchPass = async () => {
 	if (userEmail.value === '' || userPass.value === '') {
 		isInvalidEmail.value = true
@@ -35,9 +35,9 @@ const fetchMatchPass = async () => {
 
 			body: JSON.stringify(user)
 		})
-		console.log(res.status)
+		// console.log(res.status)
 		if (res.status === 200) {
-			console.log('Password Matched')
+			// console.log('Password Matched')
 			isPasswordMatch.value = true
 			setTimeout(togglePassMatch, 3000)
 			userEmail.value = ''
@@ -91,7 +91,7 @@ const checklengthPass = () => {
 	<div>
 		<div id="home">
 			<div id="left">
-				<p id="web-name">bookiing</p>
+				<p id="web-name">BOOKIING</p>
 
 				<p>
 					OASIP-PL4 Website for booking clinics <br />
@@ -168,12 +168,12 @@ const checklengthPass = () => {
 	background-color: rgb(255, 255, 255, 0);
 	color: black;
 	display: flex;
-	padding: 0 13%;
+	padding: 5% 13%;
 	min-height: 575px;
 }
 #left {
 	width: 50%;
-	color: white;
+	color: #495ab6;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -193,31 +193,38 @@ img {
 }
 
 #logIn {
-	background-color: rgba(255, 255, 255, 0.2);
-	color: white;
+	/* background-color: #c7c7c780; */
+	color: #495ab6;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	padding: 20px 0;
-	width: 90%;
+	width: 80%;
 	border-radius: 10px;
-	min-height: 380px;
+	min-height: 480px;
+	border: 1px solid lightgrey;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	font-size: 14px;
 }
 #signIn {
 	width: 80%;
 }
 .input {
-	margin-top: 10px;
+	margin-top: 20px;
 }
 input {
 	width: 100%;
 	padding: 7px 15px;
 	box-sizing: border-box;
-	border: 2px solid white;
+	/* border: 2px solid white; */
 	border-radius: 4px;
 	color: #636363;
+	/* background-color: #ecececa1; */
+	margin-top: 5px;
+	border: 1px solid lightgray;
 }
+
 .btn-area {
 	text-align: center;
 	margin-top: 25px;

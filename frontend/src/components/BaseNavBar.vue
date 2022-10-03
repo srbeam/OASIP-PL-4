@@ -1,28 +1,35 @@
 <script setup>
-import { ref, onBeforeMount, computed, onUpdated, onUnmounted } from 'vue'
-
-function toggleMenu() {
-	const nav = document.querySelector('.nav-container')
-	const hamburger = document.querySelector('.hamburger')
-
-	if (hamburger.classList.contains('change')) {
-		hamburger.classList.remove('change')
-		console.log('close')
-		nav.classList.remove('open')
-		nav.style.display = 'none'
+import { computed } from '@vue/reactivity'
+import {
+	onBeforeMount,
+	onBeforeUnmount,
+	onBeforeUpdate,
+	onUpdated,
+	ref
+} from 'vue'
+const isHasToken = ref()
+const checkToken = () => {
+	if (
+		localStorage.getItem('token') != null ||
+		localStorage.getItem('token') != undefined
+	) {
+		isHasToken.value = true
 	} else {
-		hamburger.classList.add('change')
-		console.log('open')
-		nav.classList.toggle('open')
-		nav.style.display = 'grid'
+		isHasToken.value = false
 	}
+}
+onBeforeMount(async () => {
+	await checkToken()
+})
+
+const signOut = () => {
+	localStorage.clear()
 }
 </script>
 
 <template>
-	<div id="gameWindow">
-		<!-- <div class="flex flex-row"> -->
-		<!-- <header>
+	<div>
+		<header>
 			<nav id="navBar">
 				<div class="hamburger" @click="toggleMenu">
 					<div class="bar1"></div>
@@ -33,62 +40,56 @@ function toggleMenu() {
 				<div class="nav-container">
 					<div class="nav-container-grid">
 						<div id="logo">
-							<router-link :to="{ name: 'Home' }">
-								<img src="./assets/images/background/logo.png" id="logo" />
+							<router-link :to="{ name: 'Home' }" @click="checkToken">
+								<img src="../assets/images/background/logo.png" id="logo" />
 							</router-link>
 						</div>
-						<router-link :to="{ name: 'Home' }" id="menu-home">
-							<button class="menu">Home</button>
-						</router-link>
-						<router-link :to="{ name: 'AddEvent' }">
+						<router-link :to="{ name: 'AddEvent' }" @click="checkToken">
 							<button class="menu">Reserve</button>
 						</router-link>
-						<router-link :to="{ name: 'Page', params: { page: 1 } }">
+						<router-link
+							:to="{ name: 'Page', params: { page: 1 } }"
+							@click="checkToken"
+						>
 							<button class="menu">List All Event</button>
 						</router-link>
-						<router-link :to="{ name: 'Category' }">
+						<router-link :to="{ name: 'Category' }" @click="checkToken">
 							<button class="menu">Category</button>
 						</router-link>
-						<router-link :to="{ name: 'ListByDate' }">
+						<router-link :to="{ name: 'ListByDate' }" @click="checkToken">
 							<button class="menu">List By Date</button>
 						</router-link>
-						<router-link :to="{ name: 'ListUser' }">
+						<router-link :to="{ name: 'ListUser' }" @click="checkToken">
 							<button class="menu">List All Users</button>
 						</router-link>
-						<router-link :to="{ name: 'AboutUs' }">
+						<router-link :to="{ name: 'AboutUs' }" @click="checkToken">
 							<button class="menu">About Us</button>
 						</router-link>
-						<router-link :to="{ name: 'Home' }">
-							<button class="menu btn btn-warning rounded-md text-black">
-								SignOut
-							</button>
-						</router-link>
-						<AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
+						<div id="sign-out-btn" v-if="isHasToken" @click="checkToken">
+							<router-link :to="{ name: 'Home' }">
+								<button class="btn btn-warning rounded-md text-black" @click="signOut">
+									SignOut
+								</button>
+							</router-link>
+						</div>
+
+						<!-- <AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
 						<UpdateSuccessModal v-if="isUpdateSuccess === true" />
 						<ConfirmDeleteUserModal
 							@confirm="deleteUsers"
 							@closeModal="closeConfirmModal"
 							v-if="isShowConfirm"
 						/>
-						<DeleteSuccessModal v-if="isDeleteSuccess === true" />
+						<DeleteSuccessModal v-if="isDeleteSuccess === true" /> -->
 					</div>
 				</div>
 			</nav>
-		</header> -->
-		<div>
-			<div id="content">
-				<div class="body">
-					<!-- <router-view> </router-view> -->
-					<router-view class="router-view" :key="$route.fullPath"> </router-view>
-				</div>
-			</div>
-		</div>
+		</header>
 	</div>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Mitr&display=swap');
-/* .router-link-active {
+.router-link-active {
 	background-color: rgba(255, 255, 255, 0.2);
 	border-radius: 10px;
 	padding: 10px 0px;
@@ -96,42 +97,24 @@ function toggleMenu() {
 
 #logo.router-link-active {
 	background-color: rgba(0, 0, 0, 0);
-} */
-
-#gameWindow {
-	font-family: 'Mitr';
-	font-size: 16px;
-	color: white;
-	overflow: hidden;
-
-	/* background-repeat: no-repeat; */
-	/* background-position: bottom; */
-	/* background-attachment: fixed; */
 }
-
-html,
-body {
-	/* background: url(./assets/images/background/background11.gif); */
-	/* background-size: 100%; */
-	/* background-size: 135%; */
-	/* background-repeat: no-repeat; */
-	/* background-attachment: fixed; */
-	/* padding-top: 0.3%; */
+#sign-out-btn a.router-link-active {
+	padding: 0;
 }
-/* #navBar {
+#sign-out-btn a:hover {
+	background-color: rgba(0, 0, 0, 0);
+}
+#navBar {
 	width: 100%;
-} */
-.logout {
-	margin-left: 1400px;
-	margin-top: -60px;
 }
-/* .nav-container-grid {
+.nav-container-grid {
 	display: grid;
 	grid-template-columns: 250px 80px 150px 100px 150px 150px 150px 100px;
 	text-align: center;
 	align-items: center;
 	grid-gap: 5px;
 }
+
 .menu {
 	color: white;
 }
@@ -143,23 +126,8 @@ a:hover {
 
 .navMenu {
 	color: white;
-} */
-
-.selectcategory {
-	margin-top: 25px;
 }
-#addhome {
-	color: #383838;
-}
-#option {
-	color: #383838;
-}
-
-#button {
-	size: 2px;
-}
-
-/* ul {
+ul {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
@@ -178,7 +146,8 @@ li {
 .bar3 {
 	width: 35px;
 	height: 5px;
-	background-color: #232323;
+	/* background-color: #232323; */
+	background-color: white;
 	margin: 6px 20px;
 	transition: 0.4s;
 	border-radius: 10px;
@@ -210,14 +179,10 @@ li {
 }
 header {
 	display: flex;
-} */
-.signOut-btn {
+	background-color: #495ab6;
 }
+
 @media screen and (max-width: 1024px) {
-	html,
-	body {
-		/* background-size: 150%; */
-	}
 	#navBar {
 		width: 100%;
 		padding: 0 20px 0 0;
@@ -227,14 +192,10 @@ header {
 	}
 }
 @media screen and (max-width: 768px) {
-	html,
-	body {
-		/* background: none; */
-		padding-top: 0;
-	}
 	header {
 		height: auto;
 		padding: 0;
+		padding-bottom: 20px;
 	}
 	.hamburger {
 		display: inline-block;
@@ -272,13 +233,7 @@ header {
 
 		justify-content: center;
 	}
-	.body {
-		/* background: url(./assets/images/background/background11.gif); */
-		/* background-size: cover; */
-		/* background-repeat: no-repeat; */
-		/* background-attachment: fixed; */
-		/* padding-top: 0.3%; */
-	}
+
 	#logo {
 		display: none;
 	}

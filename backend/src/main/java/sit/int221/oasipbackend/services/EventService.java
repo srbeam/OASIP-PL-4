@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
+import sit.int221.oasipbackend.config.JwtTokenUtil;
 import sit.int221.oasipbackend.dtos.*;
 import sit.int221.oasipbackend.entities.Event;
 import sit.int221.oasipbackend.entities.EventCategory;
@@ -16,6 +18,7 @@ import sit.int221.oasipbackend.repositories.EventCategoryRepository;
 import sit.int221.oasipbackend.repositories.EventRepository;
 import sit.int221.oasipbackend.utils.ListMapper;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,23 +27,27 @@ import java.util.regex.Pattern;
 @Service
 public class EventService {
     @Autowired
-    private EventRepository eventRepository;
-
-
-    @Autowired
-    private EventCategoryRepository eventCategoryRepository;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
     private ListMapper listMapper;
 
-    public List<SimpleEventDTO> getAllEvent() {
-        Sort sort = Sort.by("eventStartTime");
-        List<Event> eventList = eventRepository.findAll(sort.descending());
-        return listMapper.mapList(eventList, SimpleEventDTO.class, modelMapper);
-    }
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private JwtUserDetailsService jwtuserDetailsService;
+
+
+
+//    public List<SimpleEventDTO> getAllEvent() {
+//        Sort sort = Sort.by("eventStartTime");
+//        List<Event> eventList = eventRepository.findAll(sort.descending());
+//        return listMapper.mapList(eventList, SimpleEventDTO.class, modelMapper);
+//    }
 
     public EventPageDTO getAllEventPage(int page, int pageSize, String sortBy) {
         Sort sort = Sort.by(sortBy);
@@ -194,7 +201,29 @@ public class EventService {
         return false;
 
     }
+//    public List<SimpleEventDTO> getAllEvent(HttpServletRequest request) {
+//        List<Event> eventsList = eventRepository.findAll(Sort.by(Sort.Direction.DESC,"eventStartTime"));
+//        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+//        UserDetails userDetails = jwtuserDetailsService.loadUserByUsername(getUserEmail);
+//        if(userDetails != null && (request.isUserInRole("ROLE_student"))){
+//            List<Event> eventsListByEmail = eventRepository.findByBookingEmail(getUserEmail);
+//            return listMapper.mapList(eventsListByEmail, SimpleEventDTO.class,modelMapper);
+//
+//        }
+//        return listMapper.mapList(eventsList, SimpleEventDTO.class,modelMapper);
+//    }
 
+    public String getRequestAccessToken(HttpServletRequest request){
+        return request.getHeader("Authorization").substring(7);
+    }
 
+    public String getUserEmail(String requestAccessToken){
+        return jwtTokenUtil.getUsernameFromToken(requestAccessToken);
+    }
+    public List<SimpleEventDTO> getAllEvent() {
+        Sort sort = Sort.by("eventStartTime");
+        List<Event> eventList = eventRepository.findAll(sort.descending());
+        return listMapper.mapList(eventList, SimpleEventDTO.class, modelMapper);
+    }
 
 }

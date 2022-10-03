@@ -38,13 +38,13 @@ public class UserService {
     @Autowired
     private UsersRepository usersRepository;
     @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
     private ListMapper listMapper;
     @Autowired
-    private Argon2PasswordEncoder argon2;
+    private ModelMapper modelMapper;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private Argon2PasswordEncoder argon2;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
@@ -191,51 +191,6 @@ public class UserService {
             throw new Exception("INVALID_CREDENTIALS", e);
         }
     }
-//    public UserLoginDTO signIn(UserLoginDTO userSignIn) {
-//        if (usersRepository.existsByEmail(userSignIn.getEmail())) {
-//            User user = usersRepository.findByEmail(userSignIn.getEmail());
-//            if (argon2.matches(userSignIn.getPassword(), user.getPassword())) {
-//                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
-//            } else {
-//                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
-//            }
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
-//        }
-//    }
 
-
-//    public ResponseEntity loginDTO( UserLoginDTO userLogin) throws  Exception {
-//        if (usersRepository.existsByEmail(userLogin.getEmail())) {
-//            User user = usersRepository.findByEmail(userLogin.getEmail());
-//            if (argon2.matches(userLogin.getPassword(), user.getPassword())) {
-//                authenticate(userLogin.getEmail() , userLogin.getPassword());
-////                authenticate(userLogin.getEmail(), userLogin.getPassword());
-//
-//                final UserDetails userDetails = userDetailsService
-//                        .loadUserByUsername(userLogin.getEmail());
-//
-//                final String token = jwtTokenUtil.generateToken(userDetails);
-//
-////                return ResponseEntity.ok(new JwtResponse(token));
-//                return ResponseEntity.ok(new JwtResponse(token));
-////                throw new ResponseStatusException(HttpStatus.OK, "Password Matched");
-//            } else {
-//                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password NOT Matched");
-//            }
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "A user with the specified email DOES NOT exist");
-//        }
-//    }
-//
-//    private void authenticate(String email, String password) throws Exception {
-//        try {
-//            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-//        } catch (DisabledException e) {
-//            throw new Exception("USER_DISABLED", e);
-//        } catch (BadCredentialsException e) {
-//            throw new Exception("INVALID_CREDENTIALS", e);
-//        }
-//    }
 }
 

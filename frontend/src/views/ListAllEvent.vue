@@ -49,7 +49,10 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/events/${eventId}`,
 			{
-				method: 'DELETE'
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${author}`
+				}
 			}
 		)
 		if (res.status === 200) {

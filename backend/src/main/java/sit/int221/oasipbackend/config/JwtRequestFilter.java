@@ -2,8 +2,11 @@ package sit.int221.oasipbackend.config;
 
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -16,15 +19,24 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUserDetailsService jwtUserDetailsService;
+//    @Autowired
+//    private JwtUserDetailsService jwtUserDetailsService;
+//
+//    @Autowired
+//    private JwtTokenUtil jwtTokenUtil;
+    private final JwtUserDetailsService jwtUserDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+    public JwtRequestFilter(JwtUserDetailsService jwtUserDetailsService, JwtTokenUtil jwtTokenUtil) {
+        this.jwtUserDetailsService = jwtUserDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -44,10 +56,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
             } catch (IllegalArgumentException e) {
                 System.out.println("Unable to get JWT Token");
-                request.setAttribute("Errors",e.getMessage());
+//                request.setAttribute("Errors",e.getMessage());
             } catch (ExpiredJwtException e) {
-                System.out.println("JWT Token has expired");
-                request.setAttribute("Errors",e.getMessage());
+                String requestURL = request.getRequestURI().toString();
+                System.out.println(requestURL);
+//                request.setAttribute("Errors",e.getMessage());
+                if(requestURL.contains("refresh")){
+                    request.setAttribute("error","Refresh token was expired. Please make a new signin request");
+                }else{
+                    request.setAttribute("Errors", e.getMessage());
+                }
+            }catch (MalformedJwtException e){
+                request.setAttribute("Errors", e.getMessage());
+            }catch(SignatureException e){
+                request.setAttribute("Errors", e.getMessage());
             }
         } else {
             logger.warn("JWT Token does not begin with Bearer String");
@@ -65,6 +87,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
+                String authorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining());
+                System.out.println("Authorities granted " + authorities);
                 usernamePasswordAuthenticationToken
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 // After setting the Authentication in the context, we specify

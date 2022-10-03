@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import BaseNavBar from '../components/BaseNavBar.vue'
+import NoLoginModal from '../components/NoLoginModal.vue'
 
 const categories = ref([])
 const author = localStorage.getItem('token')
+let refreshToken = localStorage.getItem('refreshToken')
 const getCategory = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
 		method: 'GET',
@@ -13,14 +16,16 @@ const getCategory = async () => {
 	})
 	if (res.status === 200) {
 		categories.value = await res.json()
-		console.log(categories.value)
+		// console.log(categories.value)
+	} else if (res.status == 401) {
+		getRefreshToken()
 	} else console.log('error, cannot get data')
 }
 onBeforeMount(async () => {
 	await getCategory()
 	await getEvents()
-	console.log(events)
-	console.log(categories)
+	// console.log(events)
+	// console.log(categories)
 })
 
 const events = ref([])
@@ -36,7 +41,7 @@ const getEvents = async () => {
 		events.value = await res.json()
 		for (let event of events.value) {
 			event.eventStartTime = new Date(event.eventStartTime)
-			console.log(event.eventStartTime)
+			// console.log(event.eventStartTime)
 		}
 	} else console.log('error, cannot get data')
 }
@@ -60,7 +65,7 @@ let isInvalidDateFuture = ref(false)
 let isInvalidOverLab = ref(false)
 
 const addEvent = () => {
-	console.log(validateDateFuture(eventStartTime.value))
+	// console.log(validateDateFuture(eventStartTime.value))
 	if (
 		bookingName.value == '' ||
 		bookingEmail.value == '' ||
@@ -73,14 +78,14 @@ const addEvent = () => {
 		isInvalidOverLab.value = false
 		console.log(isBlank.value)
 	} else if (!validateEmail(bookingEmail.value)) {
-		console.log('เข้า false')
-		console.log(bookingEmail.value)
+		// console.log('เข้า false')
+		// console.log(bookingEmail.value)
 		isInvalidEmail.value = true
 		isBlank.value = false
 		isInvalidDateFuture.value = false
 		isInvalidOverLab.value = false
 	} else if (!validateDateFuture(eventStartTime.value)) {
-		console.log('เข้า false date')
+		// console.log('เข้า false date')
 		isInvalidDateFuture.value = true
 		isInvalidOverLab.value = false
 		isInvalidEmail.value = false
@@ -108,14 +113,14 @@ const addEvent = () => {
 			eventDuration: eventCategory.value.eventDuration,
 			eventNote: note.value
 		}
-		console.log(newEvent)
+		// console.log(newEvent)
 		addEventToDB(newEvent)
 	}
 }
 
 //ส่ง fetch
 const addEventToDB = async (newEvent) => {
-	console.log(newEvent)
+	// console.log(newEvent)
 	//ใช้ตัวแปร env แทนการเขียน path
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
@@ -126,10 +131,10 @@ const addEventToDB = async (newEvent) => {
 		//ยัด newEvent ลงใน body ส่งให้ backend
 		body: JSON.stringify(newEvent)
 	})
-	console.log(res.status)
+	// console.log(res.status)
 	if (res.status === 201) {
 		console.log('added sucessfully')
-		console.log(res)
+		// console.log(res)
 		goSuccess()
 	} else console.log('error, cannot be added')
 }
@@ -148,19 +153,19 @@ const validateDateFuture = (dateTime) => {
 
 const validateNonOverlab = (category, startDTNew, durationNew) => {
 	filterCategory(category)
-	console.log(filterEvents.value)
+	// console.log(filterEvents.value)
 
 	startDTNew = new Date(startDTNew)
 
 	for (let event of filterEvents.value) {
-		console.log(
-			checkOverLab(
-				startDTNew,
-				event.eventStartTime,
-				durationNew,
-				event.eventDuration
-			)
-		)
+		// console.log(
+		// 	checkOverLab(
+		// 		startDTNew,
+		// 		event.eventStartTime,
+		// 		durationNew,
+		// 		event.eventDuration
+		// 	)
+		// )
 		if (
 			!checkOverLab(
 				startDTNew,
@@ -202,11 +207,35 @@ const filterCategory = (category) => {
 const appRouter = useRouter()
 const goSuccess = () => appRouter.push({ name: 'AddSuccess' })
 const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
+const is401 = ref()
+const getRefreshToken = async () => {
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${refreshToken}`
+		}
+	})
+	if (res.status === 200) {
+		is401.value = false
+		token.value = await res.json()
+		saveLocal()
+	} else if (res.status === 401) {
+		is401.value = true
+	} else {
+		console.log('Error,cannot get refresh token from backend')
+	}
+}
+const saveLocal = () => {
+	localStorage.setItem('token', `${token.value.accessToken}`)
+	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+}
 </script>
 
 <template>
 	<div>
-		<div id="add-event-container">
+		<NoLoginModal v-if="is401" />
+		<BaseNavBar />
+		<div id="add-event-container" v-if="!is401">
 			<div id="add">
 				<div class="error pb-2" v-if="isBlank">
 					Please fill out the information completely. | กรุณากรอกข้อมูลให้ครบด้วยค่ะ
@@ -317,6 +346,7 @@ const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
+	padding: 3% 0;
 }
 #add {
 	/* position: fixed; */
@@ -324,7 +354,7 @@ const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
 	width: 78%;
 	min-height: 550px;
 	padding: 30px 40px;
-	background-color: rgb(255, 255, 255, 0.5);
+	/* background-color: rgb(255, 255, 255, 0.5); */
 	color: black;
 	border-radius: 10px;
 }
@@ -356,5 +386,8 @@ input:valid + span::before {
 .lenght {
 	color: grey;
 	font-size: 0.8em;
+}
+input {
+	margin-top: 5px;
 }
 </style>

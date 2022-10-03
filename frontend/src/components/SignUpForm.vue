@@ -3,6 +3,7 @@ import { ref, onBeforeMount, computed } from 'vue'
 import AddSuccessModal from './AddSuccessModal.vue'
 const users = ref([])
 const author = localStorage.getItem('token')
+import BaseNavBar from '../components/BaseNavBar.vue'
 // const getUsers = async () => {
 // 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
 // 		method: 'GET',
@@ -214,9 +215,10 @@ const validateMatchPass = () => {
 
 <template>
 	<div>
+		<BaseNavBar />
 		<div id="home">
 			<div id="left">
-				<p id="web-name">bookiing</p>
+				<p id="web-name">BOOKIING</p>
 
 				<p class="description">
 					OASIP-PL4 Website for booking clinics <br />
@@ -380,11 +382,11 @@ const validateMatchPass = () => {
 	background-color: rgb(255, 255, 255, 0);
 	color: black;
 	display: flex;
-	padding: 0 13%;
+	padding: 3% 13%;
 }
 #left {
 	width: 50%;
-	color: white;
+	color: #495ab6;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -404,8 +406,8 @@ img {
 	align-items: center;
 }
 #register {
-	background-color: rgba(255, 255, 255, 0.2);
-	color: white;
+	/* background-color: #c7c7c780; */
+	color: #495ab6;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -413,6 +415,9 @@ img {
 	padding: 20px 0;
 	width: 90%;
 	border-radius: 10px;
+	border: 1px solid lightgrey;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	font-size: 14px;
 }
 .input {
 	margin-top: 10px;
@@ -425,6 +430,8 @@ img {
 	padding: 7px 15px;
 	border-radius: 4px;
 	width: 100%;
+	/* background-color: #ecececa1; */
+	border: 1px solid lightgray;
 }
 input {
 	width: 100%;
@@ -433,6 +440,8 @@ input {
 	border: 2px solid white;
 	border-radius: 4px;
 	color: #636363;
+	/* background-color: #ecececa1; */
+	border: 1px solid lightgray;
 }
 #signup {
 	width: 80%;
@@ -453,6 +462,7 @@ input {
 #go-to-signIn a:hover {
 	background-color: rgb(255, 255, 255, 0);
 }
+
 @media screen and (max-width: 768px) {
 	#home {
 		flex-direction: column;

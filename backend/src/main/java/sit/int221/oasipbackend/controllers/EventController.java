@@ -5,14 +5,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sit.int221.oasipbackend.dtos.*;
 import sit.int221.oasipbackend.entities.Event;
+import sit.int221.oasipbackend.repositories.EventRepository;
 import sit.int221.oasipbackend.services.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin
+@CrossOrigin("*")
 public class EventController {
     @Autowired
     private EventService service;
@@ -20,6 +22,11 @@ public class EventController {
     @GetMapping("")
     public List<SimpleEventDTO> getAllEvent() {
         return service.getAllEvent();
+    }
+
+    @GetMapping("/{id}")
+    public EventDetailDTO getEventById(@PathVariable Integer id) {
+        return service.getEventById(id);
     }
 
     @GetMapping("/page")
@@ -30,13 +37,9 @@ public class EventController {
         return service.getAllEventPage(page,pageSize,sortBy);
     }
 
-    @GetMapping("/{id}")
-    public EventDetailDTO getEventById(@PathVariable Integer id) {
-        return service.getEventById(id);
-    }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
     public Object addNewEvent(@Valid @RequestBody EventCreateDTO newEvent) {
         return service.save(newEvent);
     }
@@ -46,14 +49,23 @@ public class EventController {
         service.delete(id);
     }
 
-    @PutMapping("/reschedule/{id}")
+    @PutMapping("/{id}")
     public Object reschedule(@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
         return service.reschedule(updateData, id);
     }
+//    @PutMapping("/reschedule/{id}")
+//    public Object reschedule(@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
+//        return service.reschedule(updateData, id);
+//    }
 
-    @PutMapping("/{id}")
-    public Event update(@RequestBody Event updateEvent, @PathVariable Integer id) {
-        return service.update(updateEvent, id);
-    }
+//    @PutMapping("/{id}")
+//    public Event update(@RequestBody Event updateEvent, @PathVariable Integer id) {
+//        return service.update(updateEvent, id);
+//    }
+
+//    @GetMapping("")
+//    public List<SimpleEventDTO> getAll(HttpServletRequest httpServletRequest){
+//        return service.getAllEvent(httpServletRequest);
+//    }
 
 }

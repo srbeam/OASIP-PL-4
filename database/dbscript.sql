@@ -81,5 +81,5 @@ create user 'admin222'@'%' identified by 'admin222';
 grant all privileges on *.* to 'admin222'@'%';
 flush privileges;
 
-
-select * from users;
+use oasip_db;
+select * from events;

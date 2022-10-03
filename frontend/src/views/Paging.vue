@@ -1,6 +1,8 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, onBeforeMount } from 'vue'
+import BaseNavBar from '../components/BaseNavBar.vue'
+import NoLoginModal from '../components/NoLoginModal.vue'
 let { params } = useRoute()
 
 const currentPage = Number(params.page)
@@ -11,6 +13,8 @@ const appRouter = useRouter()
 const response = ref([])
 const events = ref([])
 const author = localStorage.getItem('token')
+let refreshToken = localStorage.getItem('refreshToken')
+const token = ref()
 const getEvents = async () => {
 	const res = await fetch(
 		`${import.meta.env.VITE_BACK_URL}/events/page?page=${
@@ -29,8 +33,10 @@ const getEvents = async () => {
 		totalPage.value = response.value.totalPages
 		for (let event of events.value) {
 			event.eventStartTime = new Date(event.eventStartTime)
-			console.log(event.eventStartTime)
+			// console.log(event.eventStartTime)
 		}
+	} else if (res.status == 401) {
+		getRefreshToken()
 	} else console.log('error, cannot get data')
 }
 onBeforeMount(async () => {
@@ -64,7 +70,10 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/events/${eventId}`,
 			{
-				method: 'DELETE'
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${author}`
+				}
 			}
 		)
 		if (res.status === 200) {
@@ -74,13 +83,40 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 		} else console.log('error, cannot delete data')
 	}
 }
+const is401 = ref()
+const getRefreshToken = async () => {
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${refreshToken}`
+		}
+	})
+	if (res.status === 200) {
+		is401.value = false
+		token.value = await res.json()
+		saveLocal()
+	} else if (res.status === 401) {
+		is401.value = true
+	} else {
+		console.log('Error,cannot get refresh token from backend')
+	}
+}
+const saveLocal = () => {
+	localStorage.setItem('token', `${token.value.accessToken}`)
+	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+}
 </script>
 
 <template>
-	<div class="">
-		<div class="content">
+	<div>
+		<NoLoginModal v-if="is401" />
+		<BaseNavBar />
+		<div class="content" v-if="!is401">
 			<div id="no-events" v-show="events.length == 0">
 				<h1 class="">No Scheduled Events</h1>
+				<router-link :to="{ name: 'AddEvent' }" @click="checkToken">
+					<button class="menu">Let's Reserve</button>
+				</router-link>
 			</div>
 
 			<div>
@@ -89,7 +125,7 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 						id="showall"
 						v-for="(event, index) in events"
 						:key="index"
-						class="rounded-md p-4 my-2 w-96 color mr-2"
+						class="rounded-md p-4 my-2 w-96"
 					>
 						<div id="detailevents" class="">
 							<p class="text-xl font-bold">{{ event.bookingName }}</p>
@@ -99,23 +135,27 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 								<p>Date : {{ formatDate(event.eventStartTime) }}</p>
 								<p>Time : {{ formatTime(event.eventStartTime) }} min.</p>
 							</div>
-							<div id="duration" class="rounded-full w-44 h-9 p-1">
-								<p class="ml-3">Duration : {{ event.eventDuration }} min</p>
+							<div id="duration">
+								<p>Duration : {{ event.eventDuration }} min</p>
 							</div>
-
-							<router-link :to="{ name: 'EventDetail', params: { id: event.id } }">
-								<button
-									class="border-2 border-gray-500 mt-3 p-2 rounded-lg text-xs text-gray-500 hover:bg-gray-500 hover:text-white"
+							<div class="detail-and-bin-btn">
+								<router-link
+									:to="{ name: 'EventDetail', params: { id: event.id } }"
+									class="detail"
 								>
-									see more >
-								</button>
-							</router-link>
+									<button
+										class="border-2 border-gray-500 p-2 rounded-lg text-xs text-gray-500 hover:bg-gray-500 hover:text-white"
+									>
+										see more >
+									</button>
+								</router-link>
 
-							<div
-								id="bin"
-								@click="deleteEvent(event.id, event.bookingName, event.eventStartTime)"
-							>
-								<img src="../assets/images/trash.png" />
+								<div
+									id="bin"
+									@click="deleteEvent(event.id, event.bookingName, event.eventStartTime)"
+								>
+									<img src="../assets/images/trash.png" />
+								</div>
 							</div>
 						</div>
 					</div>
@@ -125,9 +165,7 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 	</div>
 	<div id="paging" v-if="events.length > 0">
 		<router-link :to="{ name: 'Page', params: { page: currentPage - 1 } }">
-			<button class="mr-3 text-white mt-1" :disabled="currentPage == 1">
-				&lt;&lt;
-			</button>
+			<button class="prev" :disabled="currentPage == 1">&lt;&lt;</button>
 		</router-link>
 		<div v-for="page in totalPage">
 			<router-link :to="{ name: 'Page', params: { page: page } }">
@@ -141,9 +179,7 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 		</div>
 		<div class="page2">
 			<router-link :to="{ name: 'Page', params: { page: currentPage + 1 } }">
-				<button class="ml-3 text-white mt-1" :disabled="currentPage == totalPage">
-					>>
-				</button>
+				<button class="next" :disabled="currentPage == totalPage">>></button>
 			</router-link>
 		</div>
 	</div>
@@ -155,34 +191,31 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 .content {
 	display: flex;
 	justify-content: center;
+	padding-top: 2%;
+	min-height: 720px;
 }
 #no-events {
-	/* padding-right: auto; */
-	/* margin-left: auto; */
-	/* margin-left: 18%; */
-	/* background-color: rgba(255, 255, 255, 0.4);
-		  color: #5c5c5c;
-		  width: 900px;
-		  height: 550px; */
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	border-radius: 10px;
+	color: #495ab6;
 }
 
 #have-events {
 	display: grid;
 	grid-template-columns: auto auto auto;
+	grid-row-gap: 10px;
+	grid-column-gap: 25px;
 }
 
 #paging {
-	/* margin-left: 50%; */
-	/* padding-left: 650px; */
-	/* width: 55em; */
-	/* margin-top: 3%; */
+	margin-top: 2%;
 	color: white;
 	display: flex;
 	justify-content: center;
+	align-items: center;
 }
 
 .pageBtn {
@@ -191,15 +224,72 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 	border-radius: 0.2em;
 	font-size: 1.1em;
 	color: white;
-	background-color: orange;
+	background-color: lightgray;
 }
 
 .active {
 	border: white 0.1em solid;
-	margin: 0.5%;
+	margin-top: 0.5%;
 	border-radius: 0.2em;
 	font-size: 1.1em;
+	/* color: black; */
+	/* background-color: whitesmoke; */
+	background-color: #495ab6;
+	color: white;
+}
+#showall {
 	color: black;
-	background-color: whitesmoke;
+	box-shadow: 2px 1px 6px 0 rgba(0, 0, 0, 0.2);
+	font-size: 14px;
+	border-radius: 10px;
+	border: 1px solid lightgray;
+}
+#duration p {
+	margin: 0;
+	background-color: #eee385;
+	padding: 5px;
+	text-align: center;
+	border-radius: 20px;
+	width: 50%;
+}
+.detail-and-bin-btn {
+	display: flex;
+	justify-content: center;
+	margin-top: 15px;
+}
+.detail {
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+#bin {
+	width: 100%;
+	display: flex;
+	justify-content: right;
+	align-items: center;
+}
+#bin img {
+	width: 20%;
+	cursor: pointer;
+}
+
+.next,
+.prev {
+	color: #495ab6;
+	cursor: pointer;
+}
+.next:hover,
+.prev:hover {
+	color: #5466cb;
+}
+.menu {
+	background-color: #495ab6;
+	color: white;
+	padding: 8px 20px;
+	border-radius: 20px;
+	margin-top: 10px;
+}
+.menu:hover {
+	background-color: #5668d0;
 }
 </style>

@@ -19,6 +19,10 @@ public class ApplicationConfig {
     public ListMapper listMapper() {
         return ListMapper.getInstance();
     }
-
+    @Bean
+    public Argon2PasswordEncoder argon2PasswordEncoder() {  return new Argon2PasswordEncoder(16, 29, 1, 16, 2);}
 
 }
+
+
+

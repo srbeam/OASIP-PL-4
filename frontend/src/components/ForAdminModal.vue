@@ -1,15 +1,25 @@
-<script setup></script>
+<script setup>
+const signOut = () => {
+	localStorage.clear()
+}
+</script>
 
 <template>
 	<div>
 		<div class="modal">
 			<div class="modal-container">
+				<!-- <div class="close">
+					<p>X</p>
+				</div> -->
 				<div class="modal-content">
 					<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-					<h3>Sign In Required</h3>
-					<p>Please sign in first to access this page.</p>
+					<h3>Admin Only</h3>
+					<p>Please sing in with admin account to access this page</p>
+					<router-link :to="{ name: 'Page', params: { page: 1 } }">
+						<button class="view-event-btn">View Event</button>
+					</router-link>
 					<router-link :to="{ name: 'Home' }">
-						<button>Go to Sign in</button>
+						<button @click="signOut">Sing in again with admin accout</button>
 					</router-link>
 				</div>
 			</div>
@@ -52,16 +62,35 @@ p {
 	color: brown;
 }
 button {
-	background-color: #3b9afa;
+	background-color: orange;
 	border-radius: 5px;
-	padding: 5px 0;
+	padding: 5px 10px;
 	width: 100%;
 	color: white;
 }
 button:hover {
-	background-color: #499ff5;
+	background-color: rgb(255, 183, 48);
 }
 a:hover {
 	padding: 0;
+}
+.close {
+	background-color: red;
+	display: flex;
+	justify-content: right;
+	align-items: center;
+}
+.close p {
+	background-color: green;
+	width: 5%;
+	text-align: center;
+	margin: 0;
+}
+.view-event-btn {
+	margin-bottom: 10px;
+	background-color: #3b9afa;
+}
+.view-event-btn:hover {
+	background-color: #499ff5;
 }
 </style>
