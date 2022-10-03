@@ -18,6 +18,22 @@ const checkToken = () => {
 		isHasToken.value = false
 	}
 }
+function toggleMenu() {
+	const nav = document.querySelector('.nav-container')
+	const hamburger = document.querySelector('.hamburger')
+
+	if (hamburger.classList.contains('change')) {
+		hamburger.classList.remove('change')
+		console.log('close')
+		nav.classList.remove('open')
+		nav.style.display = 'none'
+	} else {
+		hamburger.classList.add('change')
+		console.log('open')
+		nav.classList.toggle('open')
+		nav.style.display = 'grid'
+	}
+}
 onBeforeMount(async () => {
 	await checkToken()
 })
@@ -216,8 +232,9 @@ header {
 	}
 
 	.menu {
-		color: black;
+		/* color: black; */
 		padding: 8px 0px;
+		color: white;
 	}
 	a:hover {
 		/* background-color: rgba(255, 255, 255, 0.2); */

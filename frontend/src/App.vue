@@ -1,22 +1,5 @@
 <script setup>
 import { ref, onBeforeMount, computed, onUpdated, onUnmounted } from 'vue'
-
-function toggleMenu() {
-	const nav = document.querySelector('.nav-container')
-	const hamburger = document.querySelector('.hamburger')
-
-	if (hamburger.classList.contains('change')) {
-		hamburger.classList.remove('change')
-		console.log('close')
-		nav.classList.remove('open')
-		nav.style.display = 'none'
-	} else {
-		hamburger.classList.add('change')
-		console.log('open')
-		nav.classList.toggle('open')
-		nav.style.display = 'grid'
-	}
-}
 </script>
 
 <template>

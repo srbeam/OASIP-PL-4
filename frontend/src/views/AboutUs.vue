@@ -83,6 +83,9 @@ p {
 }
 
 @media screen and (max-width: 768px) {
+	#root {
+		height: 100%;
+	}
 	.aboutus-container {
 		padding: 30px 0 60px 0;
 	}
