@@ -67,6 +67,7 @@ const togglePassMatch = () => {
 	} else {
 		isPasswordMatch.value = true
 	}
+	window.location.reload()
 }
 const validateEmail = (email) => {
 	const reg =
@@ -148,12 +149,12 @@ const checklengthPass = () => {
 												</div>
 											</router-link> -->
 							</div>
-							<div id="go-to-signUp">
+							<!-- <div id="go-to-signUp">
 								<p>
 									Not have an account?
 									<router-link :to="{ name: 'SignUpForm' }">SIGN UP</router-link>
 								</p>
-							</div>
+							</div> -->
 						</div>
 					</div>
 				</div>

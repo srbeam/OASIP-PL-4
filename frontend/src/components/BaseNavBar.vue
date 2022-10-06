@@ -40,6 +40,7 @@ onBeforeMount(async () => {
 
 const signOut = () => {
 	localStorage.clear()
+	window.location = 'http://localhost:3000/pl4/'
 }
 </script>
 

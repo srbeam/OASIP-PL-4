@@ -1,26 +1,9 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
 import AddSuccessModal from './AddSuccessModal.vue'
-import BaseNavBar from '../components/BaseNavBar.vue'
+defineEmits(['closeModal'])
 const users = ref([])
 const author = localStorage.getItem('token')
-
-// const getUsers = async () => {
-// 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
-// 		method: 'GET',
-// 		headers: {
-// 			Authorization: `Bearer ${author}`
-// 		}
-// 	})
-// 	if (res.status === 200) {
-// 		users.value = await res.json()
-// 	} else {
-// 		console.log('Error,cannot get events from backend')
-// 	}
-// }
-// onBeforeMount(async () => {
-// 	await getUsers()
-// })
 const userName = ref('')
 const userEmail = ref('')
 const userPass = ref('')
@@ -41,24 +24,6 @@ const isDupplicateEmail = ref(false)
 const dupplicateNameMsg = ref(' This name is already use')
 const dupplicateEmailMsg = ref(' This email is already use')
 
-// const checkDupplicateName = (name) => {
-// 	if (users.value.length <= 0) {
-// 		isDupplicateName.value = false
-// 	} else {
-// 		isDupplicateName.value = users.value.some(
-// 			(u) => u.name.toLowerCase() == name.toLowerCase()
-// 		)
-// 	}
-// }
-// const checkDupplicateEmail = (email) => {
-// 	if (users.value.length <= 0) {
-// 		isDupplicateEmail.value = false
-// 	} else {
-// 		isDupplicateEmail.value = users.value.some(
-// 			(u) => u.email.toLowerCase() == email.toLowerCase()
-// 		)
-// 	}
-// }
 const passIsNull = ref(false)
 const confirmPassIsNull = ref(false)
 const addUser = () => {
@@ -153,7 +118,6 @@ const fetchAddUser = async (newUser) => {
 			// getUsers()
 			validInput.value = false
 			isAddSuccess.value = true
-
 			setTimeout(toggleAddSuccess, 3000)
 			userId.value = ''
 			userName.value = ''
@@ -216,24 +180,14 @@ const validateMatchPass = () => {
 
 <template>
 	<div>
-		<BaseNavBar />
-		<div id="home">
-			<div id="left">
-				<p id="web-name">BOOKIING</p>
+		<div class="modal">
+			<div class="modal-container">
+				<div class="close">
+					<p @click="$emit('closeModal')">X</p>
+				</div>
 
-				<p class="description">
-					OASIP-PL4 Website for booking clinics <br />
-					INT222 Integrated IT Project II
-				</p>
-
-				<img src="../assets/images/home2.png" />
-			</div>
-			<div id="right">
-				<div id="register">
-					<div class="title">
-						<h3>Sign Up</h3>
-					</div>
-
+				<div class="modal-content">
+					<h3>Add User</h3>
 					<div id="signup">
 						<div class="input">
 							<div>
@@ -339,41 +293,58 @@ const validateMatchPass = () => {
 							<p class="error" v-if="isNotUniqe && validInput">
 								This name or email is already use
 							</p>
-							<div>
-								<div>
-									<button class="text-white btn btn-primary" @click="addUser">
-										Sign Up
-									</button>
-									<!-- <button class="text-white btn btn-primary" id="getstart">
-										Get Start !
-									</button> -->
-								</div>
 
-								<!-- <router-link :to="{ name: 'Page', params: { page: 1 } }">
-													<div>
-														<button class="text-white btn btn-primary" @click="addUser">
-															Sign Up
-														</button>
-														
-													</div>
-												</router-link> -->
-							</div>
-							<div id="go-to-signIn">
-								<p>
-									Already have an account?
-									<router-link :to="{ name: 'Home' }">SIGN IN</router-link>
-								</p>
-							</div>
+							<button class="text-white btn btn-primary" @click="addUser">
+								Add User
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<AddSuccessModal v-if="isAddSuccess === true" />
+		<AddSuccessModal v-if="isAddSuccess" />
 	</div>
 </template>
 
 <style scoped>
+.modal {
+	top: 0;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.8);
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.modal-container {
+	border: 1px solid black;
+	background-color: white;
+	border-radius: 10px;
+	min-width: 250px;
+	width: 33%;
+}
+.close {
+	display: flex;
+	justify-content: right;
+}
+.close p {
+	color: gray;
+	padding: 5px 20px;
+	margin: 0;
+	cursor: pointer;
+}
+.close p:hover {
+	color: rgb(173, 173, 173);
+}
+.modal-content {
+	text-align: center;
+	margin: 0 0 25px 0;
+	padding: 25px;
+	color: black;
+}
+
 .error {
 	color: red;
 	margin: 0;
@@ -422,6 +393,8 @@ img {
 }
 .input {
 	margin-top: 10px;
+	text-align: left;
+	width: 100%;
 }
 .error {
 	color: red;
@@ -445,7 +418,11 @@ input {
 	border: 1px solid lightgray;
 }
 #signup {
-	width: 80%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 .role {
 	color: #636363;
@@ -455,48 +432,14 @@ input {
 .btn-area {
 	text-align: center;
 	margin-top: 25px;
+
+	width: 100%;
 }
 .btn-area button {
 	width: 100%;
-	margin-bottom: 10px;
+	/* margin-bottom: 10px; */
 }
 #go-to-signIn a:hover {
 	background-color: rgb(255, 255, 255, 0);
-}
-
-@media screen and (max-width: 768px) {
-	#home {
-		flex-direction: column;
-		padding: 10%;
-	}
-	#left {
-		width: 100%;
-		align-items: center;
-		margin: 0 0 -38px 0;
-	}
-	#web-name {
-		text-align: center;
-	}
-	.description {
-		text-align: center;
-	}
-	#right {
-		width: 100%;
-	}
-}
-@media screen and (max-width: 640px) {
-	#left {
-		margin: 0 0 -32px 0;
-	}
-}
-@media screen and (max-width: 480px) {
-	#left {
-		margin: 0 0 -24px 0;
-	}
-}
-@media screen and (max-width: 375px) {
-	#left {
-		margin: 0 0 -20px 0;
-	}
 }
 </style>

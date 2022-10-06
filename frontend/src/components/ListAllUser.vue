@@ -7,6 +7,11 @@ import DeleteSuccessModal from './DeleteSuccessModal.vue'
 import ConfirmDeleteUserModal from './ConfirmDeleteUserModal.vue'
 import NoLoginModal from './NoLoginModal.vue'
 import ForAdminModal from './ForAdminModal.vue'
+import ListallComponent from './ListallComponent.vue'
+import AddUserModal from './AddUserModal.vue'
+
+import EditUserModal from './EditUserModal.vue'
+
 const users = ref([])
 let author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
@@ -44,6 +49,7 @@ const getRefreshToken = async () => {
 		token.value = await res.json()
 		saveLocal()
 	} else if (res.status === 401) {
+		// window.location.reload()
 		is401.value = true
 	} else {
 		console.log('Error,cannot get refresh token from backend')
@@ -155,7 +161,6 @@ const fetchAddUser = async (newUser) => {
 			getUsers()
 			validInput.value = false
 			isAddSuccess.value = true
-
 			setTimeout(toggleAddSuccess, 3000)
 			userId.value = ''
 			userName.value = ''
@@ -233,38 +238,60 @@ const deleteUsers = async () => {
 
 const editUserMode = ref(false)
 const toEditUserMode = (user) => {
+	isShowEditUserModal.value = true
 	editUserMode.value = true
 	console.log(user)
 	userId.value = user.id
 	editingUserName.value = user.name.trim()
 	editingUserEmail.value = user.email.trim()
 	editingUserRole.value = user.role
-	// userName.value = user.name
-	// userEmail.value = user.email
-	// userRole.value = user.role
 	nameIsNull.value = false
 	emailIsNull.value = false
 	isInvalidEmail.value = false
 	isDupplicateEmail.value = false
 	isDupplicateName.value = false
+	editingUserValues.value = {
+		id: userId.value,
+		name: editingUserName.value,
+		email: editingUserEmail.value,
+		role: editingUserRole.value
+	}
 }
-const updateUser = async () => {
-	await updateUsersfetch(userId.value)
+// const toEditUserMode = (user) => {
+// 	isShowEditUserModal.value = true
+// 	editUserMode.value = true
+// 	console.log(user)
+// 	userId.value = user.id
+// 	editingUserName.value = user.name.trim()
+// 	editingUserEmail.value = user.email.trim()
+// 	editingUserRole.value = user.role
+// 	nameIsNull.value = false
+// 	emailIsNull.value = false
+// 	isInvalidEmail.value = false
+// 	isDupplicateEmail.value = false
+// 	isDupplicateName.value = false
+// 	editingUserValues.value = user
+// }
+let editingUserValues = ref()
+const updateUser = async (user) => {
+	await updateUsersfetch(user)
 	// window.location.reload()
 	getUsers()
 }
-const updateUsersfetch = async (id) => {
-	console.log(editUserMode.value)
-	checkNullNameEdit()
-	checkNullEmailEdit()
+const alertInEditForm = ref()
+const updateUsersfetch = async (user) => {
+	// console.log(editUserMode.value)
+	checkNullNameEdit(user.name.trim())
+	checkNullEmailEdit(user.email.trim())
 
-	if (validateEmail(editingUserEmail.value.trim()) === false) {
+	if (validateEmail(user.email.trim()) === false) {
 		isInvalidEmail.value = true
 	} else {
 		isInvalidEmail.value = false
 	}
 
-	checkDupInputEdit()
+	checkDupInputEdit(user)
+
 	if (
 		isDupplicateName.value === false &&
 		isDupplicateEmail.value === false &&
@@ -272,16 +299,16 @@ const updateUsersfetch = async (id) => {
 		emailIsNull.value === false &&
 		isInvalidEmail.value === false
 	) {
-		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/${id}`, {
+		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/${user.id}`, {
 			method: 'PUT',
 			headers: {
 				'content-type': 'application/json',
 				Authorization: `Bearer ${author}`
 			},
 			body: JSON.stringify({
-				name: editingUserName.value.trim(),
-				email: editingUserEmail.value.trim(),
-				role: editingUserRole.value
+				name: user.name.trim(),
+				email: user.email.trim(),
+				role: user.role.value
 			})
 		})
 		if (res.status === 200) {
@@ -300,11 +327,59 @@ const updateUsersfetch = async (id) => {
 		}
 	}
 }
+// const updateUsersfetch = async (user) => {
+// 	// console.log(editUserMode.value)
+// 	checkNullNameEdit()
+// 	checkNullEmailEdit()
+
+// 	if (validateEmail(editingUserEmail.value.trim()) === false) {
+// 		isInvalidEmail.value = true
+// 	} else {
+// 		isInvalidEmail.value = false
+// 	}
+
+// 	checkDupInputEdit()
+// 	if (
+// 		isDupplicateName.value === false &&
+// 		isDupplicateEmail.value === false &&
+// 		nameIsNull.value === false &&
+// 		emailIsNull.value === false &&
+// 		isInvalidEmail.value === false
+// 	) {
+// 		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/${id}`, {
+// 			method: 'PUT',
+// 			headers: {
+// 				'content-type': 'application/json',
+// 				Authorization: `Bearer ${author}`
+// 			},
+// 			body: JSON.stringify({
+// 				name: editingUserName.value.trim(),
+// 				email: editingUserEmail.value.trim(),
+// 				role: editingUserRole.value
+// 			})
+// 		})
+// 		if (res.status === 200) {
+// 			console.log('edited successfully')
+// 			isUpdateSuccess.value = true
+// 			getUsers()
+// 			setTimeout(toggleUpdateSuccess, 3000)
+// 			editingUserName.value = ''
+// 			editingUserEmail.value = ''
+// 			editingUserRole.value = ''
+// 			editUserMode.value = false
+// 		} else if (res.status === 401) {
+// 			getRefreshToken()
+// 		} else {
+// 			console.log('error, cannot be added')
+// 		}
+// 	}
+// }
 const isUpdateSuccess = ref(false)
 const toggleUpdateSuccess = () => {
 	console.log(isUpdateSuccess.value)
 	if (isUpdateSuccess.value === true) {
 		isUpdateSuccess.value = false
+		isShowEditUserModal.value = false
 	} else {
 		isUpdateSuccess.value = true
 	}
@@ -312,15 +387,15 @@ const toggleUpdateSuccess = () => {
 const editingUserName = ref('')
 const editingUserEmail = ref('')
 const editingUserRole = ref('')
-const checkNullNameEdit = () => {
-	if (editingUserName.value.trim() == '') {
+const checkNullNameEdit = (name) => {
+	if (name == '') {
 		nameIsNull.value = true
 	} else {
 		nameIsNull.value = false
 	}
 }
-const checkNullEmailEdit = () => {
-	if (editingUserEmail.value.trim() === '') {
+const checkNullEmailEdit = (email) => {
+	if (email === '') {
 		emailIsNull.value = true
 		isInvalidEmail.value = false
 	} else {
@@ -328,24 +403,25 @@ const checkNullEmailEdit = () => {
 	}
 }
 const selectedUser = ref()
-const checkDupInputEdit = () => {
+const checkDupInputEdit = (newValues) => {
 	getUsers()
 	selectedUser.value = users.value.filter((user) => {
-		return user.id === userId.value
+		return user.id === newValues.id
 	})
-	if (selectedUser.value[0].name === editingUserName.value.trim()) {
+
+	if (selectedUser.value[0].name === newValues.name.trim()) {
 		isDupplicateName.value = false
 	} else {
 		isDupplicateName.value = users.value.some(
-			(u) => u.name.toLowerCase() == editingUserName.value.toLowerCase()
+			(u) => u.name.toLowerCase() == newValues.name.trim().toLowerCase()
 		)
 	}
 
-	if (selectedUser.value[0].email === editingUserEmail.value.trim()) {
+	if (selectedUser.value[0].email === newValues.email.trim()) {
 		isDupplicateEmail.value = false
 	} else {
 		isDupplicateEmail.value = users.value.some(
-			(u) => u.email.toLowerCase() == editingUserEmail.value.toLowerCase()
+			(u) => u.email.toLowerCase() == newValues.email.trim().toLowerCase()
 		)
 	}
 }
@@ -387,97 +463,50 @@ const extractTime = (time) => {
 }
 const is401 = ref()
 const is403 = ref()
-const signOut = () => {
-	localStorage.clear()
-	author = ''
-	refreshToken = ''
+
+const closeModal = () => {
+	isShowConfirm.value = false
+}
+const showAddModal = () => {
+	isShowAddModal.value = true
+	getUsers()
+}
+const isShowAddModal = ref()
+const closeAddModal = () => {
+	isShowAddModal.value = false
+	getUsers()
+}
+const isShowEditUserModal = ref()
+const closeEditUserModal = () => {
+	isShowEditUserModal.value = false
 }
 </script>
 
 <template>
-	<div>
+	<div id="root">
+		<AddUserModal v-if="isShowAddModal" @closeModal="closeAddModal" />
 		<NoLoginModal v-if="is401" />
 		<ForAdminModal v-if="is403" />
+		<DeleteSuccessModal v-if="isDeleteSuccess" />
+		<ConfirmDeleteUserModal
+			v-if="isShowConfirm"
+			@closeModal="closeModal"
+			@confirm="deleteUsers"
+		/>
+		<EditUserModal
+			v-if="isShowEditUserModal"
+			@closeModal="closeEditUserModal"
+			:editingUserValues="editingUserValues"
+			@closeEditUserModal="closeEditUserModal"
+			@save="updateUser"
+			:isUpdateSuccess="isUpdateSuccess"
+			:isNameNull="nameIsNull"
+			:duplicateName="isDupplicateName"
+			:isEmailNull="emailIsNull"
+			:invalidEmail="isInvalidEmail"
+			:duplicateEmail="isDupplicateEmail"
+		/>
 		<div class="all-user-container">
-			<div id="insertBar">
-				<div class="bar">
-					<div class="flex mb-4">
-						<div id="edit-user-mode" v-if="editUserMode" class="flex">
-							<div class="nameInput">
-								<label class="name-label">Name :</label>
-								<input
-									type="text"
-									placeholder="Type you name here..."
-									class="rounded-md w-90 text-black"
-									v-model="editingUserName"
-									maxlength="100"
-								/>
-								<p
-									v-show="nameIsNull === true && isDupplicateName === false"
-									class="error"
-								>
-									{{ nameIsNullMsg }}
-								</p>
-								<p
-									v-show="nameIsNull === false && isDupplicateName === true"
-									class="error"
-								>
-									{{ dupplicateNameMsg }}
-								</p>
-							</div>
-							<div class="emailInput">
-								<label>Email :</label>
-								<input
-									type="text"
-									placeholder="Type you email here..."
-									class="rounded-md w-90 text-black"
-									v-model="editingUserEmail"
-									maxlength="50"
-								/>
-								<p v-show="emailIsNull === true" class="error">
-									{{ emailNullMsg }}
-								</p>
-								<p
-									v-show="isInvalidEmail === true && emailIsNull === false"
-									class="error"
-								>
-									{{ emailNotValidMsg }}
-								</p>
-								<p v-show="isDupplicateEmail === true" class="error">
-									{{ dupplicateEmailMsg }}
-								</p>
-							</div>
-							<div class="roleInput">
-								<label>Role :</label>
-								<select
-									class="border-2 border-gray-200 rounded-md p-1 text text-black w-56"
-									v-model="editingUserRole"
-								>
-									<option value="student" selected>Student</option>
-									<option value="admin">Admin</option>
-									<option value="lecturer">Lecturer</option>
-								</select>
-							</div>
-						</div>
-
-						<div id="buttonsearch" v-if="editUserMode">
-							<button
-								class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md ml-5"
-								@click="updateUser()"
-							>
-								Save
-							</button>
-							<button
-								class="bg-gray-200 hover:bg-gray-100 p-2 px-3 rounded-md ml-5 text-black"
-								@click="clearInput()"
-							>
-								Cancel
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-
 			<div class="table">
 				<div v-if="users.length == 0" class="no-user">
 					<h1>No Users</h1>
@@ -528,11 +557,21 @@ const signOut = () => {
 					</tbody>
 				</table>
 			</div>
+			<i
+				class="fa fa-user-plus"
+				aria-hidden="true"
+				@click="showAddModal"
+				v-if="!is401"
+			></i>
 		</div>
 	</div>
 </template>
 
 <style scoped>
+#root {
+	position: relative;
+	min-height: 88vh;
+}
 .no-user {
 	display: flex;
 	flex-direction: column;
@@ -547,6 +586,7 @@ const signOut = () => {
 	flex-direction: column;
 	align-items: center;
 	padding: 0 5%;
+	/* overflow: auto; */
 }
 #insertBar {
 	width: 95%;
@@ -563,6 +603,8 @@ select {
 	display: flex;
 	justify-content: center;
 	width: 100%;
+	margin: 30px 0;
+	/* background-color: red; */
 }
 table {
 	width: 100%;
@@ -609,5 +651,19 @@ label {
 }
 input {
 	border: 2px solid lightgray;
+}
+
+i {
+	padding: 15px;
+	background-color: orange;
+	border-radius: 50%;
+	color: black;
+	position: absolute;
+	bottom: 2rem;
+	right: 2rem;
+	cursor: pointer;
+}
+i:hover {
+	background-color: rgb(255, 176, 31);
 }
 </style>

@@ -64,7 +64,7 @@ button {
 	justify-content: center;
 }
 .modal-container {
-	border: 1px solid black;
+	/* border: 1px solid black; */
 	background-color: white;
 	border-radius: 10px;
 	min-width: 300px;
@@ -74,6 +74,7 @@ button {
 	/* margin-bottom: 25px; */
 	/* margin-top: 18px; */
 	padding: 20px 10px;
+	border-radius: 10px;
 }
 .modal-content p {
 	color: gray;

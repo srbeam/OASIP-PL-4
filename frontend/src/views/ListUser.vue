@@ -11,4 +11,4 @@ import BaseNavBar from '../components/BaseNavBar.vue'
 	</div>
 </template>
 
-<style></style>
+<style scoped></style>
