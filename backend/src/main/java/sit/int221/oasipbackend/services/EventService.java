@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +14,15 @@ import sit.int221.oasipbackend.config.JwtTokenUtil;
 import sit.int221.oasipbackend.dtos.*;
 import sit.int221.oasipbackend.entities.Event;
 import sit.int221.oasipbackend.entities.EventCategory;
+import sit.int221.oasipbackend.entities.User;
 import sit.int221.oasipbackend.exceptions.ValidationHandler;
 import sit.int221.oasipbackend.repositories.EventCategoryRepository;
 import sit.int221.oasipbackend.repositories.EventRepository;
+import sit.int221.oasipbackend.repositories.UsersRepository;
 import sit.int221.oasipbackend.utils.ListMapper;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,73 +31,166 @@ import java.util.regex.Pattern;
 @Service
 public class EventService {
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private ListMapper listMapper;
-
+    @Autowired
+    private ModelMapper modelMapper;
     @Autowired
     private EventRepository eventRepository;
-
+    @Autowired
+    private  UsersRepository usersRepository;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-
     @Autowired
     private JwtUserDetailsService jwtuserDetailsService;
-
-
-
-//    public List<SimpleEventDTO> getAllEvent() {
-//        Sort sort = Sort.by("eventStartTime");
-//        List<Event> eventList = eventRepository.findAll(sort.descending());
-//        return listMapper.mapList(eventList, SimpleEventDTO.class, modelMapper);
-//    }
-
-    public EventPageDTO getAllEventPage(int page, int pageSize, String sortBy) {
-        Sort sort = Sort.by(sortBy);
-        return modelMapper.map(eventRepository.findAll(
-                        PageRequest.of(page, pageSize, sort.descending())),
-                EventPageDTO.class);
+    @Autowired
+    private EventService(EventRepository repository) {
+        this.eventRepository = repository;
     }
 
-    public EventDetailDTO getEventById(Integer id) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        id + " Dose not exits!!!"));
-        return modelMapper.map(event, EventDetailDTO.class);
-    }
 
-    public Object save(EventCreateDTO newEvent) {
-        if(!validateOverLab(newEvent.getEventStartTime(), newEvent.getEventCategory(), newEvent.getEventDuration(), 0)) {
-            System.out.println();
-//            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Have an appointment during this time");
-            return ValidationHandler.showError("eventStartTime", "Have an appointment during this time");
-        }else {
-            Event event = modelMapper.map(newEvent, Event.class);
-            return eventRepository.saveAndFlush(event);
+
+    public Event save(@Valid  HttpServletRequest request, Event event) {
+        Event e = modelMapper.map(event, Event.class);
+        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+        if(request.isUserInRole("ROLE_student")){
+            if(getUserEmail.equals(event.getBookingEmail())){
+                return eventRepository.saveAndFlush(e);
+            }else{
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Booking email must be the same as the student's email");
+            }
         }
+        return eventRepository.saveAndFlush(event);
     }
 
-    public void delete(@PathVariable Integer id) {
-        eventRepository.findById(id).orElseThrow(()->
+    public Object reschedule(HttpServletRequest request,EventRescheduleDTO updateData, Integer id) {
+        Event existingEvent = eventRepository.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         id + " does not exist !!!"));
-        eventRepository.deleteById(id);
-    }
+//        Event e = modelMapper.map(updateData, Event.class);
+        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+        if(request.isUserInRole("ROLE_student")){
+            if(getUserEmail.equals(existingEvent.getBookingEmail())){
 
-    public Object reschedule(EventRescheduleDTO updateData, Integer id) {
-        if (!validateOverLab(updateData.getEventStartTime(), updateData.getEventCategory(), updateData.getEventDuration(), id)) {
-//            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Have an appointment during this time");
-            return ValidationHandler.showError("eventStartTime", "Have an appointment during this time");
-        }else {
-            Event existingEvent = eventRepository.findById(id).orElseThrow(()->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            id + " does not exist !!!"));
+                if (!validateOverLab(updateData.getEventStartTime(), updateData.getEventCategory(), updateData.getEventDuration(), id)) {
+                    return ValidationHandler.showError("eventStartTime", "Have an appointment during this time");
+                }else {
+                    existingEvent.setEventStartTime(updateData.getEventStartTime());
+                    existingEvent.setEventNote(updateData.getEventNote());
+                    return eventRepository.saveAndFlush(existingEvent);
+                }
+
+            }else{
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Cannot reschedule event which you didn't own");
+            }
+        }
+        if(request.isUserInRole("ROLE_admin")){
             existingEvent.setEventStartTime(updateData.getEventStartTime());
             existingEvent.setEventNote(updateData.getEventNote());
             return eventRepository.saveAndFlush(existingEvent);
         }
+
+        return eventRepository.saveAndFlush(existingEvent);
     }
+
+    public void delete(Integer id,HttpServletRequest request) {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                id + " does not exist !!!"));
+        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+        User user = usersRepository.findByEmail(getUserEmail);
+        if(user != null) {
+            if((request.isUserInRole("ROLE_student")) && !event.getBookingEmail().equals(user.getEmail())) {
+                System.out.println("Cannot delete event which you didn't own");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete event which you didn't own");
+            }
+//            if((request.isUserInRole("ROLE_lecturer"))) {
+//                System.out.println("Only student, admin can delete event");
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only student, admin can delete event");
+//            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please Sign in again");}
+
+        eventRepository.deleteById(id);
+//        return id;
+    }
+
+
+
+    public List<SimpleEventDTO> getAll(HttpServletRequest request){
+        List<Event> eventsList = eventRepository.findAll(Sort.by(Sort.Direction.DESC,"eventStartTime"));
+        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+        UserDetails userDetails = jwtuserDetailsService.loadUserByUsername(getUserEmail);
+        if(userDetails != null && (request.isUserInRole("ROLE_student"))){
+            List<Event> eventsListByEmail = eventRepository.findByBookingEmail(getUserEmail);
+            return listMapper.mapList(eventsListByEmail, SimpleEventDTO.class,modelMapper);
+        }
+//        else if(userDetails != null && (request.isUserInRole("ROLE_lecturer"))){
+////            List<Events> eventsListByEmail = repository.findByBookingEmail(getUserEmail);
+////            List<Event> eventListByCategoryOwner = repository.findEventCategoryOwnerByEmail(getUserEmail);
+//
+////            return listMapper.mapList(eventListByCategoryOwner , EventDTO.class,modelMapper);
+//        }
+        return listMapper.mapList(eventsList, SimpleEventDTO.class,modelMapper);
+    }
+
+    public EventDetailDTO getEventById(Integer id, HttpServletRequest request){
+        Event events = eventRepository.findById(id)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Can't get event, event id "+ id +
+                        " doesn't exist."
+                ));
+        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+        if(request.isUserInRole("student")){
+            if(getUserEmail.equals(events.getBookingEmail())){
+                return modelMapper.map(events,EventDetailDTO.class);
+            }else{
+                throw new AccessDeniedException("");
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Cannot view event which you didn't own");
+            }
+        }
+        return modelMapper.map(events,EventDetailDTO.class);
+    }
+
+    public LocalDateTime findEndDate(LocalDateTime date, Integer duration){
+        return date.plusMinutes(duration);
+    }
+
+    public List<SimpleEventDTO> getAllEvent() {
+        List<Event> eventList = eventRepository.findAllByOrderByEventStartTimeDesc();
+        return listMapper.mapList(eventList, SimpleEventDTO.class, modelMapper);
+    }
+
+//    public Object reschedule(EventRescheduleDTO updateData, Integer id) {
+//        Event existingEvent = eventRepository.findById(id).orElseThrow(()->
+//                new ResponseStatusException(HttpStatus.NOT_FOUND,
+//                        id + " does not exist !!!"));
+//        if (!validateOverLab(updateData.getEventStartTime(), updateData.getEventCategory(), updateData.getEventDuration(), id)) {
+//            return ValidationHandler.showError("eventStartTime", "Have an appointment during this time");
+//        }else {
+//            existingEvent.setEventStartTime(updateData.getEventStartTime());
+//            existingEvent.setEventNote(updateData.getEventNote());
+//            return eventRepository.saveAndFlush(existingEvent);
+//        }
+//    }
+
+
+
+//    public void delete(@PathVariable Integer id) {
+//        eventRepository.findById(id).orElseThrow(()->
+//                new ResponseStatusException(HttpStatus.NOT_FOUND,
+//                        id + " does not exist !!!"));
+//        eventRepository.deleteById(id);
+//    }
+
+    public String getRequestAccessToken(HttpServletRequest request){
+        return request.getHeader("Authorization").substring(7);
+    }
+
+    public String getUserEmail(String requestAccessToken){
+        return jwtTokenUtil.getUsernameFromToken(requestAccessToken);
+    }
+
+
+
+//    ---------------------------------------------------------
 
     public Event update(Event updateEvent, Integer id) {
         Event event = eventRepository.findById(id)
@@ -200,30 +297,6 @@ public class EventService {
         System.out.println("false ซ้อน");
         return false;
 
-    }
-//    public List<SimpleEventDTO> getAllEvent(HttpServletRequest request) {
-//        List<Event> eventsList = eventRepository.findAll(Sort.by(Sort.Direction.DESC,"eventStartTime"));
-//        String getUserEmail = getUserEmail(getRequestAccessToken(request));
-//        UserDetails userDetails = jwtuserDetailsService.loadUserByUsername(getUserEmail);
-//        if(userDetails != null && (request.isUserInRole("ROLE_student"))){
-//            List<Event> eventsListByEmail = eventRepository.findByBookingEmail(getUserEmail);
-//            return listMapper.mapList(eventsListByEmail, SimpleEventDTO.class,modelMapper);
-//
-//        }
-//        return listMapper.mapList(eventsList, SimpleEventDTO.class,modelMapper);
-//    }
-
-    public String getRequestAccessToken(HttpServletRequest request){
-        return request.getHeader("Authorization").substring(7);
-    }
-
-    public String getUserEmail(String requestAccessToken){
-        return jwtTokenUtil.getUsernameFromToken(requestAccessToken);
-    }
-    public List<SimpleEventDTO> getAllEvent() {
-        Sort sort = Sort.by("eventStartTime");
-        List<Event> eventList = eventRepository.findAll(sort.descending());
-        return listMapper.mapList(eventList, SimpleEventDTO.class, modelMapper);
     }
 
 }

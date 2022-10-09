@@ -19,9 +19,6 @@ import java.util.List;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-//    @Autowired
-//    private UsersRepository usersRepository;
-
     private final UsersRepository repository;
     private final Argon2PasswordEncoder argon2PasswordEncoder;
 
@@ -29,6 +26,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         this.repository = repository;
         this.argon2PasswordEncoder = argon2PasswordEncoder;
     }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = repository.findByEmail(username);
@@ -41,9 +39,5 @@ public class JwtUserDetailsService implements UserDetailsService {
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         return authorities;
     }
-//    @Override
-//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//        User user = repository.findByEmail(email);
-//        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword() , new ArrayList<>());
-//    }
+
 }

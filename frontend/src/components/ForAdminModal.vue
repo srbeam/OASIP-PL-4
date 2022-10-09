@@ -15,7 +15,7 @@ const signOut = () => {
 					<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 					<h3>Admin Only</h3>
 					<p>Please sing in with admin account to access this page</p>
-					<router-link :to="{ name: 'Page', params: { page: 1 } }">
+					<router-link :to="{ name: 'ListAll' }">
 						<button class="view-event-btn">View Event</button>
 					</router-link>
 					<router-link :to="{ name: 'Home' }">

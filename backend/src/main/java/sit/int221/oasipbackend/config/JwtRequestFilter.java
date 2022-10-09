@@ -24,11 +24,6 @@ import java.util.stream.Collectors;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-//    @Autowired
-//    private JwtUserDetailsService jwtUserDetailsService;
-//
-//    @Autowired
-//    private JwtTokenUtil jwtTokenUtil;
     private final JwtUserDetailsService jwtUserDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
 
@@ -37,48 +32,41 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.jwtTokenUtil = jwtTokenUtil;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
         final String requestTokenHeader = request.getHeader("Authorization");
-
         String username = null;
         String jwtToken = null;
-
         // JWT Token is in the form "Bearer token". Remove Bearer word and get
         // only the Token
-
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             try {
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
             } catch (IllegalArgumentException e) {
                 System.out.println("Unable to get JWT Token");
-//                request.setAttribute("Errors",e.getMessage());
             } catch (ExpiredJwtException e) {
-                String requestURL = request.getRequestURI().toString();
+                String requestURL = request.getRequestURL().toString();
                 System.out.println(requestURL);
-//                request.setAttribute("Errors",e.getMessage());
                 if(requestURL.contains("refresh")){
-                    request.setAttribute("error","Refresh token was expired. Please make a new signin request");
+                    request.setAttribute("Errors", "Refresh token was expired. Please make a new signin request");
                 }else{
                     request.setAttribute("Errors", e.getMessage());
                 }
             }catch (MalformedJwtException e){
                 request.setAttribute("Errors", e.getMessage());
-            }catch(SignatureException e){
+            }catch (SignatureException e){
                 request.setAttribute("Errors", e.getMessage());
             }
         } else {
             logger.warn("JWT Token does not begin with Bearer String");
-            request.setAttribute("Errors","Token does not exist");
+            request.setAttribute("Errors", "Token doesn't exist");
         }
 
         // Once we get the token validate it.
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
 
             // if token is valid configure Spring Security to manually set
@@ -99,5 +87,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
+
 
 }

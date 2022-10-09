@@ -20,6 +20,7 @@ public class SimpleEventDTO {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventStartTime;
     private Integer eventDuration;
+    private String bookingEmail;
     @JsonIgnore
     private SimpleEventCategoryDTO eventCategory;
 

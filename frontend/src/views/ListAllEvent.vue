@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
 import ListallComponent from '../components/ListallComponent.vue'
+import BaseNavBar from '../components/BaseNavBar.vue'
 
 const events = ref([])
 const author = localStorage.getItem('token')
@@ -65,6 +66,7 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 
 <template>
 	<div>
+		<BaseNavBar />
 		<ListallComponent
 			:events="events"
 			@deleteEvent="deleteEvent"

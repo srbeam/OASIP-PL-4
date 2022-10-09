@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import BaseNavBar from '../components/BaseNavBar.vue'
 
 const appRouter = useRouter()
-const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
+const goAllEvent = () => appRouter.push({ name: 'ListAll' })
 </script>
 
 <template>

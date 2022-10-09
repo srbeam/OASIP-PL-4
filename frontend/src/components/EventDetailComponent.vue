@@ -1,21 +1,24 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import RescheduleSuccess from './RescheduleSuccess.vue'
 
-// defineEmits(['formatDate', 'formatTime', 'formatDateTime'])
+defineEmits(['back'])
 const props = defineProps({
-	event: {
+	pevent: {
 		type: Object,
-		require: true
+		default: {}
 	},
-	events: {
+	pevents: {
 		type: Array,
-		require: true
+		default: []
 	}
 })
 
-const event = computed(() => props.event)
-const events = computed(() => props.events)
+const event = computed(() => props.pevent)
+const events = computed(() => props.pevents)
+// const event = computed(() => props.event)
+// const events = computed(() => props.events)
 const isEditMode = ref(false)
 
 const appRouter = useRouter()
@@ -23,8 +26,8 @@ const goBack = () => appRouter.go(-1)
 
 let currentDateTime = ref('')
 const newStartTime = ref('')
-// const newStartTime = computed(() => formatDateTime(event.value.eventStartTime))
-const newNote = ref(event.value.eventNote)
+const newNote = ref('')
+
 let isBlank = ref(false)
 let isInvalidDateFuture = ref(false)
 let isInvalidOverLab = ref(false)
@@ -133,17 +136,18 @@ const confirm = () => {
 			date.getHours(),
 			date.getMinutes()
 		]
-		const updateNote = newNote.value
-		event.value.eventStartTime = date
-		event.value.eventNote = newNote.value
+		// const updateNote = newNote.value
+		// event.value.eventStartTime = date
+		// editingNote.value = newNote.value
 		rescheduleEvent(
 			updateStartTime,
-			updateNote,
+			newNote.value,
 			event.value.eventCategory,
 			event.value.id
 		)
 	}
 }
+const isRescheduleSuccess = ref()
 const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
 const token = ref()
@@ -167,11 +171,18 @@ const rescheduleEvent = async (
 			eventCategory: eventCategory
 		})
 	})
+	console.log(updateStartTime)
+	console.log(updateNote)
 	if (res.status === 200) {
 		console.log('edited successfully')
-		cancel()
+		// cancel()
+
+		isEditMode.value = false
+		isRescheduleSuccess.value = true
+		setTimeout(toggleRescheduleSuccess, 3000)
 	} else if (res.status == 401) {
 		getRefreshToken()
+		isRescheduleSuccess.value = false
 	} else console.log('error, cannot be added')
 }
 const getRefreshToken = async () => {
@@ -204,8 +215,18 @@ const cancel = () => {
 }
 const editMode = () => {
 	newStartTime.value = formatDateTime(event.value.eventStartTime)
-	console.log(newStartTime.value)
+	// console.log(newStartTime.value)
 	isEditMode.value = true
+	newNote.value = event.value.eventNote
+}
+
+const toggleRescheduleSuccess = () => {
+	if (isRescheduleSuccess.value === true) {
+		isRescheduleSuccess.value = false
+		goBack()
+	} else {
+		isRescheduleSuccess.value = true
+	}
 }
 </script>
 
@@ -226,12 +247,14 @@ const editMode = () => {
 					<br />
 					<h3>{{ event.bookingName }}</h3>
 					<p>{{ event.bookingEmail }}</p>
-					<h5 class="text-sm">{{ event.eventCategory.eventCategoryName }}</h5>
+					<h5 class="text-sm" v-if="event.eventCategory != undefined">
+						{{ event.eventCategory.eventCategoryName }}
+					</h5>
 				</div>
 
 				<div class="basis-1/2 p-10 ml-4" v-if="!isEditMode">
 					<p class="font-semibold">Appointment Date / Time</p>
-					<div>
+					<div v-if="event.eventStartTime != null">
 						<p>Date : {{ formatDate(event.eventStartTime) }}</p>
 						<p>Time : {{ formatTime(event.eventStartTime) }} min</p>
 					</div>
@@ -241,7 +264,9 @@ const editMode = () => {
 					<br />
 					<div class="note-area">
 						<p>Note :&nbsp;</p>
-						<p v-if="event.eventNote.length > 0">{{ event.eventNote }}</p>
+						<p v-if="event.eventNote != undefined && event.eventNote.length > 0">
+							{{ event.eventNote }}
+						</p>
 						<p v-else>No note</p>
 					</div>
 
@@ -249,7 +274,7 @@ const editMode = () => {
 						Reschedule
 					</button>
 				</div>
-				<div class="basis-1/2 p-10" v-if="isEditMode">
+				<div class="basis-1/2 p-10" v-else>
 					<p class="text-red-600" v-if="isBlank">
 						Please select date and time or click cancel. |
 						กรุณาเลือกระบุเวลาใหม่ที่ต้องการเลือก หรือ กดยกเลิก
@@ -302,6 +327,7 @@ const editMode = () => {
 				</div>
 			</div>
 		</div>
+		<RescheduleSuccess v-if="isRescheduleSuccess" />
 	</div>
 </template>
 

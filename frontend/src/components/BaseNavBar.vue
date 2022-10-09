@@ -57,32 +57,29 @@ const signOut = () => {
 				<div class="nav-container">
 					<div class="nav-container-grid">
 						<div id="logo">
-							<router-link :to="{ name: 'Home' }" @click="checkToken">
+							<router-link :to="{ name: 'Home' }">
 								<img src="../assets/images/background/logo.png" id="logo" />
 							</router-link>
 						</div>
-						<router-link :to="{ name: 'AddEvent' }" @click="checkToken">
+						<router-link :to="{ name: 'AddEvent' }">
 							<button class="menu">Reserve</button>
 						</router-link>
-						<router-link
-							:to="{ name: 'Page', params: { page: 1 } }"
-							@click="checkToken"
-						>
+						<router-link :to="{ name: 'ListAll' }">
 							<button class="menu">List All Event</button>
 						</router-link>
-						<router-link :to="{ name: 'Category' }" @click="checkToken">
+						<router-link :to="{ name: 'Category' }">
 							<button class="menu">Category</button>
 						</router-link>
-						<router-link :to="{ name: 'ListByDate' }" @click="checkToken">
+						<router-link :to="{ name: 'ListByDate' }">
 							<button class="menu">List By Date</button>
 						</router-link>
-						<router-link :to="{ name: 'ListUser' }" @click="checkToken">
+						<router-link :to="{ name: 'ListUser' }">
 							<button class="menu">List All Users</button>
 						</router-link>
-						<router-link :to="{ name: 'AboutUs' }" @click="checkToken">
+						<router-link :to="{ name: 'AboutUs' }">
 							<button class="menu">About Us</button>
 						</router-link>
-						<div id="sign-out-btn" v-if="isHasToken" @click="checkToken">
+						<div id="sign-out-btn" v-if="isHasToken">
 							<router-link :to="{ name: 'Home' }">
 								<button class="btn btn-warning rounded-md text-black" @click="signOut">
 									SignOut

@@ -20,12 +20,6 @@ public class RefreshController {
         this.refreshService = refreshService;
     }
 
-//        @PostMapping("")
-//        @ResponseStatus(code = HttpStatus.OK)
-//        public ResponseEntity refreshLogin(HttpServletRequest request) throws Exception {
-//            return refreshService.refreshLogin(request);
-//        }
-
     @GetMapping("")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseEntity refreshLogin(@Valid HttpServletRequest request){

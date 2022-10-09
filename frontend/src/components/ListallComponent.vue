@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, VueElement } from 'vue'
 import NoLoginModal from './NoLoginModal.vue'
+
 defineEmits(['deleteEvent'])
 const props = defineProps({
 	events: {
@@ -84,7 +85,7 @@ const formatTime = (dateTime) => {
 .content {
 	display: flex;
 	justify-content: center;
-	/* padding-top: 2%; */
+	padding: 2% 0;
 	min-height: 720px;
 }
 #no-events {

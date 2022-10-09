@@ -3,10 +3,16 @@ import { ref, onBeforeMount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
+import VueJwtDecode from 'vue-jwt-decode'
 
 const categories = ref([])
 const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
+const getEmailFromToken = ref()
+const getUserEmail = () => {
+	getEmailFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+	console.log(getEmailFromToken.value.sub)
+}
 const getCategory = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
 		method: 'GET',
@@ -16,7 +22,6 @@ const getCategory = async () => {
 	})
 	if (res.status === 200) {
 		categories.value = await res.json()
-		// console.log(categories.value)
 	} else if (res.status == 401) {
 		getRefreshToken()
 	} else console.log('error, cannot get data')
@@ -24,8 +29,7 @@ const getCategory = async () => {
 onBeforeMount(async () => {
 	await getCategory()
 	await getEvents()
-	// console.log(events)
-	// console.log(categories)
+	getUserEmail()
 })
 
 const events = ref([])
@@ -41,8 +45,9 @@ const getEvents = async () => {
 		events.value = await res.json()
 		for (let event of events.value) {
 			event.eventStartTime = new Date(event.eventStartTime)
-			// console.log(event.eventStartTime)
 		}
+	} else if (res.status == 401) {
+		getRefreshToken()
 	} else console.log('error, cannot get data')
 }
 
@@ -68,24 +73,24 @@ const addEvent = () => {
 	// console.log(validateDateFuture(eventStartTime.value))
 	if (
 		bookingName.value == '' ||
-		bookingEmail.value == '' ||
+		// bookingEmail.value == '' ||
 		eventCategory.value == '' ||
 		eventStartTime.value == ''
+		// getEmailFromToken.value == ''
 	) {
 		isBlank.value = true
 		isInvalidEmail.value = false
 		isInvalidDateFuture.value = false
 		isInvalidOverLab.value = false
 		console.log(isBlank.value)
-	} else if (!validateEmail(bookingEmail.value)) {
-		// console.log('เข้า false')
-		// console.log(bookingEmail.value)
-		isInvalidEmail.value = true
-		isBlank.value = false
-		isInvalidDateFuture.value = false
-		isInvalidOverLab.value = false
-	} else if (!validateDateFuture(eventStartTime.value)) {
-		// console.log('เข้า false date')
+	}
+	// else if (!validateEmail(bookingEmail.value)) {
+	// 	isInvalidEmail.value = true
+	// 	isBlank.value = false
+	// 	isInvalidDateFuture.value = false
+	// 	isInvalidOverLab.value = false
+	// }
+	else if (!validateDateFuture(eventStartTime.value)) {
 		isInvalidDateFuture.value = true
 		isInvalidOverLab.value = false
 		isInvalidEmail.value = false
@@ -97,23 +102,20 @@ const addEvent = () => {
 			eventDuration.value
 		)
 	) {
-		console.log('เข้า false date')
 		isInvalidOverLab.value = true
 		isInvalidDateFuture.value = false
 		isInvalidEmail.value = false
 		isBlank.value = false
 	} else {
-		console.log('add')
 		const date = new Date(eventStartTime.value).toLocaleString('en-GB')
 		const newEvent = {
 			bookingName: bookingName.value.trim(),
-			bookingEmail: bookingEmail.value,
+			bookingEmail: getEmailFromToken.value.sub,
 			eventCategory: eventCategory.value,
 			eventStartTime: date,
 			eventDuration: eventCategory.value.eventDuration,
 			eventNote: note.value
 		}
-		// console.log(newEvent)
 		addEventToDB(newEvent)
 	}
 }
@@ -122,6 +124,7 @@ const addEvent = () => {
 const addEventToDB = async (newEvent) => {
 	// console.log(newEvent)
 	//ใช้ตัวแปร env แทนการเขียน path
+
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
 		headers: {
@@ -136,6 +139,8 @@ const addEventToDB = async (newEvent) => {
 		console.log('added sucessfully')
 		// console.log(res)
 		goSuccess()
+	} else if (res.status == 401) {
+		getRefreshToken()
 	} else console.log('error, cannot be added')
 }
 
@@ -263,18 +268,21 @@ const saveLocal = () => {
 
 					<div>
 						<label for="email">Booking Email address</label>
-						<span class="error"> * </span>
-						<span class="lenght">100 character | 100 ตัวอักษร</span>
+						<!-- <span class="error"> * </span>
+						<span class="lenght">100 character | 100 ตัวอักษร</span> -->
 						<div class="flex">
 							<input
+								v-if="getEmailFromToken != undefined"
 								id="email"
 								name="email"
-								type="email"
+								type="text"
 								class="form-control mb-3"
-								v-model="bookingEmail"
-								maxlength="100"
+								:value="getEmailFromToken.sub"
+								readonly
 							/>
-							<span class="ml-3 mt-2 text-xl"> </span>
+
+							<!-- <span class="ml-3 mt-2 text-xl"> </span> -->
+							<!-- {{ getEmailFromToken.sub }} -->
 						</div>
 					</div>
 				</div>

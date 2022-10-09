@@ -17,55 +17,46 @@ import java.util.List;
 @CrossOrigin("*")
 public class EventController {
     @Autowired
-    private EventService service;
+    private EventService eventService;
 
     @GetMapping("")
-    public List<SimpleEventDTO> getAllEvent() {
-        return service.getAllEvent();
+    public List<SimpleEventDTO> getAllEvent(HttpServletRequest httpServletRequest){
+        System.out.println("getAllEvent controller worked");
+        return eventService.getAll(httpServletRequest);
     }
 
     @GetMapping("/{id}")
-    public EventDetailDTO getEventById(@PathVariable Integer id) {
-        return service.getEventById(id);
-    }
-
-    @GetMapping("/page")
-    public EventPageDTO getAllEventPage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int pageSize,
-            @RequestParam(defaultValue = "eventStartTime") String sortBy) {
-        return service.getAllEventPage(page,pageSize,sortBy);
+    @ResponseStatus(code = HttpStatus.OK)
+    public EventDetailDTO getEventById(@PathVariable Integer id, HttpServletRequest request) {
+        return eventService.getEventById(id, request);
     }
 
 
+    @ResponseStatus(code = HttpStatus.CREATED)
     @PostMapping("")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Object addNewEvent(@Valid @RequestBody EventCreateDTO newEvent) {
-        return service.save(newEvent);
+    public void addEvent(@Valid HttpServletRequest request , @Valid @RequestBody Event event) {
+        System.out.println("addEvent controller worked");
+        eventService.save(request,event);
     }
+
+//    @DeleteMapping("/{id}")
+//    public void delete(@PathVariable Integer id) {
+//        eventService.delete(id);
+//    }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        service.delete(id);
-    }
-
-    @PutMapping("/{id}")
-    public Object reschedule(@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
-        return service.reschedule(updateData, id);
-    }
-//    @PutMapping("/reschedule/{id}")
-//    public Object reschedule(@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
-//        return service.reschedule(updateData, id);
-//    }
+    public void deleteEvent(@PathVariable Integer id,HttpServletRequest request) { eventService.delete(id,request);}
 
 //    @PutMapping("/{id}")
-//    public Event update(@RequestBody Event updateEvent, @PathVariable Integer id) {
-//        return service.update(updateEvent, id);
+//    @ResponseStatus(code = HttpStatus.OK)
+//    public Object reschedule(@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
+//        return eventService.reschedule(updateData, id);
 //    }
+    @PutMapping("/{id}")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Object reschedule(@Valid HttpServletRequest request,@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
+        return eventService.reschedule(request,updateData, id);
+    }
 
-//    @GetMapping("")
-//    public List<SimpleEventDTO> getAll(HttpServletRequest httpServletRequest){
-//        return service.getAllEvent(httpServletRequest);
-//    }
 
 }

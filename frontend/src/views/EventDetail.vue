@@ -64,15 +64,19 @@ const saveLocal = () => {
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
 }
 onBeforeMount(async () => {
-	await getEventById(eventId)
+	// await getEventById(eventId)
 	await getEvents()
+	await getEventById(eventId)
 })
 </script>
 
 <template>
 	<div>
 		<BaseNavBar />
-		<EventDetailComponent :event="event" :events="events"></EventDetailComponent>
+		<EventDetailComponent
+			:pevent="event"
+			:pevents="events"
+		></EventDetailComponent>
 		<!-- <EventDetailComponent :event="event" :events="events" @formatDate="formatDate" @formatTime="formatTime" @formatDateTiem="formatDateTime"></EventDetailComponent> -->
 	</div>
 </template>

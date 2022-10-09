@@ -16,21 +16,16 @@ const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
 const token = ref()
 const getEvents = async () => {
-	const res = await fetch(
-		`${import.meta.env.VITE_BACK_URL}/events/page?page=${
-			currentPage - 1
-		}&pageSize=6`,
-		{
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${author}`
-			}
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${author}`
 		}
-	)
+	})
 	if (res.status === 200) {
 		response.value = await res.json()
-		events.value = response.value.content
-		totalPage.value = response.value.totalPages
+		// events.value = response.value.content
+		// totalPage.value = response.value.totalPages
 		for (let event of events.value) {
 			event.eventStartTime = new Date(event.eventStartTime)
 			// console.log(event.eventStartTime)
@@ -39,6 +34,30 @@ const getEvents = async () => {
 		getRefreshToken()
 	} else console.log('error, cannot get data')
 }
+// const getEvents = async () => {
+// 	const res = await fetch(
+// 		`${import.meta.env.VITE_BACK_URL}/events/page?page=${
+// 			currentPage - 1
+// 		}&pageSize=6`,
+// 		{
+// 			method: 'GET',
+// 			headers: {
+// 				Authorization: `Bearer ${author}`
+// 			}
+// 		}
+// 	)
+// 	if (res.status === 200) {
+// 		response.value = await res.json()
+// 		events.value = response.value.content
+// 		totalPage.value = response.value.totalPages
+// 		for (let event of events.value) {
+// 			event.eventStartTime = new Date(event.eventStartTime)
+// 			// console.log(event.eventStartTime)
+// 		}
+// 	} else if (res.status == 401) {
+// 		getRefreshToken()
+// 	} else console.log('error, cannot get data')
+// }
 onBeforeMount(async () => {
 	await getEvents()
 })

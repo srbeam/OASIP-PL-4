@@ -16,21 +16,25 @@ import java.util.List;
 @CrossOrigin
 public class EventCategoryController {
     @Autowired
-    private EventCategoryService service;
+    EventCategoryService eventCategoryService;
+
+    @Autowired
+    EventCategoryService eventService;
+
 
     @GetMapping("")
     public List<EventCategory> getAllCategory() {
-        return service.getAllCategory();
+        return eventCategoryService.getAllCategory();
     }
 
     @GetMapping("/{id}")
-    public EventCategory getEventById(@PathVariable Integer id) {
-        return service.getCategoryById(id);
+    public EventCategory getCategoryById(@PathVariable Integer id) {
+        return eventCategoryService.getCategoryById(id);
     }
 
     @PutMapping("/{id}")
     public Object updateCategory(@Valid @RequestBody SimpleEventCategoryDTO updateCategory, @PathVariable Integer id) {
-        return service.updateCategory(updateCategory, id);
+        return eventCategoryService.updateCategory(updateCategory, id);
     }
 
 }

@@ -7,7 +7,7 @@ import BaseNavBar from '../components/BaseNavBar.vue'
 <template>
 	<div>
 		<BaseNavBar />
-		<ListAllUser :users="users"></ListAllUser>
+		<ListAllUser></ListAllUser>
 	</div>
 </template>
 

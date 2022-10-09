@@ -23,7 +23,7 @@ const routes = [
 	{ path: '/categories', name: 'Category', component: ListCategory },
 	{ path: '/categories/:id', name: 'ListByCategory', component: ListByCategory },
 	{ path: '/date', name: 'ListByDate', component: ListByDate },
-	{ path: '/events/page/:page', name: 'Page', component: Page },
+	// { path: '/events/page/:page', name: 'Page', component: Page },
 	{ path: '/about-us', name: 'AboutUs', component: AboutUs },
 	{ path: '/listalluser', name: 'ListUser', component: ListUser },
 	,

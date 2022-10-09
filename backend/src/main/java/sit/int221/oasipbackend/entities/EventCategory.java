@@ -1,55 +1,42 @@
 package sit.int221.oasipbackend.entities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.*;
 
+@Getter @Setter
 @Entity
 @Table(name = "eventCategory")
 public class EventCategory {
+
     @Id
     @Column(name = "eventCategoryId", nullable = false)
     private Integer id;
 
+    @NotBlank(message = "Category name must not be blank")
+    @Size(max = 100, message = "Category name size must not be more than 100")
     @Column(name = "eventCategoryName", nullable = false, length = 100)
     private String eventCategoryName;
 
+    @Size(max = 500, message = "Category description size must not be more than 500")
     @Column(name = "eventCategoryDescription", length = 500)
     private String eventCategoryDescription;
 
+    @Min(1)
+    @Max(480)
+    @NotNull(message = "Category duration must not be blank")
     @Column(name = "eventDuration", nullable = false)
     private Integer eventDuration;
-
-    public Integer getEventDuration() {
-        return eventDuration;
-    }
-
-    public void setEventDuration(Integer eventDuration) {
-        this.eventDuration = eventDuration;
-    }
-
-    public String getEventCategoryDescription() {
-        return eventCategoryDescription;
-    }
-
-    public void setEventCategoryDescription(String eventCategoryDescription) {
-        this.eventCategoryDescription = eventCategoryDescription;
-    }
-
-    public String getEventCategoryName() {
-        return eventCategoryName;
-    }
 
     public void setEventCategoryName(String eventCategoryName) {
         this.eventCategoryName = eventCategoryName;
     }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public String getEventCategoryNames() {
+        return eventCategoryName;
     }
 }

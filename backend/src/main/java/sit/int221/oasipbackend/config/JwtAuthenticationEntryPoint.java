@@ -37,7 +37,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint{
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         errors.put("timestamp", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         errors.put("status", response.getStatus());
-        errors.put("error", "UNAUTHORIZED");
+        errors.put("error", response.getStatus() == 401 ? "UNAUTHORIZED" : "FORBIDDEN" );
         errors.put("message", request.getAttribute("Errors"));
         try{
             ObjectMapper mapper = new ObjectMapper();
