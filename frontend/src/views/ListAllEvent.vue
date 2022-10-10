@@ -1,10 +1,15 @@
 <script setup>
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount, resolveDirective } from 'vue'
 import ListallComponent from '../components/ListallComponent.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
+import NoLoginModal from '../components/NoLoginModal.vue'
 
 const events = ref([])
 const author = localStorage.getItem('token')
+let refreshToken = localStorage.getItem('refreshToken')
+const token = ref()
+const is401 = ref()
+const is403 = ref()
 const getEvents = async () => {
 	// const res = await fetch('http://localhost:8080/api/events')
 	// const res = await fetch('http://10.4.56.124:8081/api/events')
@@ -19,12 +24,38 @@ const getEvents = async () => {
 		for (let event of events.value) {
 			event.eventStartTime = new Date(event.eventStartTime)
 		}
+	} else if (res.status == 401) {
+		getRefreshToken()
+	} else if (res.status === 403) {
+		is403.value = true
 	} else console.log('error, cannot get data')
 }
 onBeforeMount(async () => {
 	await getEvents()
-	console.log(events)
 })
+
+const getRefreshToken = async () => {
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${refreshToken}`
+		}
+	})
+	if (res.status === 200) {
+		is401.value = false
+		token.value = await res.json()
+		saveLocal()
+	} else if (res.status === 401) {
+		// window.location.reload()
+		is401.value = true
+	} else {
+		console.log('Error,cannot get refresh token from backend')
+	}
+}
+const saveLocal = () => {
+	localStorage.setItem('token', `${token.value.accessToken}`)
+	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+}
 
 const formatDate = (dateTime) => {
 	return dateTime.toLocaleString('en-US', {
@@ -67,7 +98,9 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 <template>
 	<div>
 		<BaseNavBar />
+		<NoLoginModal v-if="is401" />
 		<ListallComponent
+			v-else
 			:events="events"
 			@deleteEvent="deleteEvent"
 		></ListallComponent>

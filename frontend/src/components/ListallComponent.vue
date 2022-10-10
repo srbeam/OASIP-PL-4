@@ -1,7 +1,14 @@
 <script setup>
-import { ref, VueElement } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import NoLoginModal from './NoLoginModal.vue'
-
+import VueJwtDecode from 'vue-jwt-decode'
+const getUserFromToken = ref()
+const getUser = () => {
+	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+}
+onBeforeMount(async () => {
+	await getUser()
+})
 defineEmits(['deleteEvent'])
 const props = defineProps({
 	events: {
@@ -68,6 +75,10 @@ const formatTime = (dateTime) => {
 											event.bookingName,
 											event.eventStartTime
 										)
+									"
+									v-if="
+										getUserFromToken != undefined &&
+										getUserFromToken.Roles != 'ROLE_lecturer'
 									"
 								>
 									<img src="../assets/images/trash.png" />

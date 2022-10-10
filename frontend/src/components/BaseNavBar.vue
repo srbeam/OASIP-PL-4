@@ -7,6 +7,15 @@ import {
 	onUpdated,
 	ref
 } from 'vue'
+import VueJwtDecode from 'vue-jwt-decode'
+
+const author = localStorage.getItem('token')
+let refreshToken = localStorage.getItem('refreshToken')
+const getUserFromToken = ref()
+const getUser = () => {
+	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+}
+
 const isHasToken = ref()
 const checkToken = () => {
 	if (
@@ -36,6 +45,7 @@ function toggleMenu() {
 }
 onBeforeMount(async () => {
 	await checkToken()
+	getUser()
 })
 
 const signOut = () => {
@@ -54,14 +64,39 @@ const signOut = () => {
 					<div class="bar3"></div>
 				</div>
 
-				<div class="nav-container">
+				<div class="nav-container" v-if="getUserFromToken === undefined">
 					<div class="nav-container-grid">
 						<div id="logo">
 							<router-link :to="{ name: 'Home' }">
 								<img src="../assets/images/background/logo.png" id="logo" />
 							</router-link>
 						</div>
-						<router-link :to="{ name: 'AddEvent' }">
+						<!-- <router-link :to="{ name: 'AddEvent' }">
+							<button class="menu">Reserve</button>
+						</router-link> -->
+						<router-link :to="{ name: 'AboutUs' }">
+							<button class="menu">About Us</button>
+						</router-link>
+						<div id="sign-out-btn" v-if="isHasToken">
+							<router-link :to="{ name: 'Home' }">
+								<button class="btn btn-warning rounded-md text-black" @click="signOut">
+									SignOut
+								</button>
+							</router-link>
+						</div>
+					</div>
+				</div>
+				<div class="nav-container" v-else>
+					<div class="nav-container-grid">
+						<div id="logo">
+							<router-link :to="{ name: 'Home' }">
+								<img src="../assets/images/background/logo.png" id="logo" />
+							</router-link>
+						</div>
+						<router-link
+							:to="{ name: 'AddEvent' }"
+							v-if="getUserFromToken.Roles != 'ROLE_lecturer'"
+						>
 							<button class="menu">Reserve</button>
 						</router-link>
 						<router-link :to="{ name: 'ListAll' }">
@@ -73,7 +108,12 @@ const signOut = () => {
 						<router-link :to="{ name: 'ListByDate' }">
 							<button class="menu">List By Date</button>
 						</router-link>
-						<router-link :to="{ name: 'ListUser' }">
+						<router-link
+							:to="{ name: 'ListUser' }"
+							v-if="
+								getUserFromToken != undefined && getUserFromToken.Roles === 'ROLE_admin'
+							"
+						>
 							<button class="menu">List All Users</button>
 						</router-link>
 						<router-link :to="{ name: 'AboutUs' }">
@@ -86,15 +126,6 @@ const signOut = () => {
 								</button>
 							</router-link>
 						</div>
-
-						<!-- <AddSuccessModal v-if="isAddSuccess === true && editUserMode === false" />
-						<UpdateSuccessModal v-if="isUpdateSuccess === true" />
-						<ConfirmDeleteUserModal
-							@confirm="deleteUsers"
-							@closeModal="closeConfirmModal"
-							v-if="isShowConfirm"
-						/>
-						<DeleteSuccessModal v-if="isDeleteSuccess === true" /> -->
 					</div>
 				</div>
 			</nav>
@@ -123,7 +154,9 @@ const signOut = () => {
 }
 .nav-container-grid {
 	display: grid;
-	grid-template-columns: 250px 80px 150px 100px 150px 150px 150px 100px;
+	/* grid-template-columns: 250px 80px 150px 100px 150px 150px 150px 100px; */
+	grid-template-columns: repeat(8, 1fr);
+	/* grid-template-columns: auto; */
 	text-align: center;
 	align-items: center;
 	grid-gap: 5px;

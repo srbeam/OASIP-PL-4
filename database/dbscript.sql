@@ -63,23 +63,61 @@ create table users(
 userId int not null auto_increment,
 name varchar(100) not null unique,
 email varchar(50) not null unique,
-password varchar(90) not null ,
+password varchar(100) not null ,
 role enum('admin','lecturer','student') not null default 'student',
 createdOn timestamp  not null default current_timestamp ,
 updatedOn timestamp not null default current_timestamp on update current_timestamp,
 primary key (userId)
 );
 
-insert into users(name,email,password,role,createdOn,updatedOn) value('OASIP ADMIN','oasip.admin@kmutt.ac.th','oasipadmin','admin','2022-08-01 00:00:00+07:00','2022-08-01 00:00:00+07:00');
-insert into users(name,email,password,role,createdOn,updatedOn) value('Somchai Jaidee','somchai.jai@kmutt.ac.th','somchaijai','lecturer','2022-08-08 15:00:00+07:00','2022-08-08 15:00:00+07:00');
-insert into users(name,email,password,role,createdOn,updatedOn) value('Komkrid Rakdee','komkrid.rak@mail.kmutt.ac.th','komkridrak','student','2022-08-08 15:00:01+07:00','2022-08-08 15:00:01+07:00');
-insert into users(name,email,password,role,createdOn,updatedOn) value('สมเกียรติ ขยันเรียน','somkiat.kay@kmutt.ac.th','somkiat.kay','student','2022-08-16 09:00:00+07:00','2022-08-16 09:00:00+07:00');
+
+insert into users value (1,"OASIP ADMIN","oasip.admin@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$sYXzbUOqBoHY1NfhJ8cjnw$H6+adWySiFPgcUogJK3hEhcF6Y4fusy7tcXYEL+f0cQ","admin",'2022-08-01 00:00:00+07:00','2022-08-01 00:00:00+07:00');
+insert into users value (2,"Olarn Rojanapornpun","olarn.roj@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$Sx7y2jxKZSjpWUV4srd8eg$AMH09iFiPQgAZ00cAdN3Gucqfhx2kRo3tQbHeLSR0RE","lecturer",'2022-08-08 15:00:00+07:00','2022-08-08 15:00:00+07:00');
+insert into users value (3,"Pichet Limvachiranan","pichet.limv@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$46EB43gQ46Z1/EmdqxtKNA$7m6cWGO2iDlFl/ETDYuYf+ArnSjRnsNwXLIP18DTYQY","lecturer",'2022-08-08 15:00:01+07:00','2022-08-08 15:00:01+07:00');
+insert into users value (4,"Umaporn Supasitthimethee","umaporn.sup@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$1Z2UK1zC76FIQeLH54GVAQ$qfXcHF31LnuWpt37QAcWyNp8PdbOQ+jjaV1xWXixS0M","lecturer",'2022-08-08 15:00:02+07:00','2022-08-08 15:00:02+07:00');
+insert into users value (5,"Siam Yamsaengsung","siam.yam@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$C4pPaNWKTnZQX2mPs14jlg$rQ5W5NYKqGOu1B4GkUWq8cFbcg2peFWGjpUMr9Nkm8g","lecturer",'2022-08-08 15:00:03+07:00','2022-08-08 15:00:03+07:00');
+insert into users value (6,"Sunisa Sathapornvajana","sunisa.sat@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$29/ffaszvjvi3CZO45bSCg$kKpfq5WEswoqa/LfyIZzQaQ6AFdjhyiYjXRCfMiTnwg","lecturer",'2022-08-08 15:00:04+07:00','2022-08-08 15:00:04+07:00');
+insert into users value (7,"Somchai Jaidee","somchai.jai@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$dmsOy7LPTjmooPu+P2oTZA$NZFTFd3f0K1Sp19aaUwyn3jgiy15yFcXhp8E4/1yXoI","student",'2022-08-08 16:00:00+07:00','2022-08-08 16:00:00+07:00');
+insert into users value (8,"Komkrid Rakdee","komkrid.rak@mail.kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$8W61ZOC5RU7sJP5kKRbSqg$OLwZNPeMqxp+g0Vbn+odcA47XMClFN+IswTueVah7F0","student",'2022-08-08 16:00:00+07:00','2022-08-08 16:00:00+07:00');
+insert into users value (9,"สมเกียรติ ขยันเรียน","somkiat.kay@kmutt.ac.th","$argon2id$v=19$m=4096,t=3,p=1$gBqgjspF45FcIKQEw8GmaQ$alrOCZ0YrDqOu8/aZiLDMGZo4vFkSEAXA0YoHhY0BDQ","student",'2022-08-16 09:00:00+07:00','2022-08-16 09:00:00+07:00');
 insert into users(name,email,password,role) value ("admin","admin@gmail.com","$argon2id$v=19$m=16,t=2,p=1$o96rj2zPHrhw23uhdp3ElQ$lyQNNVpjVNeGkiyhV+s1LZ2csivQ/wsTTuPyneo","admin");
+commit;
+
+use oasip_db;
+select * from eventCategory;
+
+-- about lecturure role
+CREATE TABLE IF NOT EXISTS eventCategoryOwner (
+  `id` INT NOT NULL auto_increment,
+  `userId` INT NOT NULL,
+  `eventCategoryId` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_eventCategoryOwner_users_idx` (`userId` ASC) VISIBLE,
+  INDEX `fk_eventCategoryOwner_eventCategories_idx` (`eventCategoryId` ASC) VISIBLE,
+  CONSTRAINT `fk_eventCategoryOwner_users`
+  FOREIGN KEY (`userId`)
+  REFERENCES `oasip_db`.`users` (`userId`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+  CONSTRAINT `fk_eventCategoryOwner_eventCategory`
+  FOREIGN KEY (`eventCategoryId`)
+  REFERENCES `oasip_db`.`eventCategory` (`eventCategoryId`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+INSERT INTO eventCategoryOwner(id,userid,eventCategoryId) VALUES(1,2,1);
+INSERT INTO eventCategoryOwner(id,userid,eventCategoryId) VALUES(2,5,2);
+INSERT INTO eventCategoryOwner(id,userid,eventCategoryId) VALUES(3,6,3);
+INSERT INTO eventCategoryOwner(id,userid,eventCategoryId) VALUES(4,4,4);
+INSERT INTO eventCategoryOwner(id,userid,eventCategoryId) VALUES(5,3,5);
+INSERT INTO eventCategoryOwner(id,userid,eventCategoryId) VALUES(6,2,2);
+INSERT INTO eventCategoryOwner(id,userid,eventCategoryId) VALUES(7,2,5);
 commit;
 
 create user 'admin222'@'%' identified by 'admin222';
 grant all privileges on *.* to 'admin222'@'%';
 flush privileges;
 
-use oasip_db;
-select * from events;
+
+

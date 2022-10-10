@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import VueJwtDecode from 'vue-jwt-decode'
 
 defineEmits(['deleteEvent'])
 const props = defineProps({
@@ -128,6 +129,13 @@ const cancelEdit = () => {
 
 const appRouter = useRouter()
 const goSuccess = () => appRouter.go(0)
+const getUserFromToken = ref()
+const getUser = () => {
+	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+}
+onBeforeMount(async () => {
+	await getUser()
+})
 </script>
 
 <template>
@@ -219,11 +227,16 @@ const goSuccess = () => appRouter.go(0)
 						<button
 							class="edit bg-blue-500 hover:bg-blue-400 p-2 px-3 rounded-md text-white"
 							@click="editMode(category)"
+							v-if="getUserFromToken.Roles === 'ROLE_admin'"
 						>
 							Edit category
 						</button>
 						<router-link
 							:to="{ name: 'ListByCategory', params: { id: category.id } }"
+							v-if="
+								getUserFromToken.Roles === 'ROLE_student' ||
+								getUserFromToken.Roles === 'ROLE_admin'
+							"
 						>
 							<button
 								class="bg-orange-600 hover:bg-orange-400 p-2 px-3 rounded-md text-white"

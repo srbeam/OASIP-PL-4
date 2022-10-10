@@ -1,8 +1,17 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import RescheduleSuccess from './RescheduleSuccess.vue'
+import VueJwtDecode from 'vue-jwt-decode'
 
+const getUserFromToken = ref()
+const getUser = () => {
+	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+}
+
+onBeforeMount(async () => {
+	await getUser()
+})
 defineEmits(['back'])
 const props = defineProps({
 	pevent: {
@@ -270,7 +279,15 @@ const toggleRescheduleSuccess = () => {
 						<p v-else>No note</p>
 					</div>
 
-					<button id="reschedule" class="rounded-lg p-2 px-3" @click="editMode">
+					<button
+						id="reschedule"
+						class="rounded-lg p-2 px-3"
+						@click="editMode"
+						v-if="
+							getUserFromToken != undefined &&
+							getUserFromToken.Roles != 'ROLE_lecturer'
+						"
+					>
 						Reschedule
 					</button>
 				</div>

@@ -16,6 +16,7 @@ const users = ref([])
 let author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
 const token = ref()
+
 const getUsers = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users`, {
 		method: 'GET',

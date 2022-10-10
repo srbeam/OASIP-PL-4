@@ -26,6 +26,7 @@ const getEventById = async (eventId) => {
 const events = ref([])
 let refreshToken = localStorage.getItem('refreshToken')
 const token = ref()
+const is401 = ref()
 const getEvents = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'GET',

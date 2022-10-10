@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import VueJwtDecode from 'vue-jwt-decode'
 
 defineEmits(['deleteEvent'])
 const props = defineProps({
@@ -38,6 +39,13 @@ const formatTime = (dateTime) => {
 
 const appRouter = useRouter()
 const goBack = () => appRouter.push({ name: 'Category' })
+const getUserFromToken = ref()
+const getUser = () => {
+	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+}
+onBeforeMount(async () => {
+	await getUser()
+})
 </script>
 
 <template>
@@ -92,6 +100,7 @@ const goBack = () => appRouter.push({ name: 'Category' })
 											event.eventStartTime
 										)
 									"
+									v-if="getUserFromToken.Roles != 'ROLE_lecturer'"
 								>
 									<img src="../assets/images/trash.png" />
 								</div>

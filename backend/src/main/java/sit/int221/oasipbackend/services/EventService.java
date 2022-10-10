@@ -14,8 +14,10 @@ import sit.int221.oasipbackend.config.JwtTokenUtil;
 import sit.int221.oasipbackend.dtos.*;
 import sit.int221.oasipbackend.entities.Event;
 import sit.int221.oasipbackend.entities.EventCategory;
+import sit.int221.oasipbackend.entities.EventCategoryOwner;
 import sit.int221.oasipbackend.entities.User;
 import sit.int221.oasipbackend.exceptions.ValidationHandler;
+import sit.int221.oasipbackend.repositories.EventCategoryOwnerRepository;
 import sit.int221.oasipbackend.repositories.EventCategoryRepository;
 import sit.int221.oasipbackend.repositories.EventRepository;
 import sit.int221.oasipbackend.repositories.UsersRepository;
@@ -42,6 +44,9 @@ public class EventService {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private JwtUserDetailsService jwtuserDetailsService;
+    @Autowired
+    private EventCategoryOwnerRepository eventCategoryOwnerRepository;
+
     @Autowired
     private EventService(EventRepository repository) {
         this.eventRepository = repository;
@@ -123,12 +128,10 @@ public class EventService {
             List<Event> eventsListByEmail = eventRepository.findByBookingEmail(getUserEmail);
             return listMapper.mapList(eventsListByEmail, SimpleEventDTO.class,modelMapper);
         }
-//        else if(userDetails != null && (request.isUserInRole("ROLE_lecturer"))){
-////            List<Events> eventsListByEmail = repository.findByBookingEmail(getUserEmail);
-////            List<Event> eventListByCategoryOwner = repository.findEventCategoryOwnerByEmail(getUserEmail);
-//
-////            return listMapper.mapList(eventListByCategoryOwner , EventDTO.class,modelMapper);
-//        }
+        else if (userDetails != null && (request.isUserInRole("ROLE_lecturer"))) {
+            List<Event> eventListByCategoryOwner = eventRepository.findEventCategoryOwnerByEmail(getUserEmail);
+            return listMapper.mapList(eventListByCategoryOwner , SimpleEventDTO.class,modelMapper);
+        }
         return listMapper.mapList(eventsList, SimpleEventDTO.class,modelMapper);
     }
 

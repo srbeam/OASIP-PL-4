@@ -4,14 +4,14 @@ import { useRouter } from 'vue-router'
 import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
 import VueJwtDecode from 'vue-jwt-decode'
+import LecAddEventModal from '../components/LecAddEventModal.vue'
 
 const categories = ref([])
 const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
-const getEmailFromToken = ref()
-const getUserEmail = () => {
-	getEmailFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
-	console.log(getEmailFromToken.value.sub)
+const getUserFromToken = ref()
+const getUser = () => {
+	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
 }
 const getCategory = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
@@ -29,7 +29,8 @@ const getCategory = async () => {
 onBeforeMount(async () => {
 	await getCategory()
 	await getEvents()
-	getUserEmail()
+	getUser()
+	console.log(getUserFromToken.value)
 })
 
 const events = ref([])
@@ -51,6 +52,29 @@ const getEvents = async () => {
 	} else console.log('error, cannot get data')
 }
 
+const is401 = ref()
+const getRefreshToken = async () => {
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${refreshToken}`
+		}
+	})
+	if (res.status === 200) {
+		is401.value = false
+		token.value = await res.json()
+		saveLocal()
+	} else if (res.status === 401) {
+		is401.value = true
+	} else {
+		console.log('Error,cannot get refresh token from backend')
+	}
+}
+const saveLocal = () => {
+	localStorage.setItem('token', `${token.value.accessToken}`)
+	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+}
+
 const bookingName = ref('')
 const bookingEmail = ref('')
 const eventCategory = ref('')
@@ -70,56 +94,66 @@ let isInvalidDateFuture = ref(false)
 let isInvalidOverLab = ref(false)
 
 const addEvent = () => {
-	// console.log(validateDateFuture(eventStartTime.value))
-	if (
-		bookingName.value == '' ||
-		// bookingEmail.value == '' ||
-		eventCategory.value == '' ||
-		eventStartTime.value == ''
-		// getEmailFromToken.value == ''
-	) {
-		isBlank.value = true
-		isInvalidEmail.value = false
-		isInvalidDateFuture.value = false
-		isInvalidOverLab.value = false
-		console.log(isBlank.value)
-	}
-	// else if (!validateEmail(bookingEmail.value)) {
-	// 	isInvalidEmail.value = true
-	// 	isBlank.value = false
-	// 	isInvalidDateFuture.value = false
-	// 	isInvalidOverLab.value = false
-	// }
-	else if (!validateDateFuture(eventStartTime.value)) {
-		isInvalidDateFuture.value = true
-		isInvalidOverLab.value = false
-		isInvalidEmail.value = false
-		isBlank.value = false
-	} else if (
-		!validateNonOverlab(
-			eventCategory.value.eventCategoryName,
-			eventStartTime.value,
-			eventDuration.value
-		)
-	) {
-		isInvalidOverLab.value = true
-		isInvalidDateFuture.value = false
-		isInvalidEmail.value = false
-		isBlank.value = false
-	} else {
-		const date = new Date(eventStartTime.value).toLocaleString('en-GB')
-		const newEvent = {
-			bookingName: bookingName.value.trim(),
-			bookingEmail: getEmailFromToken.value.sub,
-			eventCategory: eventCategory.value,
-			eventStartTime: date,
-			eventDuration: eventCategory.value.eventDuration,
-			eventNote: note.value
+	if (getUserFromToken.value != 'ROLE_lecturer') {
+		// getEvents()
+		// getCategory()
+		if (getUserFromToken.value.Roles === 'ROLE_student') {
+			bookingEmail.value = getUserFromToken.value.sub
+			console.log(bookingEmail.value)
+		} else {
+			console.log(bookingEmail.value)
 		}
-		addEventToDB(newEvent)
+
+		if (
+			bookingName.value == '' ||
+			bookingEmail.value == '' ||
+			eventCategory.value == '' ||
+			eventStartTime.value == ''
+		) {
+			isBlank.value = true
+			isInvalidEmail.value = false
+			isInvalidDateFuture.value = false
+			isInvalidOverLab.value = false
+			console.log(isBlank.value)
+		} else if (!validateEmail(bookingEmail.value)) {
+			isInvalidEmail.value = true
+			isBlank.value = false
+			isInvalidDateFuture.value = false
+			isInvalidOverLab.value = false
+		} else if (!validateDateFuture(eventStartTime.value)) {
+			isInvalidDateFuture.value = true
+			isInvalidOverLab.value = false
+			isInvalidEmail.value = false
+			isBlank.value = false
+		} else if (
+			!validateNonOverlab(
+				eventCategory.value.eventCategoryName,
+				eventStartTime.value,
+				eventDuration.value
+			)
+		) {
+			isInvalidOverLab.value = true
+			isInvalidDateFuture.value = false
+			isInvalidEmail.value = false
+			isBlank.value = false
+		} else {
+			const date = new Date(eventStartTime.value).toLocaleString('en-GB')
+			const newEvent = {
+				bookingName: bookingName.value.trim(),
+				bookingEmail: bookingEmail.value.trim(),
+				eventCategory: eventCategory.value,
+				eventStartTime: date,
+				eventDuration: eventCategory.value.eventDuration,
+				eventNote: note.value
+			}
+			addEventToDB(newEvent)
+		}
+		isLecAddEvent.value = false
+	} else {
+		isLecAddEvent.value = true
 	}
 }
-
+const isLecAddEvent = ref()
 //ส่ง fetch
 const addEventToDB = async (newEvent) => {
 	// console.log(newEvent)
@@ -212,27 +246,8 @@ const filterCategory = (category) => {
 const appRouter = useRouter()
 const goSuccess = () => appRouter.push({ name: 'AddSuccess' })
 const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
-const is401 = ref()
-const getRefreshToken = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${refreshToken}`
-		}
-	})
-	if (res.status === 200) {
-		is401.value = false
-		token.value = await res.json()
-		saveLocal()
-	} else if (res.status === 401) {
-		is401.value = true
-	} else {
-		console.log('Error,cannot get refresh token from backend')
-	}
-}
-const saveLocal = () => {
-	localStorage.setItem('token', `${token.value.accessToken}`)
-	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+const closeLecAddEventModal = () => {
+	isLecAddEvent.value = false
 }
 </script>
 
@@ -268,17 +283,29 @@ const saveLocal = () => {
 
 					<div>
 						<label for="email">Booking Email address</label>
-						<!-- <span class="error"> * </span>
-						<span class="lenght">100 character | 100 ตัวอักษร</span> -->
+						<span class="error"> * </span>
+						<span class="lenght">100 character | 100 ตัวอักษร</span>
 						<div class="flex">
 							<input
-								v-if="getEmailFromToken != undefined"
+								v-if="
+									getUserFromToken != undefined &&
+									getUserFromToken.Roles === 'ROLE_student'
+								"
 								id="email"
 								name="email"
 								type="text"
 								class="form-control mb-3"
-								:value="getEmailFromToken.sub"
+								:value="getUserFromToken.sub"
 								readonly
+							/>
+							<input
+								v-else
+								id="email"
+								name="email"
+								type="email"
+								class="form-control mb-3"
+								v-model="bookingEmail"
+								maxlength="100"
 							/>
 
 							<!-- <span class="ml-3 mt-2 text-xl"> </span> -->
@@ -287,25 +314,40 @@ const saveLocal = () => {
 					</div>
 				</div>
 				<div class="selectcategory">
-					<select
-						v-model="eventCategory"
-						class="border-2 border-gray-200 rounded-md p-1"
-					>
-						<option value="" disabled>Please Select Clinic Category</option>
-						<option
-							v-for="category in categories"
-							:key="category.id"
-							:value="category"
+					<div>
+						<select
+							v-model="eventCategory"
+							class="border-2 border-gray-200 rounded-md p-1"
 						>
-							{{ category.eventCategoryName }}
-						</option>
-					</select>
-					<span class="error"> *</span> &emsp; &emsp; Duration
-					<span class="border-2 border-gray-200 rounded-md p-1 px-2 bg-gray-100">
-						{{ eventDuration }}
-					</span>
-					<br />
-					<br />
+							<option value="" disabled>Please Select Clinic Category</option>
+							<option
+								v-for="category in categories"
+								:key="category.id"
+								:value="category"
+							>
+								{{ category.eventCategoryName }}
+							</option>
+						</select>
+						<!-- <select
+							v-model="eventCategory"
+							class="border-2 border-gray-200 rounded-md p-1"
+							v-else
+						>
+							<option value="" disabled>Please Select Clinic Category</option>
+							<option value="1">Project Management Clinic</option>
+							<option value="2">DevOps/Infra Clinic</option>
+							<option value="3">Database Clinic</option>
+							<option value="4">Client-side Clinic</option>
+							<option value="5">Server-side Clinic</option>
+						</select> -->
+						<span class="error"> *</span>&emsp; Duration
+						<span class="border-2 border-gray-200 rounded-md p-1 px-2 bg-gray-100">
+							{{ eventDuration }}
+						</span>
+						<br />
+						<br />
+					</div>
+
 					Appointment Date&Time <span class="error">*</span> <br />
 					<input
 						id="date"
@@ -345,6 +387,7 @@ const saveLocal = () => {
 				</div>
 			</div>
 		</div>
+		<LecAddEventModal v-if="isLecAddEvent" @closeModal="closeLecAddEventModal" />
 	</div>
 </template>
 
