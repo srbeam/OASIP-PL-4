@@ -258,28 +258,13 @@ const toEditUserMode = (user) => {
 		role: editingUserRole.value
 	}
 }
-// const toEditUserMode = (user) => {
-// 	isShowEditUserModal.value = true
-// 	editUserMode.value = true
-// 	console.log(user)
-// 	userId.value = user.id
-// 	editingUserName.value = user.name.trim()
-// 	editingUserEmail.value = user.email.trim()
-// 	editingUserRole.value = user.role
-// 	nameIsNull.value = false
-// 	emailIsNull.value = false
-// 	isInvalidEmail.value = false
-// 	isDupplicateEmail.value = false
-// 	isDupplicateName.value = false
-// 	editingUserValues.value = user
-// }
+
 let editingUserValues = ref()
 const updateUser = async (user) => {
 	await updateUsersfetch(user)
 	// window.location.reload()
 	getUsers()
 }
-const alertInEditForm = ref()
 const updateUsersfetch = async (user) => {
 	// console.log(editUserMode.value)
 	checkNullNameEdit(user.name.trim())
@@ -309,7 +294,7 @@ const updateUsersfetch = async (user) => {
 			body: JSON.stringify({
 				name: user.name.trim(),
 				email: user.email.trim(),
-				role: user.role.value
+				role: user.role
 			})
 		})
 		if (res.status === 200) {
@@ -328,53 +313,7 @@ const updateUsersfetch = async (user) => {
 		}
 	}
 }
-// const updateUsersfetch = async (user) => {
-// 	// console.log(editUserMode.value)
-// 	checkNullNameEdit()
-// 	checkNullEmailEdit()
 
-// 	if (validateEmail(editingUserEmail.value.trim()) === false) {
-// 		isInvalidEmail.value = true
-// 	} else {
-// 		isInvalidEmail.value = false
-// 	}
-
-// 	checkDupInputEdit()
-// 	if (
-// 		isDupplicateName.value === false &&
-// 		isDupplicateEmail.value === false &&
-// 		nameIsNull.value === false &&
-// 		emailIsNull.value === false &&
-// 		isInvalidEmail.value === false
-// 	) {
-// 		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/users/${id}`, {
-// 			method: 'PUT',
-// 			headers: {
-// 				'content-type': 'application/json',
-// 				Authorization: `Bearer ${author}`
-// 			},
-// 			body: JSON.stringify({
-// 				name: editingUserName.value.trim(),
-// 				email: editingUserEmail.value.trim(),
-// 				role: editingUserRole.value
-// 			})
-// 		})
-// 		if (res.status === 200) {
-// 			console.log('edited successfully')
-// 			isUpdateSuccess.value = true
-// 			getUsers()
-// 			setTimeout(toggleUpdateSuccess, 3000)
-// 			editingUserName.value = ''
-// 			editingUserEmail.value = ''
-// 			editingUserRole.value = ''
-// 			editUserMode.value = false
-// 		} else if (res.status === 401) {
-// 			getRefreshToken()
-// 		} else {
-// 			console.log('error, cannot be added')
-// 		}
-// 	}
-// }
 const isUpdateSuccess = ref(false)
 const toggleUpdateSuccess = () => {
 	console.log(isUpdateSuccess.value)
