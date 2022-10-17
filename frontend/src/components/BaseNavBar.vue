@@ -8,12 +8,15 @@ import {
 	ref
 } from 'vue'
 import VueJwtDecode from 'vue-jwt-decode'
+import { useRouter } from 'vue-router'
 
 const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
 const getUserFromToken = ref()
 const getUser = () => {
-	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+	if (author != undefined) {
+		getUserFromToken.value = VueJwtDecode.decode(author)
+	}
 }
 
 const isHasToken = ref()
@@ -50,7 +53,7 @@ onBeforeMount(async () => {
 
 const signOut = () => {
 	localStorage.clear()
-	window.location = 'http://localhost:3000/pl4/'
+	// window.location = 'http://localhost:3000/pl4/'
 }
 </script>
 
@@ -71,9 +74,12 @@ const signOut = () => {
 								<img src="../assets/images/background/logo.png" id="logo" />
 							</router-link>
 						</div>
-						<!-- <router-link :to="{ name: 'AddEvent' }">
+						<router-link :to="{ name: 'AddEvent' }">
 							<button class="menu">Reserve</button>
-						</router-link> -->
+						</router-link>
+						<router-link :to="{ name: 'Category' }">
+							<button class="menu">Category</button>
+						</router-link>
 						<router-link :to="{ name: 'AboutUs' }">
 							<button class="menu">About Us</button>
 						</router-link>

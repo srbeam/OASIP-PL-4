@@ -5,6 +5,16 @@ import BaseNavBar from '../components/BaseNavBar.vue'
 
 const appRouter = useRouter()
 const goAllEvent = () => appRouter.push({ name: 'ListAll' })
+const hasToken = ref()
+const checkToken = () =>
+	localStorage.getItem('token') === undefined ||
+	localStorage.getItem('token') === null
+		? (hasToken.value = false)
+		: (hasToken.value = true)
+onBeforeMount(() => {
+	checkToken()
+})
+const goBack = () => appRouter.go(-1)
 </script>
 
 <template>
@@ -13,7 +23,8 @@ const goAllEvent = () => appRouter.push({ name: 'ListAll' })
 		<div id="success">
 			<h1>Add Sucessful !</h1>
 			<img src="../assets/images/success.png" width="500" />
-			<button @click="goAllEvent">Go to All Event</button>
+			<button v-if="hasToken" @click="goAllEvent">Go to All Event</button>
+			<button v-else @click="goBack">Back</button>
 		</div>
 	</div>
 </template>

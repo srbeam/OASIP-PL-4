@@ -2,6 +2,7 @@ package sit.int221.oasipbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sit.int221.oasipbackend.dtos.*;
 import sit.int221.oasipbackend.entities.Event;
@@ -21,7 +22,6 @@ public class EventController {
 
     @GetMapping("")
     public List<SimpleEventDTO> getAllEvent(HttpServletRequest httpServletRequest){
-        System.out.println("getAllEvent controller worked");
         return eventService.getAll(httpServletRequest);
     }
 
@@ -34,8 +34,8 @@ public class EventController {
 
     @ResponseStatus(code = HttpStatus.CREATED)
     @PostMapping("")
-    public void addEvent(@Valid HttpServletRequest request , @Valid @RequestBody Event event) {
-        System.out.println("addEvent controller worked");
+//    @PreAuthorize("!isAuthenticated() or hasAnyRole(\"admin\",\"student\")")
+    public void addEvent(HttpServletRequest request , @Valid @RequestBody Event event) {
         eventService.save(request,event);
     }
 

@@ -54,23 +54,41 @@ public class EventService {
 
 
 
-    public Event save(@Valid HttpServletRequest request, Event event) {
+    public void save(HttpServletRequest request, Event event) {
         Event e = modelMapper.map(event, Event.class);
-        String token = getRequestAccessToken(request);
-        if (token != null) {
-            String getUserEmail = getUserEmail(token);
-            if(request.isUserInRole("ROLE_student")){
-                if(getUserEmail.equals(event.getBookingEmail())){
-                    return eventRepository.saveAndFlush(e);
-                }else{
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Booking email must be the same as the student's email");
-                }
-            } else if (request.isUserInRole("ROLE_lecturer")) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
-            }
-        }
+//        String token = getRequestAccessToken(request);
+//        if (token != null) {
+//            String getUserEmail = getUserEmail(token);
+//            System.out.println(request);
+//            if(request.isUserInRole("ROLE_student")){
+//                if(getUserEmail.equals(event.getBookingEmail())){
+//                    return eventRepository.saveAndFlush(e);
+//                }else{
+//                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Booking email must be the same as the student's email");
+//                }
+//            } else if (request.isUserInRole("ROLE_lecturer")) {
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
+//            }
+//        }
 
-        return eventRepository.saveAndFlush(e);
+    if(request.getHeader("Authorization")!=null){
+        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+        if (request.isUserInRole("student")) {
+//            String getUserEmail = getUserEmail(getRequestAccessToken(request));
+            if (getUserEmail.equals(event.getBookingEmail())) {
+                System.out.println("Booking email same as the student's email!");
+                eventRepository.saveAndFlush(e);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking email must be the same as the student's email");
+            }
+        }else if (request.isUserInRole("ROLE_lecturer")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
+        }
+    }
+//
+//        return eventRepository.saveAndFlush(e);
+//
+//
     }
 
     public Object reschedule(HttpServletRequest request,EventRescheduleDTO updateData, Integer id) {

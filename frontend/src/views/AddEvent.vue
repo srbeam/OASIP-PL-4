@@ -7,18 +7,27 @@ import VueJwtDecode from 'vue-jwt-decode'
 import LecAddEventModal from '../components/LecAddEventModal.vue'
 
 const categories = ref([])
-const author = localStorage.getItem('token')
+let author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
 const getUserFromToken = ref()
 const getUser = () => {
-	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+	if (author != undefined || author != null) {
+		getUserFromToken.value = VueJwtDecode.decode(author)
+		author = localStorage.getItem('token')
+	}
+	// else {
+	// 	author = 'efewfdvf'
+	// }
 }
 const getCategory = async () => {
+	// if (author === undefined || author === null) {
+	// 	author = 'thisistokenforguest'
+	// }
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${author}`
-		}
+		method: 'GET'
+		// headers: {
+		// 	Authorization: `Bearer ${author}`
+		// }
 	})
 	if (res.status === 200) {
 		categories.value = await res.json()
@@ -28,9 +37,9 @@ const getCategory = async () => {
 }
 onBeforeMount(async () => {
 	await getCategory()
-	await getEvents()
-	getUser()
-	console.log(getUserFromToken.value)
+	await getUser()
+	getCurDateTime()
+	// getEvents()
 })
 
 const events = ref([])
@@ -70,6 +79,7 @@ const getRefreshToken = async () => {
 		console.log('Error,cannot get refresh token from backend')
 	}
 }
+const token = ref()
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
@@ -94,16 +104,7 @@ let isInvalidDateFuture = ref(false)
 let isInvalidOverLab = ref(false)
 
 const addEvent = () => {
-	if (getUserFromToken.value != 'ROLE_lecturer') {
-		// getEvents()
-		// getCategory()
-		if (getUserFromToken.value.Roles === 'ROLE_student') {
-			bookingEmail.value = getUserFromToken.value.sub
-			console.log(bookingEmail.value)
-		} else {
-			console.log(bookingEmail.value)
-		}
-
+	if (getUserFromToken.value === undefined) {
 		if (
 			bookingName.value == '' ||
 			bookingEmail.value == '' ||
@@ -148,22 +149,81 @@ const addEvent = () => {
 			}
 			addEventToDB(newEvent)
 		}
-		isLecAddEvent.value = false
 	} else {
-		isLecAddEvent.value = true
+		if (getUserFromToken.value.Roles != 'ROLE_lecturer') {
+			// getEvents()
+			// getCategory()
+
+			if (getUserFromToken.value.Roles === 'ROLE_student') {
+				bookingEmail.value = getUserFromToken.value.sub
+				console.log(bookingEmail.value)
+			} else {
+				console.log(bookingEmail.value)
+			}
+
+			if (
+				bookingName.value == '' ||
+				bookingEmail.value == '' ||
+				eventCategory.value == '' ||
+				eventStartTime.value == ''
+			) {
+				isBlank.value = true
+				isInvalidEmail.value = false
+				isInvalidDateFuture.value = false
+				isInvalidOverLab.value = false
+				console.log(isBlank.value)
+			} else if (!validateEmail(bookingEmail.value)) {
+				isInvalidEmail.value = true
+				isBlank.value = false
+				isInvalidDateFuture.value = false
+				isInvalidOverLab.value = false
+			} else if (!validateDateFuture(eventStartTime.value)) {
+				isInvalidDateFuture.value = true
+				isInvalidOverLab.value = false
+				isInvalidEmail.value = false
+				isBlank.value = false
+			} else if (
+				!validateNonOverlab(
+					eventCategory.value.eventCategoryName,
+					eventStartTime.value,
+					eventDuration.value
+				)
+			) {
+				isInvalidOverLab.value = true
+				isInvalidDateFuture.value = false
+				isInvalidEmail.value = false
+				isBlank.value = false
+			} else {
+				const date = new Date(eventStartTime.value).toLocaleString('en-GB')
+				const newEvent = {
+					bookingName: bookingName.value.trim(),
+					bookingEmail: bookingEmail.value.trim(),
+					eventCategory: eventCategory.value,
+					eventStartTime: date,
+					eventDuration: eventCategory.value.eventDuration,
+					eventNote: note.value
+				}
+				addEventToDB(newEvent)
+			}
+			isLecAddEvent.value = false
+		} else {
+			isLecAddEvent.value = true
+		}
 	}
 }
+
 const isLecAddEvent = ref()
 //ส่ง fetch
 const addEventToDB = async (newEvent) => {
 	// console.log(newEvent)
 	//ใช้ตัวแปร env แทนการเขียน path
 
+	console.log(author)
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
 		headers: {
-			'content-type': 'application/json',
-			Authorization: `Bearer ${author}`
+			'content-type': 'application/json'
+			// Authorization: `Bearer ${author}`
 		},
 		//ยัด newEvent ลงใน body ส่งให้ backend
 		body: JSON.stringify(newEvent)
@@ -174,7 +234,7 @@ const addEventToDB = async (newEvent) => {
 		// console.log(res)
 		goSuccess()
 	} else if (res.status == 401) {
-		getRefreshToken()
+		// getRefreshToken()
 	} else console.log('error, cannot be added')
 }
 
@@ -248,6 +308,21 @@ const goSuccess = () => appRouter.push({ name: 'AddSuccess' })
 const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
 const closeLecAddEventModal = () => {
 	isLecAddEvent.value = false
+}
+const currentDateTime = ref()
+const getCurDateTime = () => {
+	let fullTime = new Date()
+	let date = fullTime.getDate()
+	date < 10 ? (date = '0' + date) : ''
+	let month = fullTime.getMonth() + 1
+	month < 10 ? (month = '0' + month) : ''
+	let year = fullTime.getFullYear()
+	let hours = fullTime.getHours()
+	hours < 10 ? (hours = '0' + hours) : ''
+	let min = fullTime.getMinutes()
+	min < 10 ? (min = '0' + min) : ''
+	currentDateTime.value =
+		year + '-' + month + '-' + date + 'T' + hours + ':' + min
 }
 </script>
 
@@ -354,6 +429,7 @@ const closeLecAddEventModal = () => {
 						type="datetime-local"
 						v-model="eventStartTime"
 						class="border-2 border-gray-200 rounded-md p-1 px-2 mt-1 bg-white"
+						:min="currentDateTime"
 					/>
 				</div>
 				<br />

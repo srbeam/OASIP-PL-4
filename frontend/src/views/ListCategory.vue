@@ -12,10 +12,10 @@ const token = ref()
 const is401 = ref()
 const getCategory = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${author}`
-		}
+		method: 'GET'
+		// headers: {
+		// 	Authorization: `Bearer ${author}`
+		// }
 	})
 	if (res.status === 200) {
 		categories.value = await res.json()

@@ -131,7 +131,10 @@ const appRouter = useRouter()
 const goSuccess = () => appRouter.go(0)
 const getUserFromToken = ref()
 const getUser = () => {
-	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+	if (author != undefined || author != null) {
+		getUserFromToken.value = VueJwtDecode.decode(author)
+		// author = localStorage.getItem('token')
+	}
 }
 onBeforeMount(async () => {
 	await getUser()
@@ -227,15 +230,18 @@ onBeforeMount(async () => {
 						<button
 							class="edit bg-blue-500 hover:bg-blue-400 p-2 px-3 rounded-md text-white"
 							@click="editMode(category)"
-							v-if="getUserFromToken.Roles === 'ROLE_admin'"
+							v-if="
+								getUserFromToken != undefined && getUserFromToken.Roles === 'ROLE_admin'
+							"
 						>
 							Edit category
 						</button>
 						<router-link
 							:to="{ name: 'ListByCategory', params: { id: category.id } }"
 							v-if="
-								getUserFromToken.Roles === 'ROLE_student' ||
-								getUserFromToken.Roles === 'ROLE_admin'
+								getUserFromToken != undefined &&
+								(getUserFromToken.Roles === 'ROLE_student' ||
+									getUserFromToken.Roles === 'ROLE_admin')
 							"
 						>
 							<button
