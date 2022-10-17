@@ -48,7 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(accessDeniedHandler())
                 .and()
 
-//                .anonymous().principal("guest").authorities("ROLE_guest").and()
+                .anonymous().principal("guest").authorities("ROLE_guest").and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 
                 .authorizeRequests()
