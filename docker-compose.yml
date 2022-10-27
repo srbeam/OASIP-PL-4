@@ -10,6 +10,7 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
+      TZ: "Asia/Bangkok"
     networks:
       - pl4
   backend_server:
@@ -25,6 +26,7 @@ services:
       DB_PASSWORD: admin222
       DB_NAME: oasip_db
       DB_PORT: 3306
+      TZ: "Asia/Bangkok"
     networks:
       - pl4
     depends_on:
