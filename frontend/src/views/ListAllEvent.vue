@@ -3,6 +3,7 @@ import { ref, onBeforeMount, resolveDirective } from 'vue'
 import ListallComponent from '../components/ListallComponent.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
+import SuccessModal from '../components/SuccessModal.vue'
 
 const events = ref([])
 const author = localStorage.getItem('token')
@@ -68,15 +69,14 @@ const formatDate = (dateTime) => {
 const formatTime = (dateTime) => {
 	return dateTime.toLocaleString('th-TH', { hour: '2-digit', minute: '2-digit' })
 }
-
+const isDeleteEventSuccess = ref()
+const typeOfModal = ref()
 const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 	let confirms = confirm(
 		`Do you want to delete? \n"${bookingName}" \nAppointment : ${formatDate(
 			eventStartTime
 		)} ${formatTime(eventStartTime)}`
 	)
-	console.log(eventId)
-	console.log(confirms)
 	if (confirms) {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/events/${eventId}`,
@@ -88,9 +88,21 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 			}
 		)
 		if (res.status === 200) {
+			typeOfModal.value = 'deleteEvent'
+			isDeleteEventSuccess.value = true
+			setTimeout(toggleDeleteEventSuccess, 3000)
+			getEvents()
 			events.value = events.value.filter((event) => event.id !== eventId)
 			console.log('deleted successfully')
 		} else console.log('error, cannot delete data')
+	}
+}
+const toggleDeleteEventSuccess = () => {
+	if (isDeleteEventSuccess.value === true) {
+		isDeleteEventSuccess.value = false
+		// getUsers()
+	} else {
+		isDeleteEventSuccess.value = true
 	}
 }
 </script>
@@ -105,6 +117,7 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 			@deleteEvent="deleteEvent"
 		></ListallComponent>
 		<!-- <router-view> </router-view> -->
+		<SuccessModal v-if="isDeleteEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
 

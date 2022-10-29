@@ -5,6 +5,8 @@ import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
 import VueJwtDecode from 'vue-jwt-decode'
 import LecAddEventModal from '../components/LecAddEventModal.vue'
+// import AddEventSuccessModal from '../components/AddEventSuccessModal.vue'
+import SuccessModal from '../components/SuccessModal.vue'
 
 const categories = ref([])
 let author = localStorage.getItem('token')
@@ -102,7 +104,15 @@ let isBlank = ref(false)
 let isInvalidEmail = ref(false)
 let isInvalidDateFuture = ref(false)
 let isInvalidOverLab = ref(false)
-
+const isAddEventSuccess = ref(false)
+const toggleAddEventSuccess = () => {
+	if (isAddEventSuccess.value === true) {
+		isAddEventSuccess.value = false
+		// getUsers()
+	} else {
+		isAddEventSuccess.value = true
+	}
+}
 const addEvent = () => {
 	if (getUserFromToken.value === undefined) {
 		if (
@@ -147,7 +157,7 @@ const addEvent = () => {
 				eventDuration: eventCategory.value.eventDuration,
 				eventNote: note.value
 			}
-			addEventToDB(newEvent)
+			guestAddEventToDB(newEvent)
 		}
 	} else {
 		if (getUserFromToken.value.Roles != 'ROLE_lecturer') {
@@ -203,6 +213,7 @@ const addEvent = () => {
 					eventDuration: eventCategory.value.eventDuration,
 					eventNote: note.value
 				}
+
 				addEventToDB(newEvent)
 			}
 			isLecAddEvent.value = false
@@ -214,7 +225,7 @@ const addEvent = () => {
 
 const isLecAddEvent = ref()
 //ส่ง fetch
-const addEventToDB = async (newEvent) => {
+const guestAddEventToDB = async (newEvent) => {
 	// console.log(newEvent)
 	//ใช้ตัวแปร env แทนการเขียน path
 
@@ -231,10 +242,54 @@ const addEventToDB = async (newEvent) => {
 	// console.log(res.status)
 	if (res.status === 201) {
 		console.log('added sucessfully')
+		console.log(newEvent)
 		// console.log(res)
-		goSuccess()
+		// goSuccess()
+		typeOfModal.value = 'addEvent'
+		isAddEventSuccess.value = true
+		setTimeout(toggleAddEventSuccess, 3000)
+		bookingName.value = ''
+		bookingEmail.value = ''
+		eventCategory.value = ''
+		eventStartTime.value = ''
+		note.value = ''
 	} else if (res.status == 401) {
 		// getRefreshToken()
+		typeOfModal.value = ''
+	} else console.log('error, cannot be added')
+}
+const typeOfModal = ref()
+const addEventToDB = async (newEvent) => {
+	// console.log(newEvent)
+	//ใช้ตัวแปร env แทนการเขียน path
+
+	console.log(author)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
+		method: 'POST',
+		headers: {
+			'content-type': 'application/json',
+			Authorization: `Bearer ${author}`
+		},
+		//ยัด newEvent ลงใน body ส่งให้ backend
+		body: JSON.stringify(newEvent)
+	})
+	// console.log(res.status)
+	if (res.status === 201) {
+		console.log('added sucessfully')
+		console.log(newEvent)
+		// console.log(res)
+		// goSuccess()
+		typeOfModal.value = 'addEvent'
+		isAddEventSuccess.value = true
+		setTimeout(toggleAddEventSuccess, 3000)
+		bookingName.value = ''
+		bookingEmail.value = ''
+		eventCategory.value = ''
+		eventStartTime.value = ''
+		note.value = ''
+	} else if (res.status == 401) {
+		// getRefreshToken()
+		typeOfModal.value = ''
 	} else console.log('error, cannot be added')
 }
 
@@ -323,6 +378,13 @@ const getCurDateTime = () => {
 	min < 10 ? (min = '0' + min) : ''
 	currentDateTime.value =
 		year + '-' + month + '-' + date + 'T' + hours + ':' + min
+}
+const clearInput = () => {
+	bookingName.value = ''
+	bookingEmail.value = ''
+	eventCategory.value = ''
+	eventStartTime.value = ''
+	note.value = ''
 }
 </script>
 
@@ -456,14 +518,16 @@ const getCurDateTime = () => {
 						type="button"
 						class="btn btn-danger"
 						style="opacity: 1; color: white"
-						@click="goAllEvent"
+						@click="clearInput"
 					>
-						CANCEL
+						CLEAR INPUT
 					</button>
 				</div>
 			</div>
 		</div>
 		<LecAddEventModal v-if="isLecAddEvent" @closeModal="closeLecAddEventModal" />
+		<!-- <AddEventSuccessModal v-if="isAddEventSuccess" /> -->
+		<SuccessModal v-if="isAddEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
 

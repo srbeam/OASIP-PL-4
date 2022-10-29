@@ -17,10 +17,11 @@ onBeforeMount(async () => {
 
 <template>
 	<div>
-		<BaseNavBar />
+		<BaseNavBar @signOut="checkToken" />
 
-		<SignInForm v-if="hasToken" />
-		<Welcome v-else />
+		<SignInForm />
+		<!-- <SignInForm v-if="hasToken" /> -->
+		<!-- <Welcome v-else /> -->
 
 		<!-- <SignUpForm></SignUpForm> -->
 	</div>

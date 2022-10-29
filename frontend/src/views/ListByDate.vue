@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ListallComponent from '../components/ListallComponent.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
+import SuccessModal from '../components/SuccessModal.vue'
 
 const events = ref([])
 const filterEvents = ref([])
@@ -73,32 +74,48 @@ const formatTime = (dateTime) => {
 	})
 }
 
+const isDeleteEventSuccess = ref()
+const typeOfModal = ref()
 const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 	let confirms = confirm(
 		`Do you want to delete? \n"${bookingName}" \nAppointment : ${formatDate(
 			eventStartTime
 		)} ${formatTime(eventStartTime)}`
 	)
-	console.log(eventId)
-	console.log(confirms)
+
 	if (confirms) {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/events/${eventId}`,
 			{
+				// method: 'DELETE',
+				// Authorization: `Bearer ${author}`
 				method: 'DELETE',
-				Authorization: `Bearer ${author}`
+				headers: {
+					Authorization: `Bearer ${author}`
+				}
 			}
 		)
 		if (res.status === 200) {
+			typeOfModal.value = 'deleteEvent'
+			isDeleteEventSuccess.value = true
+			setTimeout(toggleDeleteEventSuccess, 3000)
+			getEvents()
 			events.value = events.value.filter((event) => event.id !== eventId)
-			appRouter.go(0)
+			// appRouter.go(0)
 			// console.log('deleted successfully')
 		} else if (res.status === 401) {
 			getRefreshToken()
 		} else console.log('error, cannot delete data')
 	}
 }
-
+const toggleDeleteEventSuccess = () => {
+	if (isDeleteEventSuccess.value === true) {
+		isDeleteEventSuccess.value = false
+		// getUsers()
+	} else {
+		isDeleteEventSuccess.value = true
+	}
+}
 const optionSelected = ref('')
 const dateSelected = ref('')
 
@@ -201,6 +218,7 @@ const cancel = () => {
 				</div>
 			</div>
 		</div>
+		<SuccessModal v-if="isDeleteEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
 

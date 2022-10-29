@@ -96,9 +96,12 @@ CREATE TABLE IF NOT EXISTS eventCategoryOwner (
   INDEX `fk_eventCategoryOwner_eventCategories_idx` (`eventCategoryId` ASC) VISIBLE,
   CONSTRAINT `fk_eventCategoryOwner_users`
   FOREIGN KEY (`userId`)
-  REFERENCES `oasip_db`.`users` (`userId`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
+  REFERENCES `oasip_db`.`users` (`userId`)  
+  ON DELETE CASCADE
+  ON UPDATE CASCADE
+  -- ON DELETE NO ACTION
+  -- ON UPDATE NO ACTION
+  ,
   CONSTRAINT `fk_eventCategoryOwner_eventCategory`
   FOREIGN KEY (`eventCategoryId`)
   REFERENCES `oasip_db`.`eventCategory` (`eventCategoryId`)
@@ -118,6 +121,9 @@ commit;
 create user 'admin222'@'%' identified by 'admin222';
 grant all privileges on *.* to 'admin222'@'%';
 flush privileges;
+
+
+
 
 
 

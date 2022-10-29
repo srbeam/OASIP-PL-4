@@ -1,5 +1,6 @@
 package sit.int221.oasipbackend.dtos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventRescheduleDTO {
-
+    @JsonFormat(pattern="dd/MM/yyyy, HH:mm:ss")
     @NotNull(message = "Start time must not be null")
     @Future(message = "Start time must be a future date")
     private LocalDateTime eventStartTime;

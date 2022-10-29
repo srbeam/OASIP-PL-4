@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
 import PasswordMatchModal from './PasswordMatchModal.vue'
+import { useRouter } from 'vue-router'
 defineEmits(['isHasToken'])
 const userEmail = ref('')
 const userPass = ref('')
@@ -67,7 +68,7 @@ const togglePassMatch = () => {
 	} else {
 		isPasswordMatch.value = true
 	}
-	window.location.reload()
+	appRouter.push({ name: 'AddEvent' })
 }
 const validateEmail = (email) => {
 	const reg =
@@ -86,6 +87,7 @@ const checklengthPass = () => {
 		validateMsg.value = ''
 	}
 }
+const appRouter = useRouter()
 </script>
 
 <template>

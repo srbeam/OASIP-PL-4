@@ -52,7 +52,7 @@ onBeforeMount(async () => {
 	<div id="root">
 		<h1 style="color: black; text-align: center">{{ category }}</h1>
 		<div class="content">
-			<div v-show="filterEvents.length == 0" class="ml-32">
+			<div v-show="filterEvents.length == 0" class="">
 				<button @click="goBack">&lt; back</button>
 				<div id="no-events">
 					<h1>No Scheduled Events</h1>

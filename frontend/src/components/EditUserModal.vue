@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from '@vue/reactivity'
-import UpdateSuccessModal from './UpdateSuccessModal.vue'
+import SuccessModal from './SuccessModal.vue'
 defineEmits(['save', 'closeEditUserModal'])
 const props = defineProps({
 	editingUserValues: {
@@ -30,6 +30,10 @@ const props = defineProps({
 	duplicateEmail: {
 		type: Boolean,
 		default: false
+	},
+	typeOfModal: {
+		type: String,
+		default: ''
 	}
 })
 const newValues = computed(() => props.editingUserValues)
@@ -122,7 +126,8 @@ const isDupplicateEmail = computed(() => props.duplicateEmail)
 				</div>
 			</div>
 		</div>
-		<UpdateSuccessModal v-if="updateSuccess" />
+
+		<SuccessModal :typeOfModal="typeOfModal" v-if="updateSuccess" />
 	</div>
 </template>
 

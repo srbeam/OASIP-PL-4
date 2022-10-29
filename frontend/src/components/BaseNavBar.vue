@@ -1,15 +1,9 @@
 <script setup>
 import { computed } from '@vue/reactivity'
-import {
-	onBeforeMount,
-	onBeforeUnmount,
-	onBeforeUpdate,
-	onUpdated,
-	ref
-} from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import VueJwtDecode from 'vue-jwt-decode'
 import { useRouter } from 'vue-router'
-
+defineEmits(['signOut'])
 const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
 const getUserFromToken = ref()
@@ -30,6 +24,7 @@ const checkToken = () => {
 		isHasToken.value = false
 	}
 }
+
 function toggleMenu() {
 	const nav = document.querySelector('.nav-container')
 	const hamburger = document.querySelector('.hamburger')
@@ -50,10 +45,13 @@ onBeforeMount(async () => {
 	await checkToken()
 	getUser()
 })
-
+const appRouter = useRouter()
 const signOut = () => {
 	localStorage.clear()
+	checkToken()
+	// window.location.reload()
 	// window.location = 'http://localhost:3000/pl4/'
+	appRouter.push({ name: 'Home' })
 }
 </script>
 
@@ -71,7 +69,7 @@ const signOut = () => {
 					<div class="nav-container-grid">
 						<div id="logo">
 							<router-link :to="{ name: 'Home' }">
-								<img src="../assets/images/background/logo.png" id="logo" />
+								<img src="../assets/images/background/logo.png" id="logo-img" />
 							</router-link>
 						</div>
 						<router-link :to="{ name: 'AddEvent' }">
@@ -85,7 +83,10 @@ const signOut = () => {
 						</router-link>
 						<div id="sign-out-btn" v-if="isHasToken">
 							<router-link :to="{ name: 'Home' }">
-								<button class="btn btn-warning rounded-md text-black" @click="signOut">
+								<button
+									class="btn btn-warning rounded-md text-black"
+									@click="$emit('signOut'), signOut()"
+								>
 									SignOut
 								</button>
 							</router-link>
@@ -96,7 +97,7 @@ const signOut = () => {
 					<div class="nav-container-grid">
 						<div id="logo">
 							<router-link :to="{ name: 'Home' }">
-								<img src="../assets/images/background/logo.png" id="logo" />
+								<img src="../assets/images/background/logo.png" id="logo-img" />
 							</router-link>
 						</div>
 						<router-link
@@ -127,7 +128,10 @@ const signOut = () => {
 						</router-link>
 						<div id="sign-out-btn" v-if="isHasToken">
 							<router-link :to="{ name: 'Home' }">
-								<button class="btn btn-warning rounded-md text-black" @click="signOut">
+								<button
+									class="btn btn-warning rounded-md text-black"
+									@click="$emit('signOut'), signOut()"
+								>
 									SignOut
 								</button>
 							</router-link>
@@ -161,7 +165,8 @@ const signOut = () => {
 .nav-container-grid {
 	display: grid;
 	/* grid-template-columns: 250px 80px 150px 100px 150px 150px 150px 100px; */
-	grid-template-columns: repeat(8, 1fr);
+	/* grid-template-columns: repeat(8, 1fr); */
+	grid-template-columns: 200px auto auto auto auto auto auto auto;
 	/* grid-template-columns: auto; */
 	text-align: center;
 	align-items: center;
@@ -233,8 +238,12 @@ li {
 header {
 	display: flex;
 	background-color: #495ab6;
+	min-height: 70px;
 }
-
+#logo img {
+	/* display: none; */
+	/* width: 80%; */
+}
 @media screen and (max-width: 1024px) {
 	#navBar {
 		width: 100%;
@@ -242,6 +251,13 @@ header {
 	}
 	.nav-container-grid {
 		grid-gap: 25px;
+	}
+	nav#navBar {
+		padding: 0;
+	}
+	#logo img {
+		/* display: none; */
+		/* width: 100%; */
 	}
 }
 @media screen and (max-width: 768px) {
@@ -261,8 +277,10 @@ header {
 	}
 	nav {
 		height: auto;
+
 		/* flex-direction: column; */
 	}
+
 	.nav-container {
 		display: none;
 		justify-content: center;
@@ -281,15 +299,27 @@ header {
 	}
 	.nav-container-grid {
 		grid-template-columns: none;
-		grid-template-rows: repeat(7, auto);
+		grid-template-rows: repeat(8, auto);
 		grid-row-gap: 20px;
 		grid-column-gap: 0;
 
 		justify-content: center;
+		align-items: center;
 	}
 
-	#logo {
-		display: none;
+	#logo a {
+		/* display: none; */
+		display: flex;
+		justify-content: center;
+	}
+
+	#logo .router-link-active,
+	#logo a:hover {
+		background-color: rgba(255, 255, 255, 0);
+	}
+	#logo img {
+		/* display: none; */
+		width: 50%;
 	}
 }
 </style>

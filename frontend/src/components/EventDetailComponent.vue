@@ -148,6 +148,7 @@ const confirm = () => {
 		// const updateNote = newNote.value
 		// event.value.eventStartTime = date
 		// editingNote.value = newNote.value
+
 		rescheduleEvent(
 			updateStartTime,
 			newNote.value,
@@ -182,6 +183,7 @@ const rescheduleEvent = async (
 	})
 	console.log(updateStartTime)
 	console.log(updateNote)
+
 	if (res.status === 200) {
 		console.log('edited successfully')
 		// cancel()

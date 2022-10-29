@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
-import AddSuccessModal from './AddSuccessModal.vue'
+// import AddSuccessModal from './AddSuccessModal.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
 const users = ref([])
 const author = localStorage.getItem('token')
@@ -369,7 +369,7 @@ const validateMatchPass = () => {
 				</div>
 			</div>
 		</div>
-		<AddSuccessModal v-if="isAddSuccess === true" />
+		<!-- <AddSuccessModal v-if="isAddSuccess === true" /> -->
 	</div>
 </template>
 

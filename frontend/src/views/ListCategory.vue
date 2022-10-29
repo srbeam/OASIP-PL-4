@@ -19,7 +19,6 @@ const getCategory = async () => {
 	})
 	if (res.status === 200) {
 		categories.value = await res.json()
-		console.log(categories.value)
 	} else if (res.status === 401) {
 		getRefreshToken()
 	} else console.log('error, cannot get data')

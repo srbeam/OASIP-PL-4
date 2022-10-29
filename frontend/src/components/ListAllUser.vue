@@ -1,9 +1,6 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
 
-import AddSuccessModal from './AddSuccessModal.vue'
-import UpdateSuccessModal from './UpdateSuccessModal.vue'
-import DeleteSuccessModal from './DeleteSuccessModal.vue'
 import ConfirmDeleteUserModal from './ConfirmDeleteUserModal.vue'
 import NoLoginModal from './NoLoginModal.vue'
 import ForAdminModal from './ForAdminModal.vue'
@@ -11,6 +8,7 @@ import ListallComponent from './ListallComponent.vue'
 import AddUserModal from './AddUserModal.vue'
 
 import EditUserModal from './EditUserModal.vue'
+import SuccessModal from './SuccessModal.vue'
 
 const users = ref([])
 let author = localStorage.getItem('token')
@@ -206,6 +204,7 @@ const closeConfirmModal = () => {
 
 const deleteUsers = async () => {
 	isChooseConfirm.value = true
+	getUsers()
 	if (isChooseConfirm.value) {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/users/${selectedUser.value}`,
@@ -223,6 +222,7 @@ const deleteUsers = async () => {
 
 			isChooseConfirm.value = false
 			isShowConfirm.value = false
+			typeOfModal.value = 'deleteUser'
 			isDeleteSuccess.value = true
 			setTimeout(toggleDeleteSuccess, 3000)
 			getUsers()
@@ -231,6 +231,7 @@ const deleteUsers = async () => {
 			isChooseConfirm.value = true
 			isShowConfirm.value = false
 			isDeleteSuccess.value = false
+			typeOfModal.value = ''
 		} else {
 			console.log('Error!! Can not delete this user.')
 		}
@@ -299,6 +300,7 @@ const updateUsersfetch = async (user) => {
 		})
 		if (res.status === 200) {
 			console.log('edited successfully')
+			typeOfModal.value = 'editUser'
 			isUpdateSuccess.value = true
 			getUsers()
 			setTimeout(toggleUpdateSuccess, 3000)
@@ -308,6 +310,7 @@ const updateUsersfetch = async (user) => {
 			editUserMode.value = false
 		} else if (res.status === 401) {
 			getRefreshToken()
+			typeOfModal.value = ''
 		} else {
 			console.log('error, cannot be added')
 		}
@@ -408,18 +411,21 @@ const closeModal = () => {
 	isShowConfirm.value = false
 }
 const showAddModal = () => {
-	isShowAddModal.value = true
 	getUsers()
+	isShowAddModal.value = true
 }
 const isShowAddModal = ref()
 const closeAddModal = () => {
 	isShowAddModal.value = false
 	getUsers()
+	typeOfModal.value = 'addUser'
 }
+
 const isShowEditUserModal = ref()
 const closeEditUserModal = () => {
 	isShowEditUserModal.value = false
 }
+const typeOfModal = ref('none')
 </script>
 
 <template>
@@ -427,7 +433,7 @@ const closeEditUserModal = () => {
 		<AddUserModal v-if="isShowAddModal" @closeModal="closeAddModal" />
 		<NoLoginModal v-if="is401" />
 		<ForAdminModal v-if="is403" />
-		<DeleteSuccessModal v-if="isDeleteSuccess" />
+		<!-- <DeleteSuccessModal v-if="isDeleteSuccess" /> -->
 		<ConfirmDeleteUserModal
 			v-if="isShowConfirm"
 			@closeModal="closeModal"
@@ -445,7 +451,9 @@ const closeEditUserModal = () => {
 			:isEmailNull="emailIsNull"
 			:invalidEmail="isInvalidEmail"
 			:duplicateEmail="isDupplicateEmail"
+			:typeOfModal="typeOfModal"
 		/>
+		<SuccessModal v-if="isDeleteSuccess" :typeOfModal="typeOfModal" />
 		<div class="all-user-container">
 			<div class="table">
 				<div v-if="users.length == 0" class="no-user">

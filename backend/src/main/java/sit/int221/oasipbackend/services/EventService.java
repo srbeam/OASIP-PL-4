@@ -83,7 +83,11 @@ public class EventService {
             }
         }else if (request.isUserInRole("ROLE_lecturer")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
+        }else{
+            eventRepository.saveAndFlush(e);
         }
+    }else{
+        eventRepository.saveAndFlush(e);
     }
 //
 //        return eventRepository.saveAndFlush(e);
@@ -164,6 +168,7 @@ public class EventService {
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Can't get event, event id "+ id +
                         " doesn't exist."
                 ));
+
         String getUserEmail = getUserEmail(getRequestAccessToken(request));
         if(request.isUserInRole("student")){
             if(getUserEmail.equals(events.getBookingEmail())){
@@ -171,6 +176,20 @@ public class EventService {
             }else{
                 throw new AccessDeniedException("");
 //                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Cannot view event which you didn't own");
+            }
+        }else if(request.isUserInRole("lecturer")){
+            ArrayList<EventCategory> listCategory = new ArrayList<>();
+            List<Event> eventsListByCategoryOwner = eventRepository.findEventCategoryOwnerByEmail(getUserEmail);
+            System.out.println(eventsListByCategoryOwner);
+            for(Event event : eventsListByCategoryOwner){
+                listCategory.add(event.getEventCategory());
+            }
+            if(listCategory.contains(events.getEventCategory())){
+                System.out.println("Yes Owner");
+                return modelMapper.map(events,EventDetailDTO.class);
+            }else{
+                System.out.println("No owner");
+                throw new AccessDeniedException("");
             }
         }
         return modelMapper.map(events,EventDetailDTO.class);

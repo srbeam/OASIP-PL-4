@@ -4,7 +4,9 @@ import { useRouter } from 'vue-router'
 import BaseNavBar from '../components/BaseNavBar.vue'
 
 const appRouter = useRouter()
-const goAllEvent = () => appRouter.push({ name: 'ListAll' })
+const goAllEvent = () => {
+	appRouter.push({ name: 'ListAll' })
+}
 const hasToken = ref()
 const checkToken = () =>
 	localStorage.getItem('token') === undefined ||

@@ -1,4 +1,11 @@
-<script setup></script>
+<script setup>
+const props = defineProps({
+	typeOfModal: {
+		type: String,
+		default: ''
+	}
+})
+</script>
 
 <template>
 	<div>
@@ -6,7 +13,11 @@
 			<div class="modal-container">
 				<div class="modal-content">
 					<i class="fa fa-check-circle fa-4x"></i>
-					<h3>Add User Success</h3>
+					<h3 v-if="typeOfModal === 'addUser'">Add User Success</h3>
+					<h3 v-if="typeOfModal === 'editUser'">Edit User Success</h3>
+					<h3 v-if="typeOfModal === 'deleteUser'">Delete User Success</h3>
+					<h3 v-if="typeOfModal === 'addEvent'">Add Event Success</h3>
+					<h3 v-if="typeOfModal === 'deleteEvent'">Delete Event Success</h3>
 				</div>
 			</div>
 		</div>

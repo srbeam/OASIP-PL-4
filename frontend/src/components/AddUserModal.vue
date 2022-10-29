@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
-import AddSuccessModal from './AddSuccessModal.vue'
+// import AddSuccessModal from './AddSuccessModal.vue'
 defineEmits(['closeModal'])
+
 const users = ref([])
 const author = localStorage.getItem('token')
 const userName = ref('')
@@ -96,6 +97,7 @@ const addUser = () => {
 		fetchAddUser(newUser)
 	}
 }
+const typeOfModal = ref()
 const isNotUniqe = ref(false)
 const isAddSuccess = ref(false)
 const fetchAddUser = async (newUser) => {
@@ -117,6 +119,7 @@ const fetchAddUser = async (newUser) => {
 			console.log(res)
 			// getUsers()
 			validInput.value = false
+			typeOfModal.value = 'addUser'
 			isAddSuccess.value = true
 			setTimeout(toggleAddSuccess, 3000)
 			userId.value = ''
@@ -128,6 +131,7 @@ const fetchAddUser = async (newUser) => {
 			isNotUniqe.value = false
 		} else if (res.status === 400) {
 			isNotUniqe.value = true
+			typeOfModal.value = ''
 		} else console.log('error, cannot be added')
 	}
 }
@@ -302,7 +306,7 @@ const validateMatchPass = () => {
 				</div>
 			</div>
 		</div>
-		<AddSuccessModal v-if="isAddSuccess" />
+		<!-- <AddSuccessModal v-if="isAddSuccess" :typeOfModal="typeofModal" /> -->
 	</div>
 </template>
 

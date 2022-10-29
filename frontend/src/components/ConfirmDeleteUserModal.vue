@@ -78,7 +78,11 @@ button {
 }
 .modal-content p {
 	color: gray;
-	margin-top: -15px;
+	/* margin-top: -10px; */
+	margin: 0;
+}
+h2 {
+	color: black;
 }
 i {
 	color: gray;

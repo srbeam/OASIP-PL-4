@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, onBeforeMount } from 'vue'
 import ListByCategory from './../components/ListByCateComponent.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
+import SuccessModal from '../components/SuccessModal.vue'
 let { params } = useRoute()
 
 const id = ref(Number(params.id))
@@ -64,7 +65,8 @@ const formatTime = (dateTime) => {
 		minute: '2-digit'
 	})
 }
-
+const isDeleteEventSuccess = ref()
+const typeOfModal = ref()
 const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 	let confirms = confirm(
 		`Do you want to delete? \n"${bookingName}" \nAppointment : ${formatDate(
@@ -84,10 +86,22 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 			}
 		)
 		if (res.status === 200) {
+			typeOfModal.value = 'deleteEvent'
+			isDeleteEventSuccess.value = true
+			setTimeout(toggleDeleteEventSuccess, 3000)
+			getEvents()
 			events.value = events.value.filter((event) => event.id !== eventId)
-			appRouter.go(0)
+			// appRouter.go(0)
 			console.log('deleted successfully')
 		} else console.log('error, cannot delete data')
+	}
+}
+const toggleDeleteEventSuccess = () => {
+	if (isDeleteEventSuccess.value === true) {
+		isDeleteEventSuccess.value = false
+		// getUsers()
+	} else {
+		isDeleteEventSuccess.value = true
 	}
 }
 const is401 = ref()
@@ -122,6 +136,7 @@ const saveLocal = () => {
 			:events="events"
 			@deleteEvent="deleteEvent"
 		></ListByCategory>
+		<SuccessModal v-if="isDeleteEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
 
