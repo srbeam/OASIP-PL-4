@@ -120,9 +120,7 @@ const optionSelected = ref('')
 const dateSelected = ref('')
 
 const search = () => {
-	// console.log(optionSelected.value)
 	const currentDateTime = new Date()
-	// console.log(currentDateTime)
 	if (optionSelected.value == 'past') {
 		filterEvents.value = events.value.filter(
 			(item) => item.eventStartTime < currentDateTime
@@ -160,22 +158,21 @@ const cancel = () => {
 	optionSelected.value = ''
 	filterEvents.value = events.value
 	showNoEvent.value = 'Please select your filter'
-	// console.log(filterEvents.value)
 }
 </script>
 
 <template>
 	<div>
 		<BaseNavBar />
-		<div id="content">
+		<div class="py-4">
 			<NoLoginModal v-if="is401" />
-			<div class="listByDate-container" v-else>
-				<div id="searchBar">
-					<div id="searchdate">
+			<div v-else>
+				<div class="px-4 lg:pt-4 lg:flex lg:justify-end xl:mr-28">
+					<div class="text-[#495ab6]">
 						<a> Search by date : </a>
 						<select
 							v-model="optionSelected"
-							class="border-2 border-gray-200 rounded-md p-1 text text-black w-64"
+							class="border-2 border-gray-200 rounded-md p-1 text text-black w-full lg:w-64"
 						>
 							<option value="" disabled>Select your filter</option>
 							<option value="past">Past Event</option>
@@ -184,21 +181,21 @@ const cancel = () => {
 						</select>
 						<input
 							type="date"
-							class="border-2 border-gray-200 rounded-md p-1 text ml-4 text-black"
+							class="border-2 border-gray-200 rounded-md p-1 text w-full lg:w-64 lg:ml-4 text-black"
 							v-if="optionSelected == 'day'"
 							v-model="dateSelected"
 						/>
 					</div>
 
-					<div class="" id="buttonsearch">
+					<div class="flex lg:ml-5">
 						<button
-							class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md"
+							class="bg-green-600 hover:bg-green-700 p-2 px-3 rounded-md w-full lg:w-full"
 							@click="search"
 						>
 							search
 						</button>
 						<button
-							class="bg-red-600 hover:bg-red-700 p-2 px-3 ml-3 rounded-md"
+							class="bg-red-600 hover:bg-red-700 p-2 px-3 ml-3 rounded-md w-full lg:w-full"
 							@click="cancel"
 						>
 							cancel
@@ -206,7 +203,10 @@ const cancel = () => {
 					</div>
 				</div>
 
-				<div id="no-events" class="mt-7" v-if="filterEvents.length == 0">
+				<div
+					class="mt-7 w-full text-center rounded flex justify-center items-center text-[#495ab6]"
+					v-if="filterEvents.length == 0"
+				>
 					<h1>{{ showNoEvent }}</h1>
 				</div>
 
@@ -218,45 +218,9 @@ const cancel = () => {
 				</div>
 			</div>
 		</div>
+
 		<SuccessModal v-if="isDeleteEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
 
-<style scoped>
-#content {
-	padding: 2% 0 3% 0;
-}
-#no-events {
-	height: 32em;
-	width: 100%;
-	text-align: center;
-	border-radius: 10px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	color: #495ab6;
-}
-.listByDate-container {
-	/* padding: 0 8%; */
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-}
-#searchBar {
-	/* width: 170vh; */
-	margin-bottom: 12px;
-	width: 100%;
-	display: flex;
-	/* padding-left: 11%; */
-
-	width: 80%;
-	justify-content: right;
-}
-#buttonsearch {
-	margin-left: 20px;
-}
-#searchdate {
-	color: #495ab6;
-}
-</style>
+<style scoped></style>

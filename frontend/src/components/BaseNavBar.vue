@@ -96,9 +96,7 @@ const signOut = () => {
 				<div class="nav-container" v-else>
 					<div class="nav-container-grid">
 						<div id="logo">
-							<router-link :to="{ name: 'Home' }">
-								<img src="../assets/images/background/logo.png" id="logo-img" />
-							</router-link>
+							<img src="../assets/images/background/logo.png" id="logo-img" />
 						</div>
 						<router-link
 							:to="{ name: 'AddEvent' }"
@@ -164,10 +162,9 @@ const signOut = () => {
 }
 .nav-container-grid {
 	display: grid;
-	/* grid-template-columns: 250px 80px 150px 100px 150px 150px 150px 100px; */
-	/* grid-template-columns: repeat(8, 1fr); */
+
 	grid-template-columns: 200px auto auto auto auto auto auto auto;
-	/* grid-template-columns: auto; */
+
 	text-align: center;
 	align-items: center;
 	grid-gap: 5px;
@@ -204,7 +201,6 @@ li {
 .bar3 {
 	width: 35px;
 	height: 5px;
-	/* background-color: #232323; */
 	background-color: white;
 	margin: 6px 20px;
 	transition: 0.4s;
@@ -240,27 +236,8 @@ header {
 	background-color: #495ab6;
 	min-height: 70px;
 }
-#logo img {
-	/* display: none; */
-	/* width: 80%; */
-}
+
 @media screen and (max-width: 1024px) {
-	#navBar {
-		width: 100%;
-		padding: 0 20px 0 0;
-	}
-	.nav-container-grid {
-		grid-gap: 25px;
-	}
-	nav#navBar {
-		padding: 0;
-	}
-	#logo img {
-		/* display: none; */
-		/* width: 100%; */
-	}
-}
-@media screen and (max-width: 768px) {
 	header {
 		height: auto;
 		padding: 0;
@@ -277,8 +254,6 @@ header {
 	}
 	nav {
 		height: auto;
-
-		/* flex-direction: column; */
 	}
 
 	.nav-container {
@@ -287,15 +262,12 @@ header {
 	}
 
 	.menu {
-		/* color: black; */
 		padding: 8px 0px;
 		color: white;
 	}
 	a:hover {
-		/* background-color: rgba(255, 255, 255, 0.2); */
 		background-color: lightgray;
 		border-radius: 10px;
-		/* padding: 0 30px; */
 	}
 	.nav-container-grid {
 		grid-template-columns: none;
@@ -308,7 +280,6 @@ header {
 	}
 
 	#logo a {
-		/* display: none; */
 		display: flex;
 		justify-content: center;
 	}
@@ -318,8 +289,11 @@ header {
 		background-color: rgba(255, 255, 255, 0);
 	}
 	#logo img {
-		/* display: none; */
 		width: 50%;
+	}
+	#logo {
+		display: flex;
+		justify-content: center;
 	}
 }
 </style>

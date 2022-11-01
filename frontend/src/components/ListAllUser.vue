@@ -267,7 +267,6 @@ const updateUser = async (user) => {
 	getUsers()
 }
 const updateUsersfetch = async (user) => {
-	// console.log(editUserMode.value)
 	checkNullNameEdit(user.name.trim())
 	checkNullEmailEdit(user.email.trim())
 
@@ -391,9 +390,7 @@ let monthNames = [
 	'Dec'
 ]
 const extractDate = (date) => {
-	//  console.log(date);
 	const d = new Date(date + ' UTC')
-	//  console.log(d);
 	return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`
 }
 const extractTime = (time) => {
@@ -429,7 +426,7 @@ const typeOfModal = ref('none')
 </script>
 
 <template>
-	<div id="root">
+	<div>
 		<AddUserModal v-if="isShowAddModal" @closeModal="closeAddModal" />
 		<NoLoginModal v-if="is401" />
 		<ForAdminModal v-if="is403" />
@@ -454,48 +451,56 @@ const typeOfModal = ref('none')
 			:typeOfModal="typeOfModal"
 		/>
 		<SuccessModal v-if="isDeleteSuccess" :typeOfModal="typeOfModal" />
-		<div class="all-user-container">
-			<div class="table">
-				<div v-if="users.length == 0" class="no-user">
+
+		<div class="py-10 px-4">
+			<div class="overflow-auto rounded-lg shadow hidden lg:block lg:mx-20">
+				<div
+					v-if="users.length == 0"
+					class="flex flex-cols justify-center items-center text-[#5c5c5c]"
+				>
 					<h1>No Users</h1>
 					<p>Let's Add new user</p>
 				</div>
-				<table v-else>
-					<thead>
-						<tr class="head">
-							<th>Name</th>
-							<th>Email</th>
-							<th>Role</th>
-							<th>Created On</th>
-							<th>Updated On</th>
-							<th>Action</th>
+				<table class="w-full">
+					<thead class="text-[#495ab6] bg-gray-100 border-b-2 border-gray-200">
+						<tr>
+							<th class="p-3 text-sm track-wide text-left">Name</th>
+							<th class="p-3 text-sm track-wide text-left">Email</th>
+							<th class="p-3 text-sm track-wide text-left">Role</th>
+							<th class="p-3 text-sm track-wide text-left">Created On</th>
+							<th class="p-3 text-sm track-wide text-left">Updated On</th>
+							<th class="p-3 text-sm track-wide text-left">Action</th>
 						</tr>
 					</thead>
-					<tbody>
-						<tr class="datas" tr-hover v-for="user in users" :key="user.id">
-							<td>{{ user.name }}</td>
-							<td>{{ user.email }}</td>
-							<td>{{ user.role }}</td>
-							<td>
+					<tbody class="divide-y divide-gray-100">
+						<tr class="bg-white" v-for="user in users" :key="user.id">
+							<td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+								{{ user.name }}
+							</td>
+							<td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+								{{ user.email }}
+							</td>
+							<td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+								{{ user.role }}
+							</td>
+							<td class="p-3 text-sm text-gray-700 whitespace-nowrap">
 								{{ extractDate(user.createdOn) }} {{ extractTime(user.createdOn) }}
 							</td>
-							<td>
+							<td class="p-3 text-sm text-gray-700 whitespace-nowrap">
 								{{ extractDate(user.updatedOn) }} {{ extractTime(user.updatedOn) }}
 							</td>
 
-							<td>
+							<td class="p-3 text-sm text-gray-700 whitespace-nowrap">
 								<button
 									type="button"
-									class="edit-btn"
-									style="opacity: 1; color: white"
+									class="bg-black text-white rounded-md py-1 px-2.5"
 									@click="toEditUserMode(user)"
 								>
 									Edit</button
 								>&nbsp;
 								<button
 									type="button"
-									class="delete-btn"
-									style="opacity: 1; color: white"
+									class="bg-[#d9534f] text-white rounded-md py-1 px-2.5"
 									@click="showConfirmDelete(user.id)"
 								>
 									Delete
@@ -504,6 +509,52 @@ const typeOfModal = ref('none')
 						</tr>
 					</tbody>
 				</table>
+			</div>
+			<div class="grid grid-cols-1 gap-4 lg:hidden sm:px-14">
+				<h4 class="text-gray-500 m-0">List All Users</h4>
+				<div
+					class="bg-white p-4 rounded-lg shadow sm:flex"
+					v-for="user in users"
+					:key="user.id"
+				>
+					<div class="w-full">
+						<div class="flex items-center space-x-2 text-sm text-[#495ab6]">
+							Name : &nbsp;<span class="text-gray-500">{{ user.name }}</span>
+							<span class="text-gray-500 py-1 px-3 rounded-full bg-gray-200 text-xs">
+								{{ user.role.toUpperCase() }}
+							</span>
+						</div>
+						<div class="flex items-center space-x-2 text-sm text-[#495ab6]">
+							Email : &nbsp;<span class="text-gray-500">{{ user.email }}</span>
+						</div>
+						<div class="flex items-center space-x-2 text-sm text-[#495ab6]">
+							Created On : &nbsp;<span class="text-gray-500">{{
+								user.createdOn
+							}}</span>
+						</div>
+						<div class="flex items-center space-x-2 text-sm text-[#495ab6]">
+							Updated On : &nbsp;<span class="text-gray-500">{{
+								user.updatedOn
+							}}</span>
+						</div>
+					</div>
+					<div class="w-full text-right mt-2 sm:mt-0 sm:w-1/2">
+						<button
+							type="button"
+							class="bg-black text-white rounded-md py-1 px-2.5 mr-2"
+							@click="toEditUserMode(user)"
+						>
+							Edit
+						</button>
+						<button
+							type="button"
+							class="bg-[#d9534f] text-white rounded-md py-1 px-2.5"
+							@click="showConfirmDelete(user.id)"
+						>
+							Delete
+						</button>
+					</div>
+				</div>
 			</div>
 			<i
 				class="fa fa-user-plus"
@@ -515,103 +566,4 @@ const typeOfModal = ref('none')
 	</div>
 </template>
 
-<style scoped>
-#root {
-	position: relative;
-	min-height: 88vh;
-}
-.no-user {
-	display: flex;
-	flex-direction: column;
-	height: 400px;
-	align-items: center;
-	justify-content: center;
-	color: #5c5c5c;
-}
-
-.all-user-container {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 0 5%;
-	/* overflow: auto; */
-}
-#insertBar {
-	width: 95%;
-	margin-top: 30px;
-
-	display: flex;
-	justify-content: right;
-}
-input[type='text'],
-select {
-	padding: 6px 20px;
-}
-.table {
-	display: flex;
-	justify-content: center;
-	width: 100%;
-	margin: 30px 0;
-	/* background-color: red; */
-}
-table {
-	width: 100%;
-	text-align: center;
-}
-th {
-	color: #495ab6;
-}
-tr {
-	height: 60px;
-}
-.datas {
-	color: black;
-}
-label,
-input {
-	margin-right: 10px;
-	margin-top: 0;
-}
-.error {
-	text-align: right;
-	margin-right: 10px;
-	color: red;
-}
-.signOut-btn:hover {
-	padding: 0;
-}
-.logout {
-	margin-top: -200px;
-}
-button {
-	color: white;
-	padding: 5px 10px;
-	border-radius: 5px;
-}
-.edit-btn {
-	background-color: black;
-}
-.delete-btn {
-	background-color: #d9534f;
-}
-label {
-	color: #495ab6;
-}
-input {
-	border: 2px solid lightgray;
-}
-
-i {
-	padding: 15px;
-	background-color: orange;
-	border-radius: 50%;
-	color: black;
-	position: absolute;
-	bottom: 2rem;
-	right: 2rem;
-	cursor: pointer;
-}
-i:hover {
-	background-color: rgb(255, 176, 31);
-}
-</style>
+<style scoped></style>
