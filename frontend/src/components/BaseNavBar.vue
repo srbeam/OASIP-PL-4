@@ -160,11 +160,10 @@ const signOut = () => {
 #navBar {
 	width: 100%;
 }
+
 .nav-container-grid {
 	display: grid;
-
 	grid-template-columns: 200px auto auto auto auto auto auto auto;
-
 	text-align: center;
 	align-items: center;
 	grid-gap: 5px;

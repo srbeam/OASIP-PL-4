@@ -8,28 +8,52 @@ import LecAddEventModal from '../components/LecAddEventModal.vue'
 // import AddEventSuccessModal from '../components/AddEventSuccessModal.vue'
 import SuccessModal from '../components/SuccessModal.vue'
 
+const events = ref([])
+let filterEvents = ref([])
 const categories = ref([])
+const bookingName = ref('')
+const bookingEmail = ref('')
+const eventCategory = ref('')
+const eventStartTime = ref('')
+const eventDuration = computed(() => {
+	if (eventCategory.value == '') {
+		return 0
+	} else {
+		return eventCategory.value.eventDuration
+	}
+})
+const note = ref('')
+let isBlank = ref(false)
+let isInvalidEmail = ref(false)
+let isInvalidDateFuture = ref(false)
+let isInvalidOverLab = ref(false)
+const isAddEventSuccess = ref(false)
+const getUserFromToken = ref()
+const token = ref()
 let author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
-const getUserFromToken = ref()
+const is401 = ref()
+const isAttachFile = ref()
+const isLecAddEvent = ref()
+const typeOfModal = ref()
+const fileupload = ref()
+
+onBeforeMount(async () => {
+	await getCategory()
+	getUser()
+	getCurDateTime()
+})
+
 const getUser = () => {
 	if (author != undefined || author != null) {
 		getUserFromToken.value = VueJwtDecode.decode(author)
 		author = localStorage.getItem('token')
 	}
-	// else {
-	// 	author = 'efewfdvf'
-	// }
 }
+
 const getCategory = async () => {
-	// if (author === undefined || author === null) {
-	// 	author = 'thisistokenforguest'
-	// }
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
 		method: 'GET'
-		// headers: {
-		// 	Authorization: `Bearer ${author}`
-		// }
 	})
 	if (res.status === 200) {
 		categories.value = await res.json()
@@ -37,33 +61,7 @@ const getCategory = async () => {
 		getRefreshToken()
 	} else console.log('error, cannot get data')
 }
-onBeforeMount(async () => {
-	await getCategory()
-	await getUser()
-	getCurDateTime()
-	// getEvents()
-})
 
-const events = ref([])
-let filterEvents = ref([])
-const getEvents = async () => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${author}`
-		}
-	})
-	if (res.status === 200) {
-		events.value = await res.json()
-		for (let event of events.value) {
-			event.eventStartTime = new Date(event.eventStartTime)
-		}
-	} else if (res.status == 401) {
-		getRefreshToken()
-	} else console.log('error, cannot get data')
-}
-
-const is401 = ref()
 const getRefreshToken = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
 		method: 'GET',
@@ -81,216 +79,160 @@ const getRefreshToken = async () => {
 		console.log('Error,cannot get refresh token from backend')
 	}
 }
-const token = ref()
+
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
 }
 
-const bookingName = ref('')
-const bookingEmail = ref('')
-const eventCategory = ref('')
-const eventStartTime = ref('')
-const eventDuration = computed(() => {
-	if (eventCategory.value == '') {
-		return 0
-	} else {
-		return eventCategory.value.eventDuration
-	}
-})
-const note = ref('')
-
-let isBlank = ref(false)
-let isInvalidEmail = ref(false)
-let isInvalidDateFuture = ref(false)
-let isInvalidOverLab = ref(false)
-const isAddEventSuccess = ref(false)
-const toggleAddEventSuccess = () => {
-	if (isAddEventSuccess.value === true) {
-		isAddEventSuccess.value = false
-		// getUsers()
-	} else {
-		isAddEventSuccess.value = true
-	}
-}
 const addEvent = () => {
-	if (getUserFromToken.value === undefined) {
-		if (
-			bookingName.value == '' ||
-			bookingEmail.value == '' ||
-			eventCategory.value == '' ||
-			eventStartTime.value == ''
-		) {
-			isBlank.value = true
-			isInvalidEmail.value = false
-			isInvalidDateFuture.value = false
-			isInvalidOverLab.value = false
-			console.log(isBlank.value)
-		} else if (!validateEmail(bookingEmail.value)) {
-			isInvalidEmail.value = true
-			isBlank.value = false
-			isInvalidDateFuture.value = false
-			isInvalidOverLab.value = false
-		} else if (!validateDateFuture(eventStartTime.value)) {
-			isInvalidDateFuture.value = true
-			isInvalidOverLab.value = false
-			isInvalidEmail.value = false
-			isBlank.value = false
-		} else if (
-			!validateNonOverlab(
-				eventCategory.value.eventCategoryName,
-				eventStartTime.value,
-				eventDuration.value
-			)
-		) {
-			isInvalidOverLab.value = true
-			isInvalidDateFuture.value = false
-			isInvalidEmail.value = false
-			isBlank.value = false
-		} else {
-			const date = new Date(eventStartTime.value).toLocaleString('en-GB')
-			const newEvent = {
-				bookingName: bookingName.value.trim(),
-				bookingEmail: bookingEmail.value.trim(),
-				eventCategory: eventCategory.value,
-				eventStartTime: date,
-				eventDuration: eventCategory.value.eventDuration,
-				eventNote: note.value
-			}
-			guestAddEventToDB(newEvent)
-		}
+	if (
+		bookingName.value == '' ||
+		bookingEmail.value == '' ||
+		eventCategory.value == '' ||
+		eventStartTime.value == ''
+	) {
+		isBlank.value = true
+		isInvalidEmail.value = false
+		isInvalidDateFuture.value = false
+		isInvalidOverLab.value = false
+		console.log(isBlank.value)
+	} else if (!validateEmail(bookingEmail.value)) {
+		isInvalidEmail.value = true
+		isBlank.value = false
+		isInvalidDateFuture.value = false
+		isInvalidOverLab.value = false
+	} else if (!validateDateFuture(eventStartTime.value)) {
+		isInvalidDateFuture.value = true
+		isInvalidOverLab.value = false
+		isInvalidEmail.value = false
+		isBlank.value = false
+	} else if (
+		!validateNonOverlab(
+			eventCategory.value.eventCategoryName,
+			eventStartTime.value,
+			eventDuration.value
+		)
+	) {
+		isInvalidOverLab.value = true
+		isInvalidDateFuture.value = false
+		isInvalidEmail.value = false
+		isBlank.value = false
 	} else {
-		if (getUserFromToken.value.Roles != 'ROLE_lecturer') {
-			// getEvents()
-			// getCategory()
-
+		const date = new Date(eventStartTime.value).toLocaleString('en-GB')
+		const newEvent = {
+			bookingName: bookingName.value.trim(),
+			bookingEmail: bookingEmail.value.trim(),
+			eventStartTime: date,
+			eventDuration: eventCategory.value.eventDuration,
+			eventNote: note.value,
+			eventCategory: {
+				id: eventCategory.value.id
+			}
+		}
+		if (getUserFromToken.value === undefined) {
+			guestAddEventToDB(newEvent)
+		} else {
 			if (getUserFromToken.value.Roles === 'ROLE_student') {
 				bookingEmail.value = getUserFromToken.value.sub
-				console.log(bookingEmail.value)
-			} else {
-				console.log(bookingEmail.value)
 			}
-
-			if (
-				bookingName.value == '' ||
-				bookingEmail.value == '' ||
-				eventCategory.value == '' ||
-				eventStartTime.value == ''
-			) {
-				isBlank.value = true
-				isInvalidEmail.value = false
-				isInvalidDateFuture.value = false
-				isInvalidOverLab.value = false
-				console.log(isBlank.value)
-			} else if (!validateEmail(bookingEmail.value)) {
-				isInvalidEmail.value = true
-				isBlank.value = false
-				isInvalidDateFuture.value = false
-				isInvalidOverLab.value = false
-			} else if (!validateDateFuture(eventStartTime.value)) {
-				isInvalidDateFuture.value = true
-				isInvalidOverLab.value = false
-				isInvalidEmail.value = false
-				isBlank.value = false
-			} else if (
-				!validateNonOverlab(
-					eventCategory.value.eventCategoryName,
-					eventStartTime.value,
-					eventDuration.value
-				)
-			) {
-				isInvalidOverLab.value = true
-				isInvalidDateFuture.value = false
-				isInvalidEmail.value = false
-				isBlank.value = false
-			} else {
-				const date = new Date(eventStartTime.value).toLocaleString('en-GB')
-				const newEvent = {
-					bookingName: bookingName.value.trim(),
-					bookingEmail: bookingEmail.value.trim(),
-					eventCategory: eventCategory.value,
-					eventStartTime: date,
-					eventDuration: eventCategory.value.eventDuration,
-					eventNote: note.value
-				}
-
-				addEventToDB(newEvent)
-			}
-			isLecAddEvent.value = false
-		} else {
-			isLecAddEvent.value = true
+			addEventToDB(newEvent)
 		}
 	}
 }
 
-const isLecAddEvent = ref()
-//ส่ง fetch
+//fetch สำหรับ guest
 const guestAddEventToDB = async (newEvent) => {
-	// console.log(newEvent)
-	//ใช้ตัวแปร env แทนการเขียน path
-
-	console.log(author)
+	let formData = new FormData()
+	const blob = new Blob([JSON.stringify(newEvent)], { type: 'application/json' })
+	formData.append('file', fileupload.value)
+	formData.append('event', blob)
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
-		headers: {
-			'content-type': 'application/json'
-			// Authorization: `Bearer ${author}`
-		},
-		//ยัด newEvent ลงใน body ส่งให้ backend
-		body: JSON.stringify(newEvent)
+		body: formData
 	})
-	// console.log(res.status)
 	if (res.status === 201) {
 		console.log('added sucessfully')
 		console.log(newEvent)
-		// console.log(res)
-		// goSuccess()
 		typeOfModal.value = 'addEvent'
 		isAddEventSuccess.value = true
 		setTimeout(toggleAddEventSuccess, 3000)
-		bookingName.value = ''
-		bookingEmail.value = ''
-		eventCategory.value = ''
-		eventStartTime.value = ''
-		note.value = ''
+		clearInput()
+		clearFileInput()
+		clearError()
 	} else if (res.status == 401) {
 		// getRefreshToken()
 		typeOfModal.value = ''
 	} else console.log('error, cannot be added')
 }
-const typeOfModal = ref()
-const addEventToDB = async (newEvent) => {
-	// console.log(newEvent)
-	//ใช้ตัวแปร env แทนการเขียน path
 
-	console.log(author)
+//fetch สำหรับ user
+const addEventToDB = async (newEvent) => {
+	let formData = new FormData()
+	const blob = new Blob([JSON.stringify(newEvent)], { type: 'application/json' })
+	formData.append('file', fileupload.value)
+	formData.append('event', blob)
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
 		headers: {
-			'content-type': 'application/json',
 			Authorization: `Bearer ${author}`
 		},
-		//ยัด newEvent ลงใน body ส่งให้ backend
-		body: JSON.stringify(newEvent)
+		body: formData
 	})
-	// console.log(res.status)
 	if (res.status === 201) {
 		console.log('added sucessfully')
 		console.log(newEvent)
-		// console.log(res)
 		// goSuccess()
 		typeOfModal.value = 'addEvent'
 		isAddEventSuccess.value = true
 		setTimeout(toggleAddEventSuccess, 3000)
-		bookingName.value = ''
-		bookingEmail.value = ''
-		eventCategory.value = ''
-		eventStartTime.value = ''
-		note.value = ''
+		clearInput()
+		clearFileInput()
+		clearError()
 	} else if (res.status == 401) {
-		// getRefreshToken()
+		getRefreshToken()
 		typeOfModal.value = ''
 	} else console.log('error, cannot be added')
+}
+
+const clearInput = () => {
+	bookingName.value = ''
+	bookingEmail.value = ''
+	eventCategory.value = ''
+	eventStartTime.value = ''
+	note.value = ''
+	clearFileInput()
+}
+
+const clearFileInput = () => {
+	let fileInput = document.getElementById('fileInput')
+	fileInput.type = 'text'
+	fileInput.type = 'file'
+	fileupload.value = ''
+	isAttachFile.value = false
+}
+const clearError = () => {
+	isBlank.value = false
+	isInvalidEmail.value = false
+	isInvalidDateFuture.value = false
+	isInvalidOverLab.value = false
+}
+
+const uploadFile = (e) => {
+	fileupload.value = e.target.files[0]
+	let maxFileSize = 10 * 1024 * 1024 //10MB
+	if (fileupload.value != undefined && fileupload.value.size > maxFileSize) {
+		console.log('too big')
+		let fileInput = document.getElementById('fileInput')
+		fileInput.setCustomValidity('The file size cannot be larger than 10 MB.')
+		fileInput.reportValidity()
+		fileInput.type = 'text'
+		fileInput.type = 'file'
+		isAttachFile.value = false
+	} else {
+		fileInput.setCustomValidity('')
+		isAttachFile.value = true
+	}
 }
 
 const validateEmail = (email) => {
@@ -307,19 +249,10 @@ const validateDateFuture = (dateTime) => {
 
 const validateNonOverlab = (category, startDTNew, durationNew) => {
 	filterCategory(category)
-	// console.log(filterEvents.value)
 
 	startDTNew = new Date(startDTNew)
 
 	for (let event of filterEvents.value) {
-		// console.log(
-		// 	checkOverLab(
-		// 		startDTNew,
-		// 		event.eventStartTime,
-		// 		durationNew,
-		// 		event.eventDuration
-		// 	)
-		// )
 		if (
 			!checkOverLab(
 				startDTNew,
@@ -379,12 +312,14 @@ const getCurDateTime = () => {
 	currentDateTime.value =
 		year + '-' + month + '-' + date + 'T' + hours + ':' + min
 }
-const clearInput = () => {
-	bookingName.value = ''
-	bookingEmail.value = ''
-	eventCategory.value = ''
-	eventStartTime.value = ''
-	note.value = ''
+
+const toggleAddEventSuccess = () => {
+	if (isAddEventSuccess.value === true) {
+		isAddEventSuccess.value = false
+		// getUsers()
+	} else {
+		isAddEventSuccess.value = true
+	}
 }
 </script>
 
@@ -408,7 +343,6 @@ const clearInput = () => {
 					Have an appointment during this time. | มีการนัดในช่วงเวลานี้
 				</div>
 				<div>
-					<!-- Booking Name <span class="error">*</span> -->
 					<label for="name">Booking nameInput</label><span class="error"> * </span>
 					<span class="lenght">100 character | 100 ตัวอักษร</span>
 					<input
@@ -444,9 +378,6 @@ const clearInput = () => {
 								v-model="bookingEmail"
 								maxlength="100"
 							/>
-
-							<!-- <span class="ml-3 mt-2 text-xl"> </span> -->
-							<!-- {{ getEmailFromToken.sub }} -->
 						</div>
 					</div>
 				</div>
@@ -465,18 +396,7 @@ const clearInput = () => {
 								{{ category.eventCategoryName }}
 							</option>
 						</select>
-						<!-- <select
-							v-model="eventCategory"
-							class="border-2 border-gray-200 rounded-md p-1"
-							v-else
-						>
-							<option value="" disabled>Please Select Clinic Category</option>
-							<option value="1">Project Management Clinic</option>
-							<option value="2">DevOps/Infra Clinic</option>
-							<option value="3">Database Clinic</option>
-							<option value="4">Client-side Clinic</option>
-							<option value="5">Server-side Clinic</option>
-						</select> -->
+
 						<span class="error"> *</span>&emsp; Duration
 						<span class="border-2 border-gray-200 rounded-md p-1 px-2 bg-gray-100">
 							{{ eventDuration }}
@@ -504,6 +424,17 @@ const clearInput = () => {
 					v-model="note"
 					maxlength="500"
 				/>
+				<div class="file">
+					<span>Attach File : </span>
+					<input type="file" id="fileInput" @change="uploadFile($event)" />
+					<p
+						@click="clearFileInput"
+						class="text-gray-500 hover:text-red-700 hover:cursor-pointer hover:underline text-sm"
+						v-if="isAttachFile"
+					>
+						Remove Selected File
+					</p>
+				</div>
 				<div id="click">
 					<button
 						type="button"
@@ -540,23 +471,14 @@ const clearInput = () => {
 	padding: 3% 0;
 }
 #add {
-	/* position: fixed; */
-	/* width: 1200px; */
 	width: 78%;
 	min-height: 550px;
 	padding: 30px 40px;
-	/* background-color: rgb(255, 255, 255, 0.5); */
 	color: black;
 	border-radius: 10px;
 }
-.selectcategory {
-	/* margin-top: 25px; */
-}
 
 #click {
-	/* position: absolute; */
-	/* margin-left: 60px; */
-	/* margin-top: 470px; */
 	display: flex;
 	justify-content: center;
 	margin-top: 45px;
@@ -580,5 +502,8 @@ input:valid + span::before {
 }
 input {
 	margin-top: 5px;
+}
+.file {
+	margin-top: 16px;
 }
 </style>

@@ -1,5 +1,11 @@
 <script setup>
 defineEmits(['closeModal', 'confirm'])
+const props = defineProps({
+	userSelected: {
+		type: Object,
+		default: {}
+	}
+})
 </script>
 
 <template>
@@ -10,8 +16,11 @@ defineEmits(['closeModal', 'confirm'])
 					<div class="modal-content">
 						<i class="fa fa-exclamation-circle fa-4x"></i>
 
+						<!-- <h2>Are you sure ?</h2> -->
+						<!-- <p>You will not be able to recover this</p> -->
 						<h2>Are you sure ?</h2>
-						<p>You will not be able to recover this</p>
+						<p class="text-gray-500 m-0">You want to delete user</p>
+						<p class="text-blue-500 m-0">{{ userSelected.name }}</p>
 					</div>
 					<div class="modal-btn-area">
 						<div class="modal-btn">
@@ -76,11 +85,11 @@ button {
 	padding: 20px 10px;
 	border-radius: 10px;
 }
-.modal-content p {
+/* .modal-content p {
 	color: gray;
-	/* margin-top: -10px; */
+
 	margin: 0;
-}
+} */
 h2 {
 	color: black;
 }

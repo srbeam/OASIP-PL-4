@@ -32,6 +32,7 @@ const getUsers = async () => {
 		console.log('Error,cannot get events from backend')
 	}
 }
+
 onBeforeMount(async () => {
 	await getUsers()
 })
@@ -48,7 +49,7 @@ const getRefreshToken = async () => {
 		token.value = await res.json()
 		saveLocal()
 	} else if (res.status === 401) {
-		// window.location.reload()
+		window.location.reload()
 		is401.value = true
 	} else {
 		console.log('Error,cannot get refresh token from backend')
@@ -192,9 +193,9 @@ const toggleDeleteSuccess = () => {
 	}
 }
 
-const showConfirmDelete = (id) => {
+const showConfirmDelete = (user) => {
 	isShowConfirm.value = true
-	selectedUser.value = id
+	selectedUser.value = user
 }
 const isShowConfirm = ref(false)
 const isChooseConfirm = ref(false)
@@ -207,7 +208,7 @@ const deleteUsers = async () => {
 	getUsers()
 	if (isChooseConfirm.value) {
 		const res = await fetch(
-			`${import.meta.env.VITE_BACK_URL}/users/${selectedUser.value}`,
+			`${import.meta.env.VITE_BACK_URL}/users/${selectedUser.value.id}`,
 			{
 				method: 'DELETE',
 				headers: {
@@ -435,6 +436,7 @@ const typeOfModal = ref('none')
 			v-if="isShowConfirm"
 			@closeModal="closeModal"
 			@confirm="deleteUsers"
+			:userSelected="selectedUser"
 		/>
 		<EditUserModal
 			v-if="isShowEditUserModal"
@@ -452,7 +454,7 @@ const typeOfModal = ref('none')
 		/>
 		<SuccessModal v-if="isDeleteSuccess" :typeOfModal="typeOfModal" />
 
-		<div class="py-10 px-4">
+		<div class="py-10 px-4 relative">
 			<div class="overflow-auto rounded-lg shadow hidden lg:block lg:mx-20">
 				<div
 					v-if="users.length == 0"
@@ -501,7 +503,7 @@ const typeOfModal = ref('none')
 								<button
 									type="button"
 									class="bg-[#d9534f] text-white rounded-md py-1 px-2.5"
-									@click="showConfirmDelete(user.id)"
+									@click="showConfirmDelete(user)"
 								>
 									Delete
 								</button>
@@ -549,7 +551,7 @@ const typeOfModal = ref('none')
 						<button
 							type="button"
 							class="bg-[#d9534f] text-white rounded-md py-1 px-2.5"
-							@click="showConfirmDelete(user.id)"
+							@click="showConfirmDelete(user)"
 						>
 							Delete
 						</button>
@@ -566,4 +568,18 @@ const typeOfModal = ref('none')
 	</div>
 </template>
 
-<style scoped></style>
+<style scoped>
+i {
+	padding: 15px;
+	background-color: orange;
+	border-radius: 50%;
+	color: black;
+	position: absolute;
+	bottom: 2rem;
+	right: 2rem;
+	cursor: pointer;
+}
+i:hover {
+	background-color: rgb(255, 176, 31);
+}
+</style>

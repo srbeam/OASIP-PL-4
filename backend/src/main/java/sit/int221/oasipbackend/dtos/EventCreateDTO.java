@@ -43,4 +43,5 @@ public class EventCreateDTO {
     @Size(max = 500, message = "Note size must between 0 to 500")
     private String eventNote;
 
+
 }

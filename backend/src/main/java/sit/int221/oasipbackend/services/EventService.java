@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.oasipbackend.config.JwtTokenUtil;
 import sit.int221.oasipbackend.dtos.*;
@@ -26,6 +27,8 @@ import sit.int221.oasipbackend.utils.ListMapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -48,51 +51,96 @@ public class EventService {
     private EventCategoryOwnerRepository eventCategoryOwnerRepository;
 
     @Autowired
+    private EmailSenderService emailSenderService;
+
+    @Autowired
     private EventService(EventRepository repository) {
         this.eventRepository = repository;
     }
 
+    @Autowired
+    private  FileStorageService fileStorageService;
 
-
-    public void save(HttpServletRequest request, Event event) {
-        Event e = modelMapper.map(event, Event.class);
-//        String token = getRequestAccessToken(request);
-//        if (token != null) {
-//            String getUserEmail = getUserEmail(token);
-//            System.out.println(request);
-//            if(request.isUserInRole("ROLE_student")){
-//                if(getUserEmail.equals(event.getBookingEmail())){
-//                    return eventRepository.saveAndFlush(e);
-//                }else{
-//                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Booking email must be the same as the student's email");
-//                }
-//            } else if (request.isUserInRole("ROLE_lecturer")) {
-//                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
-//            }
-//        }
-
-    if(request.getHeader("Authorization")!=null){
-        String getUserEmail = getUserEmail(getRequestAccessToken(request));
-        if (request.isUserInRole("student")) {
-//            String getUserEmail = getUserEmail(getRequestAccessToken(request));
-            if (getUserEmail.equals(event.getBookingEmail())) {
-                System.out.println("Booking email same as the student's email!");
-                eventRepository.saveAndFlush(e);
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking email must be the same as the student's email");
+    public Event save( HttpServletRequest request,  EventCreateDTO eventCreateDTO , MultipartFile multipartFile) {
+        Event e = modelMapper.map(eventCreateDTO, Event.class);
+        if (request.getHeader("Authorization") != null) {
+            String getUserEmail = getUserEmail(getRequestAccessToken(request));
+            if (request.isUserInRole("student")) {
+                if (getUserEmail.equals(eventCreateDTO.getBookingEmail())) {
+                    System.out.println("Booking email same as the student's email!");
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking email must be the same as the student's email");
+                }
             }
-        }else if (request.isUserInRole("ROLE_lecturer")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
-        }else{
-            eventRepository.saveAndFlush(e);
+            try {
+                LocalDateTime localDateTime = e.getEventStartTime();
+                System.out.println(e.getEventCategory().getEventCategoryName());
+                String newformat = localDateTime.format(DateTimeFormatter.ofPattern("E MMM dd, yyyy HH:mm").withZone(ZoneId.of("UTC")));
+                String header = "You have made a new appointment ." + '\n';
+                String body =
+                        "Subject : [OASIP]" + " " + e.getEventCategory().getEventCategoryName() + " " + "@" + " " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
+                                "Reply-to : " + "noreply@intproj21.sit.kmutt.ac.th" + '\n' +
+                                "Booking Name : " + e.getBookingName() + '\n' +
+                                "Event Category : " + e.getEventCategory().getEventCategoryName() + '\n' +
+                                "When : " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
+//                          "When : " + " " + e.getEventStartTime().toString().replace("T" , " ")+ " " + "-" + " " + findEndDate(e.getEventStartTime(),e.getEventDuration()).toString().substring(11) + '\n' +
+//                          "Event duration : " + e.getEventDuration() + "Minutes" + '\n' +
+                                "Event note : " + e.getEventNote();
+//                emailSenderService.sendEmail(e.getBookingEmail(),header,body);
+                System.out.println("email sent succesfully");
+            } catch (Exception ex) {
+                System.out.println(ex);
+                System.out.println("email sent failed");
+            }
+//            getId send file
+            Event saveEvent = eventRepository.saveAndFlush(e);
+            System.out.println(multipartFile);
+            sendFile(multipartFile , saveEvent.getId());
         }
-    }else{
-        eventRepository.saveAndFlush(e);
+//      เหลือ check error max file
+        Event saveEvent = eventRepository.saveAndFlush(e);
+        sendFile(multipartFile , saveEvent.getId());
+        return eventRepository.saveAndFlush(e);
+
     }
+
+//    public void save(HttpServletRequest request, Event event, MultipartFile multipartFile) {
+//        Event e = modelMapper.map(event, Event.class);
 //
-//        return eventRepository.saveAndFlush(e);
-//
-//
+//    if(request.getHeader("Authorization")!=null){
+//        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+//        if (request.isUserInRole("student")) {
+////            String getUserEmail = getUserEmail(getRequestAccessToken(request));
+//            if (getUserEmail.equals(event.getBookingEmail())) {
+//                System.out.println("Booking email same as the student's email!");
+////                eventRepository.saveAndFlush(e);
+//                Event saveEvent = eventRepository.saveAndFlush(e);
+//                sendFile(multipartFile , saveEvent.getId());
+//            } else {
+//                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking email must be the same as the student's email");
+//            }
+//        }else if (request.isUserInRole("ROLE_lecturer")) {
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
+//        }else{
+//            Event saveEvent = eventRepository.saveAndFlush(e);
+//            sendFile(multipartFile , saveEvent.getId());
+//        }
+//    }else{
+//        eventRepository.saveAndFlush(e);
+//    }
+////
+////        return eventRepository.saveAndFlush(e);
+////
+////
+//    }
+    public void sendFile(MultipartFile multipartFile , Integer id){
+        try {
+            if (multipartFile != null){
+                fileStorageService.storeFile(multipartFile , id);
+            }
+        }catch (Exception e){
+            System.out.println(e);
+        }
     }
 
     public Object reschedule(HttpServletRequest request,EventRescheduleDTO updateData, Integer id) {

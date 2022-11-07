@@ -5,10 +5,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import sit.int221.oasipbackend.properties.FileStorageProperties;
 import sit.int221.oasipbackend.utils.ListMapper;
 
 
 @Configuration
+@EnableConfigurationProperties({
+        FileStorageProperties.class
+})
 public class ApplicationConfig {
     @Bean
     public ModelMapper modelMapper() {
