@@ -1,11 +1,9 @@
 <script setup>
-import { computed } from '@vue/reactivity'
 import { onBeforeMount, ref } from 'vue'
 import VueJwtDecode from 'vue-jwt-decode'
 import { useRouter } from 'vue-router'
 defineEmits(['signOut'])
 const author = localStorage.getItem('token')
-let refreshToken = localStorage.getItem('refreshToken')
 const getUserFromToken = ref()
 const getUser = () => {
 	if (author != undefined) {
@@ -49,90 +47,103 @@ const appRouter = useRouter()
 const signOut = () => {
 	localStorage.clear()
 	checkToken()
-	// window.location.reload()
-	// window.location = 'http://localhost:3000/pl4/'
 	appRouter.push({ name: 'Home' })
 }
 </script>
 
 <template>
 	<div>
-		<header>
-			<nav id="navBar">
+		<header class="h-auto lg:flex bg-[#495ab6] p-0">
+			<nav class="w-full h-auto">
 				<div class="hamburger" @click="toggleMenu">
 					<div class="bar1"></div>
 					<div class="bar2"></div>
 					<div class="bar3"></div>
 				</div>
 
-				<div class="nav-container" v-if="getUserFromToken === undefined">
+				<div class="nav-container">
 					<div class="nav-container-grid">
 						<div id="logo">
-							<router-link :to="{ name: 'Home' }">
-								<img src="../assets/images/background/logo.png" id="logo-img" />
+							<router-link
+								:to="{ name: 'Home' }"
+								class="flex justify-center"
+								v-if="getUserFromToken === undefined"
+							>
+								<img src="../assets/images/background/logo.png" />
 							</router-link>
+							<img src="../assets/images/background/logo.png" v-else />
 						</div>
-						<router-link :to="{ name: 'AddEvent' }">
-							<button class="menu">Reserve</button>
-						</router-link>
-						<router-link :to="{ name: 'Category' }">
-							<button class="menu">Category</button>
-						</router-link>
-						<router-link :to="{ name: 'AboutUs' }">
-							<button class="menu">About Us</button>
-						</router-link>
-						<div id="sign-out-btn" v-if="isHasToken">
-							<router-link :to="{ name: 'Home' }">
-								<button
-									class="btn btn-warning rounded-md text-black"
-									@click="$emit('signOut'), signOut()"
+						<div class="flex items-center">
+							<ul
+								class="flex flex-col lg:flex-row text-center lg:text-left m-0 p-0 list-none"
+							>
+								<li class="lg:inline lg:mr-5 lg:mt-0 lg:mb-0">
+									<router-link
+										:to="{ name: 'AddEvent' }"
+										v-if="
+											getUserFromToken === undefined ||
+											getUserFromToken.Roles != 'ROLE_lecturer'
+										"
+										class="py-2.5 px-4"
+									>
+										<button class="text-white">Reserve</button>
+									</router-link>
+								</li>
+								<li
+									class="lg:inline lg:mr-5 lg:mt-0 lg:mb-0"
+									v-if="getUserFromToken != undefined"
 								>
-									SignOut
-								</button>
-							</router-link>
-						</div>
-					</div>
-				</div>
-				<div class="nav-container" v-else>
-					<div class="nav-container-grid">
-						<div id="logo">
-							<img src="../assets/images/background/logo.png" id="logo-img" />
-						</div>
-						<router-link
-							:to="{ name: 'AddEvent' }"
-							v-if="getUserFromToken.Roles != 'ROLE_lecturer'"
-						>
-							<button class="menu">Reserve</button>
-						</router-link>
-						<router-link :to="{ name: 'ListAll' }">
-							<button class="menu">List All Event</button>
-						</router-link>
-						<router-link :to="{ name: 'Category' }">
-							<button class="menu">Category</button>
-						</router-link>
-						<router-link :to="{ name: 'ListByDate' }">
-							<button class="menu">List By Date</button>
-						</router-link>
-						<router-link
-							:to="{ name: 'ListUser' }"
-							v-if="
-								getUserFromToken != undefined && getUserFromToken.Roles === 'ROLE_admin'
-							"
-						>
-							<button class="menu">List All Users</button>
-						</router-link>
-						<router-link :to="{ name: 'AboutUs' }">
-							<button class="menu">About Us</button>
-						</router-link>
-						<div id="sign-out-btn" v-if="isHasToken">
-							<router-link :to="{ name: 'Home' }">
-								<button
-									class="btn btn-warning rounded-md text-black"
-									@click="$emit('signOut'), signOut()"
+									<router-link :to="{ name: 'ListAll' }" class="py-2.5 px-4">
+										<button class="text-white">List All Event</button>
+									</router-link>
+								</li>
+								<li class="lg:inline lg:mr-5 lg:mb-0">
+									<router-link :to="{ name: 'Category' }" class="py-2.5 px-4">
+										<button class="text-white">Category</button>
+									</router-link>
+								</li>
+								<li
+									class="lg:inline lg:mr-5 lg:mt-0 lg:mb-0"
+									v-if="getUserFromToken != undefined"
 								>
-									SignOut
-								</button>
-							</router-link>
+									<router-link :to="{ name: 'ListByDate' }" class="py-2.5 px-4">
+										<button class="text-white">List By Date</button>
+									</router-link>
+								</li>
+								<li
+									class="lg:inline lg:mr-5 lg:mt-0 lg:mb-0"
+									v-if="
+										getUserFromToken != undefined &&
+										getUserFromToken.Roles === 'ROLE_admin'
+									"
+								>
+									<router-link
+										:to="{ name: 'ListUser' }"
+										v-if="
+											getUserFromToken != undefined &&
+											getUserFromToken.Roles === 'ROLE_admin'
+										"
+										class="py-2.5 px-4"
+									>
+										<button class="text-white">List All Users</button>
+									</router-link>
+								</li>
+								<li class="lg:inline lg:mr-5 lg:mb-0">
+									<router-link :to="{ name: 'AboutUs' }" class="py-2.5 px-4">
+										<button class="text-white">About Us</button>
+									</router-link>
+								</li>
+							</ul>
+							<div id="sign-out-btn" v-if="isHasToken">
+								<router-link :to="{ name: 'Home' }" class="py-2.5 px-4">
+									<button
+										class="btn btn-warning rounded-md text-black"
+										@click="$emit('signOut'), signOut()"
+									>
+										SignOut
+									</button>
+								</router-link>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -145,51 +156,30 @@ const signOut = () => {
 .router-link-active {
 	background-color: rgba(255, 255, 255, 0.2);
 	border-radius: 10px;
-	padding: 10px 0px;
+	padding: 10px 16px;
 }
 
-#logo.router-link-active {
+#logo a.router-link-active,
+#sign-out-btn a.router-link-active,
+#sign-out-btn a:hover,
+#logo a:hover {
 	background-color: rgba(0, 0, 0, 0);
-}
-#sign-out-btn a.router-link-active {
 	padding: 0;
-}
-#sign-out-btn a:hover {
-	background-color: rgba(0, 0, 0, 0);
-}
-#navBar {
-	width: 100%;
 }
 
 .nav-container-grid {
 	display: grid;
-	grid-template-columns: 200px auto auto auto auto auto auto auto;
+	grid-template-columns: 200px auto;
 	text-align: center;
 	align-items: center;
-	grid-gap: 5px;
 }
 
-.menu {
-	color: white;
-}
 a:hover {
 	background-color: rgba(255, 255, 255, 0.2);
 	border-radius: 10px;
-	padding: 10px 0px;
+	padding: 10px 16px;
 }
 
-.navMenu {
-	color: white;
-}
-ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
-
-li {
-	display: inline;
-}
 .hamburger {
 	display: none;
 	cursor: pointer;
@@ -224,75 +214,43 @@ li {
 	transform: translateY(5px);
 	transition: 0.5s;
 }
-.logo-mobile {
-	display: none;
-}
-#menu-home {
-	display: none;
-}
+
 header {
-	display: flex;
-	background-color: #495ab6;
 	min-height: 70px;
 }
 
 @media screen and (max-width: 1024px) {
-	header {
-		height: auto;
-		padding: 0;
-		padding-bottom: 20px;
-	}
 	.hamburger {
 		display: inline-block;
 		margin-top: 1rem;
 		margin-bottom: -10px;
-	}
-	#menu-home {
-		display: inline;
-		padding: 0;
-	}
-	nav {
-		height: auto;
 	}
 
 	.nav-container {
 		display: none;
 		justify-content: center;
 	}
-
-	.menu {
-		padding: 8px 0px;
-		color: white;
-	}
 	a:hover {
 		background-color: lightgray;
 		border-radius: 10px;
 	}
 	.nav-container-grid {
-		grid-template-columns: none;
-		grid-template-rows: repeat(8, auto);
-		grid-row-gap: 20px;
-		grid-column-gap: 0;
-
 		justify-content: center;
 		align-items: center;
-	}
-
-	#logo a {
 		display: flex;
-		justify-content: center;
+		flex-direction: column;
 	}
 
-	#logo .router-link-active,
-	#logo a:hover {
-		background-color: rgba(255, 255, 255, 0);
-	}
 	#logo img {
 		width: 50%;
 	}
 	#logo {
 		display: flex;
 		justify-content: center;
+		margin-bottom: 14px;
+	}
+	li {
+		margin-bottom: 25px;
 	}
 }
 </style>

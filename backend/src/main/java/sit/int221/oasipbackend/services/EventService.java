@@ -86,7 +86,7 @@ public class EventService {
 //                          "When : " + " " + e.getEventStartTime().toString().replace("T" , " ")+ " " + "-" + " " + findEndDate(e.getEventStartTime(),e.getEventDuration()).toString().substring(11) + '\n' +
 //                          "Event duration : " + e.getEventDuration() + "Minutes" + '\n' +
                                 "Event note : " + e.getEventNote();
-//                emailSenderService.sendEmail(e.getBookingEmail(),header,body);
+                emailSenderService.sendEmail(e.getBookingEmail(),header,body);
                 System.out.println("email sent succesfully");
             } catch (Exception ex) {
                 System.out.println(ex);
