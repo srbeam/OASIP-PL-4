@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import sit.int221.oasipbackend.config.JwtTokenUtil;
@@ -18,6 +19,7 @@ import sit.int221.oasipbackend.entities.EventCategory;
 import sit.int221.oasipbackend.entities.EventCategoryOwner;
 import sit.int221.oasipbackend.entities.User;
 import sit.int221.oasipbackend.exceptions.ValidationHandler;
+import sit.int221.oasipbackend.model.HandleException;
 import sit.int221.oasipbackend.repositories.EventCategoryOwnerRepository;
 import sit.int221.oasipbackend.repositories.EventCategoryRepository;
 import sit.int221.oasipbackend.repositories.EventRepository;
@@ -26,6 +28,7 @@ import sit.int221.oasipbackend.utils.ListMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -133,15 +136,20 @@ public class EventService {
 ////
 ////
 //    }
-    public void sendFile(MultipartFile multipartFile , Integer id){
-        try {
-            if (multipartFile != null){
-                fileStorageService.storeFile(multipartFile , id);
-            }
-        }catch (Exception e){
-            System.out.println(e);
+public void sendFile(MultipartFile multipartFile , Integer id){
+    try {
+        if (multipartFile != null){
+            fileStorageService.storeFile(multipartFile , id);
         }
+    }catch (IOException ioException){
+        ioException.printStackTrace();
+//            System.out.println(e);
+    }catch (MaxUploadSizeExceededException maxUploadSizeExceededException){
+        System.out.println(maxUploadSizeExceededException);
+        throw new HandleException(HttpStatus.BAD_REQUEST,"File Upload");
     }
+}
+
 
     public Object reschedule(HttpServletRequest request,EventRescheduleDTO updateData, Integer id) {
         Event existingEvent = eventRepository.findById(id).orElseThrow(()->
