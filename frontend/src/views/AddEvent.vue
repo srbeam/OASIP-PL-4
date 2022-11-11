@@ -219,17 +219,26 @@ const clearError = () => {
 }
 
 const uploadFile = (e) => {
-	fileupload.value = e.target.files[0]
+	console.log(e.target.files[0])
+	console.log(e.target.files[0].size)
 	let maxFileSize = 10 * 1024 * 1024 //10MB
-	if (fileupload.value != undefined && fileupload.value.size > maxFileSize) {
+	if (e.target.files[0] != undefined && e.target.files[0].size > maxFileSize) {
+		
 		console.log('too big')
+		console.log(fileupload.value)
 		let fileInput = document.getElementById('fileInput')
+		console.log(fileInput.files)
 		fileInput.setCustomValidity('The file size cannot be larger than 10 MB.')
 		fileInput.reportValidity()
-		fileInput.type = 'text'
-		fileInput.type = 'file'
+		const dataTransfer = new DataTransfer();
+    	dataTransfer.items.add(fileupload.value);
+    	fileInput.files = dataTransfer.files;
+		// fileInput.files[0] = fileupload.value
+		// fileInput.type = 'text'
+		// fileInput.type = 'file'
 		isAttachFile.value = false
 	} else {
+		fileupload.value = e.target.files[0]
 		fileInput.setCustomValidity('')
 		isAttachFile.value = true
 	}
