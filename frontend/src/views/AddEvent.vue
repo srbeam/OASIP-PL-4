@@ -7,7 +7,6 @@ import VueJwtDecode from 'vue-jwt-decode'
 import LecAddEventModal from '../components/LecAddEventModal.vue'
 // import AddEventSuccessModal from '../components/AddEventSuccessModal.vue'
 import SuccessModal from '../components/SuccessModal.vue'
-
 const events = ref([])
 let filterEvents = ref([])
 const categories = ref([])
@@ -37,20 +36,17 @@ const isAttachFile = ref()
 const isLecAddEvent = ref()
 const typeOfModal = ref()
 const fileupload = ref()
-
 onBeforeMount(async () => {
 	await getCategory()
 	getUser()
 	getCurDateTime()
 })
-
 const getUser = () => {
 	if (author != undefined || author != null) {
 		getUserFromToken.value = VueJwtDecode.decode(author)
 		author = localStorage.getItem('token')
 	}
 }
-
 const getCategory = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
 		method: 'GET'
@@ -61,7 +57,6 @@ const getCategory = async () => {
 		getRefreshToken()
 	} else console.log('error, cannot get data')
 }
-
 const getRefreshToken = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
 		method: 'GET',
@@ -79,13 +74,15 @@ const getRefreshToken = async () => {
 		console.log('Error,cannot get refresh token from backend')
 	}
 }
-
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
 }
-
 const addEvent = () => {
+	if (getUserFromToken.value.Roles === 'ROLE_student') {
+		bookingEmail.value = getUserFromToken.value.sub
+	}
+	console.log(bookingEmail.value)
 	if (
 		bookingName.value == '' ||
 		bookingEmail.value == '' ||
@@ -133,14 +130,10 @@ const addEvent = () => {
 		if (getUserFromToken.value === undefined) {
 			guestAddEventToDB(newEvent)
 		} else {
-			if (getUserFromToken.value.Roles === 'ROLE_student') {
-				bookingEmail.value = getUserFromToken.value.sub
-			}
 			addEventToDB(newEvent)
 		}
 	}
 }
-
 //fetch สำหรับ guest
 const guestAddEventToDB = async (newEvent) => {
 	let formData = new FormData()
@@ -165,7 +158,6 @@ const guestAddEventToDB = async (newEvent) => {
 		typeOfModal.value = ''
 	} else console.log('error, cannot be added')
 }
-
 //fetch สำหรับ user
 const addEventToDB = async (newEvent) => {
 	let formData = new FormData()
@@ -194,7 +186,6 @@ const addEventToDB = async (newEvent) => {
 		typeOfModal.value = ''
 	} else console.log('error, cannot be added')
 }
-
 const clearInput = () => {
 	bookingName.value = ''
 	bookingEmail.value = ''
@@ -203,13 +194,14 @@ const clearInput = () => {
 	note.value = ''
 	clearFileInput()
 }
-
+let dataTransfer = new DataTransfer()
 const clearFileInput = () => {
 	let fileInput = document.getElementById('fileInput')
 	fileInput.type = 'text'
 	fileInput.type = 'file'
 	fileupload.value = ''
 	isAttachFile.value = false
+	dataTransfer.items.clear()
 }
 const clearError = () => {
 	isBlank.value = false
@@ -217,26 +209,21 @@ const clearError = () => {
 	isInvalidDateFuture.value = false
 	isInvalidOverLab.value = false
 }
-
 const uploadFile = (e) => {
-	console.log(e.target.files[0])
-	console.log(e.target.files[0].size)
 	let maxFileSize = 10 * 1024 * 1024 //10MB
-	if (e.target.files[0] != undefined && e.target.files[0].size > maxFileSize) {
-		
-		console.log('too big')
-		console.log(fileupload.value)
+	if (e.target.files[0].size > maxFileSize) {
 		let fileInput = document.getElementById('fileInput')
-		console.log(fileInput.files)
 		fileInput.setCustomValidity('The file size cannot be larger than 10 MB.')
 		fileInput.reportValidity()
-		const dataTransfer = new DataTransfer();
-    	dataTransfer.items.add(fileupload.value);
-    	fileInput.files = dataTransfer.files;
-		// fileInput.files[0] = fileupload.value
-		// fileInput.type = 'text'
-		// fileInput.type = 'file'
-		isAttachFile.value = false
+
+		if (fileupload.value === undefined || fileupload.value === '') {
+			clearFileInput()
+			isAttachFile.value = false
+		} else {
+			dataTransfer.items.clear()
+			dataTransfer.items.add(fileupload.value)
+			fileInput.files = dataTransfer.files
+		}
 	} else {
 		fileupload.value = e.target.files[0]
 		fileInput.setCustomValidity('')
@@ -249,18 +236,14 @@ const validateEmail = (email) => {
 		/^(([^<>()[\]\\.,;:\s*$&!#?@"]+(\.[^<>()[\]\\.,;:\s*$&!#?@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	return re.test(String(email).toLocaleLowerCase())
 }
-
 const validateDateFuture = (dateTime) => {
 	const currentDateTime = new Date()
 	dateTime = new Date(dateTime)
 	return dateTime > currentDateTime ? true : false
 }
-
 const validateNonOverlab = (category, startDTNew, durationNew) => {
 	filterCategory(category)
-
 	startDTNew = new Date(startDTNew)
-
 	for (let event of filterEvents.value) {
 		if (
 			!checkOverLab(
@@ -274,7 +257,6 @@ const validateNonOverlab = (category, startDTNew, durationNew) => {
 	}
 	return true
 }
-
 const checkOverLab = (startDTNew, startDTOld, durationNew, durationOld) => {
 	const endDTOld = new Date(
 		new Date(startDTOld.getTime() + Number(durationOld) * 60000)
@@ -282,7 +264,6 @@ const checkOverLab = (startDTNew, startDTOld, durationNew, durationOld) => {
 	const startDanger = new Date(
 		new Date(startDTOld.getTime() - Number(durationNew) * 60000)
 	)
-
 	if (startDTNew > endDTOld) {
 		return true
 	} else {
@@ -293,13 +274,11 @@ const checkOverLab = (startDTNew, startDTOld, durationNew, durationOld) => {
 		}
 	}
 }
-
 const filterCategory = (category) => {
 	filterEvents.value = events.value.filter((event) => {
 		return event.eventCategoryName == category
 	})
 }
-
 const appRouter = useRouter()
 const goSuccess = () => appRouter.push({ name: 'AddSuccess' })
 const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
@@ -321,7 +300,6 @@ const getCurDateTime = () => {
 	currentDateTime.value =
 		year + '-' + month + '-' + date + 'T' + hours + ':' + min
 }
-
 const toggleAddEventSuccess = () => {
 	if (isAddEventSuccess.value === true) {
 		isAddEventSuccess.value = false
@@ -331,7 +309,6 @@ const toggleAddEventSuccess = () => {
 	}
 }
 </script>
-
 <template>
 	<div>
 		<NoLoginModal v-if="is401" />
@@ -360,7 +337,6 @@ const toggleAddEventSuccess = () => {
 						v-model="bookingName"
 						maxlength="100"
 					/>
-
 					<div>
 						<label for="email">Booking Email address</label>
 						<span class="error"> * </span>
@@ -405,7 +381,6 @@ const toggleAddEventSuccess = () => {
 								{{ category.eventCategoryName }}
 							</option>
 						</select>
-
 						<span class="error"> *</span>&emsp; Duration
 						<span class="border-2 border-gray-200 rounded-md p-1 px-2 bg-gray-100">
 							{{ eventDuration }}
@@ -413,7 +388,6 @@ const toggleAddEventSuccess = () => {
 						<br />
 						<br />
 					</div>
-
 					Appointment Date&Time <span class="error">*</span> <br />
 					<input
 						id="date"
@@ -435,6 +409,7 @@ const toggleAddEventSuccess = () => {
 				/>
 				<div class="file">
 					<span>Attach File : </span>
+
 					<input type="file" id="fileInput" @change="uploadFile($event)" />
 					<p
 						@click="clearFileInput"
@@ -470,7 +445,6 @@ const toggleAddEventSuccess = () => {
 		<SuccessModal v-if="isAddEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
-
 <style>
 #add-event-container {
 	display: flex;
@@ -486,13 +460,11 @@ const toggleAddEventSuccess = () => {
 	color: black;
 	border-radius: 10px;
 }
-
 #click {
 	display: flex;
 	justify-content: center;
 	margin-top: 45px;
 }
-
 .error {
 	color: red;
 }
@@ -504,7 +476,6 @@ input:valid + span::before {
 	content: '✔';
 	color: green;
 }
-
 .lenght {
 	color: grey;
 	font-size: 0.8em;

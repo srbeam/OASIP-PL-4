@@ -28,7 +28,7 @@ public class Response {
         map.put("message", message);
         return new ResponseEntity<Object>(map,httpStatus);
     }
-
+    //    Max file
     @Value("${spring.servlet.multipart.max-file-size}")
     private String maxFiles;
 
@@ -40,6 +40,6 @@ public class Response {
         map.put("status",HttpStatus.BAD_REQUEST.value());
         map.put("error",HttpStatus.PAYLOAD_TOO_LARGE.name());
         map.put("message","The file size cannot be larger than 10 MB.");
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(map);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
     }
 }

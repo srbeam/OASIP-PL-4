@@ -73,7 +73,7 @@ const signOut = () => {
 							</router-link>
 							<img src="../assets/images/background/logo.png" v-else />
 						</div>
-						<div class="flex items-center">
+						<div class="flex flex-col lg:flex-row items-center">
 							<ul
 								class="flex flex-col lg:flex-row text-center lg:text-left m-0 p-0 list-none"
 							>
@@ -213,6 +213,7 @@ a:hover {
 	height: auto !important;
 	transform: translateY(5px);
 	transition: 0.5s;
+	padding-bottom: 40px;
 }
 
 header {
