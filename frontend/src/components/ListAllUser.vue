@@ -49,7 +49,7 @@ const getRefreshToken = async () => {
 		token.value = await res.json()
 		saveLocal()
 	} else if (res.status === 401) {
-		window.location.reload()
+		// window.location.reload()
 		is401.value = true
 	} else {
 		console.log('Error,cannot get refresh token from backend')
@@ -454,7 +454,7 @@ const typeOfModal = ref('none')
 		/>
 		<SuccessModal v-if="isDeleteSuccess" :typeOfModal="typeOfModal" />
 
-		<div class="py-10 px-4 relative">
+		<div class="py-10 px-4 relative" v-if="!is401 && !is403">
 			<div class="overflow-auto rounded-lg shadow hidden lg:block lg:mx-20">
 				<div
 					v-if="users.length == 0"

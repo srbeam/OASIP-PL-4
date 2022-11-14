@@ -25,4 +25,6 @@ public class EventDetailDTO {
     private String eventNote;
     private Integer eventCategoryId;
     private EventCategory eventCategory;
+    private String fileName;
+
 }

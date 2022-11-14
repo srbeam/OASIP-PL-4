@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
@@ -96,11 +97,20 @@ public class EventService {
                 System.out.println("email sent failed");
             }
 //            getId send file
+            if (multipartFile != null) {
+                e.setFileName(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
+//                e.setFileData(multipartFile.getBytes());
+
+            }
             Event saveEvent = eventRepository.saveAndFlush(e);
-            System.out.println(multipartFile);
             sendFile(multipartFile , saveEvent.getId());
         }
-//      เหลือ check error max file
+
+        if (multipartFile != null) {
+            e.setFileName(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
+//                e.setFileData(multipartFile.getBytes());
+
+        }
         Event saveEvent = eventRepository.saveAndFlush(e);
         sendFile(multipartFile , saveEvent.getId());
         return eventRepository.saveAndFlush(e);

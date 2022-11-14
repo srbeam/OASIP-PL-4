@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { ref } from 'vue'
 import ListAllEvent from '../views/ListAllEvent.vue'
 import EventDetail from '../views/EventDetail.vue'
 import AddEvent from '../views/AddEvent.vue'

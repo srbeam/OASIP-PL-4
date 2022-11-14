@@ -2,6 +2,7 @@
 import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import RescheduleSuccess from './RescheduleSuccess.vue'
+
 import VueJwtDecode from 'vue-jwt-decode'
 
 const getUserFromToken = ref()
@@ -28,6 +29,7 @@ const event = computed(() => props.pevent)
 const events = computed(() => props.pevents)
 // const event = computed(() => props.event)
 // const events = computed(() => props.events)
+
 const isEditMode = ref(false)
 
 const appRouter = useRouter()
@@ -162,6 +164,7 @@ const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
 const token = ref()
 const is401 = ref()
+const filePath = ref()
 const rescheduleEvent = async (
 	updateStartTime,
 	updateNote,
@@ -239,6 +242,29 @@ const toggleRescheduleSuccess = () => {
 		isRescheduleSuccess.value = true
 	}
 }
+const file = ref()
+const tempUrl = ref()
+const downloadFile = async (eventId, fileName) => {
+	console.log(file.value)
+	const res = await fetch(
+		`${import.meta.env.VITE_BACK_URL}/downloadFile/${eventId}/${fileName}`,
+		{
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${author}`
+			}
+		}
+	)
+	if (res.status === 200) {
+		file.value = await res.blob()
+		tempUrl.value = URL.createObjectURL(file.value)
+	} else if (res.status == 401) {
+		getRefreshToken()
+	} else {
+		console.log('Error,cannot get events from backend')
+		console.log(event.value)
+	}
+}
 </script>
 
 <template>
@@ -280,6 +306,17 @@ const toggleRescheduleSuccess = () => {
 						</p>
 						<p v-else>No note</p>
 					</div>
+					<div class="file" v-if="event.fileName != null">
+						<span>Attachment : </span>
+
+						<a
+							class="text-blue-500 cursor-pointer"
+							@click="downloadFile(event.id, event.fileName)"
+							:href="tempUrl"
+							:download="event.fileName"
+							>{{ event.fileName }}</a
+						>
+					</div>
 
 					<button
 						id="reschedule"
@@ -293,6 +330,7 @@ const toggleRescheduleSuccess = () => {
 						Reschedule
 					</button>
 				</div>
+				<!------------ edit Mode ------------>
 				<div class="basis-1/2 p-10" v-else>
 					<p class="text-red-600" v-if="isBlank">
 						Please select date and time or click cancel. |
