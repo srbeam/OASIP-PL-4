@@ -79,9 +79,12 @@ const saveLocal = () => {
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
 }
 const addEvent = () => {
-	if (getUserFromToken.value.Roles === 'ROLE_student') {
-		bookingEmail.value = getUserFromToken.value.sub
+	if (getUserFromToken.value != undefined) {
+		if (getUserFromToken.value.Roles === 'ROLE_student') {
+			bookingEmail.value = getUserFromToken.value.sub
+		}
 	}
+
 	console.log(bookingEmail.value)
 	if (
 		bookingName.value == '' ||
