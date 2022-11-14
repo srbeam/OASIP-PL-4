@@ -242,10 +242,8 @@ const toggleRescheduleSuccess = () => {
 		isRescheduleSuccess.value = true
 	}
 }
-const file = ref()
-const tempUrl = ref()
+
 const downloadFile = async (eventId, fileName) => {
-	console.log(file.value)
 	const res = await fetch(
 		`${import.meta.env.VITE_BACK_URL}/downloadFile/${eventId}/${fileName}`,
 		{
@@ -256,13 +254,19 @@ const downloadFile = async (eventId, fileName) => {
 		}
 	)
 	if (res.status === 200) {
-		file.value = await res.blob()
-		tempUrl.value = URL.createObjectURL(file.value)
+		let file = await res.blob()
+		let tempUrl = URL.createObjectURL(file)
+		let a = document.createElement('a')
+		document.body.appendChild(a)
+		a.style = 'display: none'
+		a.href = tempUrl
+		a.setAttribute('download', fileName)
+		a.click()
+		window.URL.revokeObjectURL(tempUrl)
 	} else if (res.status == 401) {
 		getRefreshToken()
 	} else {
-		console.log('Error,cannot get events from backend')
-		console.log(event.value)
+		console.log('Error,cannot download file')
 	}
 }
 </script>
@@ -312,8 +316,6 @@ const downloadFile = async (eventId, fileName) => {
 						<a
 							class="text-blue-500 cursor-pointer"
 							@click="downloadFile(event.id, event.fileName)"
-							:href="tempUrl"
-							:download="event.fileName"
 							>{{ event.fileName }}</a
 						>
 					</div>
