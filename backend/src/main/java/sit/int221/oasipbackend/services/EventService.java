@@ -71,50 +71,51 @@ public class EventService {
             String getUserEmail = getUserEmail(getRequestAccessToken(request));
             if (request.isUserInRole("student")) {
                 if (getUserEmail.equals(eventCreateDTO.getBookingEmail())) {
-                    System.out.println("Booking email same as the student's email!");
+                        LocalDateTime localDateTime = e.getEventStartTime();
+                        String newformat = localDateTime.format(DateTimeFormatter.ofPattern("E MMM dd, yyyy HH:mm").withZone(ZoneId.of("UTC")));
+                        String header = "You have made a new appointment ." + '\n';
+                        String body =
+                                "Subject : [OASIP]" + " " + e.getEventCategory().getEventCategoryName() + " " + "@" + " " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
+                                        "Reply-to : " + "noreply@intproj21.sit.kmutt.ac.th" + '\n' +
+                                        "Booking Name : " + e.getBookingName() + '\n' +
+                                        "Event Category : " + e.getEventCategory().getEventCategoryName() + '\n' +
+                                        "When : " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
+                                        "Event note : " + e.getEventNote();
+                        emailSenderService.sendEmail(e.getBookingEmail(),header,body);
+                        System.out.println("email sent succesfully");
+                    //            getId send file
+                    if (multipartFile != null) {
+                        e.setFileName(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
+                    }
+                    Event saveEvent = eventRepository.saveAndFlush(e);
+                    sendFile(multipartFile , saveEvent.getId());
                 } else {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking email must be the same as the student's email");
                 }
+            }else if (request.isUserInRole("ROLE_lecturer")) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
             }
-            try {
-                LocalDateTime localDateTime = e.getEventStartTime();
-                System.out.println(e.getEventCategory().getEventCategoryName());
-                String newformat = localDateTime.format(DateTimeFormatter.ofPattern("E MMM dd, yyyy HH:mm").withZone(ZoneId.of("UTC")));
-                String header = "You have made a new appointment ." + '\n';
-                String body =
-                        "Subject : [OASIP]" + " " + e.getEventCategory().getEventCategoryName() + " " + "@" + " " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
-                                "Reply-to : " + "noreply@intproj21.sit.kmutt.ac.th" + '\n' +
-                                "Booking Name : " + e.getBookingName() + '\n' +
-                                "Event Category : " + e.getEventCategory().getEventCategoryName() + '\n' +
-                                "When : " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
-//                          "When : " + " " + e.getEventStartTime().toString().replace("T" , " ")+ " " + "-" + " " + findEndDate(e.getEventStartTime(),e.getEventDuration()).toString().substring(11) + '\n' +
-//                          "Event duration : " + e.getEventDuration() + "Minutes" + '\n' +
-                                "Event note : " + e.getEventNote();
-                emailSenderService.sendEmail(e.getBookingEmail(),header,body);
-                System.out.println("email sent succesfully");
-            } catch (Exception ex) {
-                System.out.println(ex);
-                System.out.println("email sent failed");
-            }
-//            getId send file
-            if (multipartFile != null) {
-                e.setFileName(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
-//                e.setFileData(multipartFile.getBytes());
 
-            }
-            Event saveEvent = eventRepository.saveAndFlush(e);
-            sendFile(multipartFile , saveEvent.getId());
         }
-
+//      guest
+        LocalDateTime localDateTime = e.getEventStartTime();
+        String newformat = localDateTime.format(DateTimeFormatter.ofPattern("E MMM dd, yyyy HH:mm").withZone(ZoneId.of("UTC")));
+        String header = "You have made a new appointment ." + '\n';
+        String body =
+                "Subject : [OASIP]" + " " + e.getEventCategory().getEventCategoryName() + " " + "@" + " " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
+                        "Reply-to : " + "noreply@intproj21.sit.kmutt.ac.th" + '\n' +
+                        "Booking Name : " + e.getBookingName() + '\n' +
+                        "Event Category : " + e.getEventCategory().getEventCategoryName() + '\n' +
+                        "When : " + newformat + " " + "-" + " " + findEndDate(e.getEventStartTime(), e.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
+                        "Event note : " + e.getEventNote();
+        emailSenderService.sendEmail(e.getBookingEmail(),header,body);
+        System.out.println("email sent succesfully");
         if (multipartFile != null) {
             e.setFileName(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
-//                e.setFileData(multipartFile.getBytes());
-
         }
         Event saveEvent = eventRepository.saveAndFlush(e);
         sendFile(multipartFile , saveEvent.getId());
         return eventRepository.saveAndFlush(e);
-
     }
 
 //    public void save(HttpServletRequest request, Event event, MultipartFile multipartFile) {

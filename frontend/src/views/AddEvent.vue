@@ -127,7 +127,8 @@ const addEvent = () => {
 			eventDuration: eventCategory.value.eventDuration,
 			eventNote: note.value,
 			eventCategory: {
-				id: eventCategory.value.id
+				id: eventCategory.value.id,
+				eventCategoryName: eventCategory.value.eventCategoryName
 			}
 		}
 		if (getUserFromToken.value === undefined) {

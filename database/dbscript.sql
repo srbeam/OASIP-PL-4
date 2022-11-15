@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `oasip_db`.`event` (
   `eventStartTime` DATETIME(5) NOT NULL,
   `eventDuration` INT NOT NULL,
   `eventNote` VARCHAR(500) NULL,
+   `fileName` VARCHAR(500) NULL,
   PRIMARY KEY (`eventId`),
   INDEX `fk_event_eventCategory_idx` (`eventCategoryId` ASC) VISIBLE,
   CONSTRAINT `fk_event_eventCategory`
@@ -121,6 +122,7 @@ commit;
 create user 'admin222'@'%' identified by 'admin222';
 grant all privileges on *.* to 'admin222'@'%';
 flush privileges;
+
 
 
 
