@@ -48,6 +48,7 @@ const signOut = () => {
 	localStorage.clear()
 	checkToken()
 	appRouter.push({ name: 'Home' })
+	window.location.reload()
 }
 </script>
 
