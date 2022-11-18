@@ -1,4 +1,5 @@
 package sit.int221.oasipbackend.services;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -43,8 +44,6 @@ public class FileStorageService {
 //      create New Dircertoty
         Files.createDirectories(getpathbyid);
 
-        System.out.println(fileName);
-        System.out.println(getpathbyid);
 
         try {
             // Check if the file's name contains invalid characters
@@ -77,4 +76,11 @@ public class FileStorageService {
             throw new MyFileNotFoundException("File not found " + fileName, ex);
         }
     }
+
+    public Path getPathFile(Integer id) {
+        Path pathbyid = Paths.get(this.fileStorageLocation + "/" + id);
+//        return id;
+        return pathbyid;
+    }
+
 }

@@ -1,5 +1,6 @@
 package sit.int221.oasipbackend.services;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +30,11 @@ import sit.int221.oasipbackend.utils.ListMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -118,35 +123,6 @@ public class EventService {
         return eventRepository.saveAndFlush(e);
     }
 
-//    public void save(HttpServletRequest request, Event event, MultipartFile multipartFile) {
-//        Event e = modelMapper.map(event, Event.class);
-//
-//    if(request.getHeader("Authorization")!=null){
-//        String getUserEmail = getUserEmail(getRequestAccessToken(request));
-//        if (request.isUserInRole("student")) {
-////            String getUserEmail = getUserEmail(getRequestAccessToken(request));
-//            if (getUserEmail.equals(event.getBookingEmail())) {
-//                System.out.println("Booking email same as the student's email!");
-////                eventRepository.saveAndFlush(e);
-//                Event saveEvent = eventRepository.saveAndFlush(e);
-//                sendFile(multipartFile , saveEvent.getId());
-//            } else {
-//                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking email must be the same as the student's email");
-//            }
-//        }else if (request.isUserInRole("ROLE_lecturer")) {
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"No permission to add event");
-//        }else{
-//            Event saveEvent = eventRepository.saveAndFlush(e);
-//            sendFile(multipartFile , saveEvent.getId());
-//        }
-//    }else{
-//        eventRepository.saveAndFlush(e);
-//    }
-////
-////        return eventRepository.saveAndFlush(e);
-////
-////
-//    }
 public void sendFile(MultipartFile multipartFile , Integer id){
     try {
         if (multipartFile != null){
@@ -156,29 +132,27 @@ public void sendFile(MultipartFile multipartFile , Integer id){
         ioException.printStackTrace();
 //            System.out.println(e);
     }catch (MaxUploadSizeExceededException maxUploadSizeExceededException){
-        System.out.println(maxUploadSizeExceededException);
         throw new HandleException(HttpStatus.BAD_REQUEST,"File Upload");
     }
 }
 
 
-    public Object reschedule(HttpServletRequest request,EventRescheduleDTO updateData, Integer id) {
+
+
+    public Object reschedule(HttpServletRequest request,EventRescheduleDTO updateData, Integer id ,MultipartFile multipartFile) throws IOException {
         Event existingEvent = eventRepository.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         id + " does not exist !!!"));
-//        Event e = modelMapper.map(updateData, Event.class);
         String getUserEmail = getUserEmail(getRequestAccessToken(request));
         if(request.isUserInRole("ROLE_student")){
             if(getUserEmail.equals(existingEvent.getBookingEmail())){
-
                 if (!validateOverLab(updateData.getEventStartTime(), updateData.getEventCategory(), updateData.getEventDuration(), id)) {
                     return ValidationHandler.showError("eventStartTime", "Have an appointment during this time");
                 }else {
                     existingEvent.setEventStartTime(updateData.getEventStartTime());
                     existingEvent.setEventNote(updateData.getEventNote());
-                    return eventRepository.saveAndFlush(existingEvent);
+//                    return eventRepository.saveAndFlush(existingEvent);
                 }
-
             }else{
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Cannot reschedule event which you didn't own");
             }
@@ -186,12 +160,89 @@ public void sendFile(MultipartFile multipartFile , Integer id){
         if(request.isUserInRole("ROLE_admin")){
             existingEvent.setEventStartTime(updateData.getEventStartTime());
             existingEvent.setEventNote(updateData.getEventNote());
-            return eventRepository.saveAndFlush(existingEvent);
+//            return eventRepository.saveAndFlush(existingEvent);
         }
 
+        //  file
+        Path getPath = fileStorageService.getPathFile(id);
+        File directoryPath = new File(getPath.toString());
+        File[] files = directoryPath.listFiles();
+
+        if (multipartFile == null && directoryPath.isDirectory() == false) {
+            eventRepository.saveAndFlush(existingEvent);
+            return updateData;
+        }
+
+        //ไม่เจอ directory = event นั้นไม่มีไฟล์
+        if (directoryPath.isDirectory() == true) {
+
+            //multipartFile เป็น null คือไม่ส่ง file มา
+            if (multipartFile == null) {
+                //  check file in folder
+                for (File f : files) {
+                    if (f.isFile() && f.exists()) {
+                        //ลบ directory
+                        FileUtils.deleteDirectory(new File(getPath.toString()));
+                        existingEvent.setFileName(null);
+                    } else {
+                        System.out.println("can't delete a file due to open or error");
+                    }
+                }
+            } else {
+                directoryPath.isDirectory();
+                String fileName = null;
+                for (File file1 : files) {
+                    if (file1.isFile()) {
+                        fileName = file1.getName();
+                    }
+                }
+                if (multipartFile.getOriginalFilename().isEmpty()) {
+                    System.out.println("Equal file name");
+                } else {
+                    System.out.println("No equal file name");
+                    if (Files.exists(Path.of(getPath.toString()))) {
+                        FileUtils.cleanDirectory(new File(getPath.toString()));
+                        existingEvent.setFileName(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
+                        fileStorageService.storeFile(multipartFile, id);
+                    }
+                    fileStorageService.storeFile(multipartFile, id);
+                }
+            }
+        } else {
+            Files.createDirectories(directoryPath.toPath());
+            fileStorageService.storeFile(multipartFile, id);
+            existingEvent.setFileName(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
+        }
         return eventRepository.saveAndFlush(existingEvent);
     }
-
+//     public Object reschedule(HttpServletRequest request,EventRescheduleDTO updateData, Integer id ) {
+//        Event existingEvent = eventRepository.findById(id).orElseThrow(()->
+//                new ResponseStatusException(HttpStatus.NOT_FOUND,
+//                        id + " does not exist !!!"));
+////        Event e = modelMapper.map(updateData, Event.class);
+//        String getUserEmail = getUserEmail(getRequestAccessToken(request));
+//        if(request.isUserInRole("ROLE_student")){
+//            if(getUserEmail.equals(existingEvent.getBookingEmail())){
+//                if (!validateOverLab(updateData.getEventStartTime(), updateData.getEventCategory(), updateData.getEventDuration(), id)) {
+//                    return ValidationHandler.showError("eventStartTime", "Have an appointment during this time");
+//                }else {
+//                    existingEvent.setEventStartTime(updateData.getEventStartTime());
+//                    existingEvent.setEventNote(updateData.getEventNote());
+//                    return eventRepository.saveAndFlush(existingEvent);
+//                }
+//            }else{
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Cannot reschedule event which you didn't own");
+//            }
+//        }
+//        if(request.isUserInRole("ROLE_admin")){
+//            existingEvent.setEventStartTime(updateData.getEventStartTime());
+//            existingEvent.setEventNote(updateData.getEventNote());
+//            return eventRepository.saveAndFlush(existingEvent);
+//        }
+//
+//        return eventRepository.saveAndFlush(existingEvent);
+//    }
+//
     public void delete(Integer id,HttpServletRequest request) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 id + " does not exist !!!"));

@@ -16,6 +16,7 @@ import sit.int221.oasipbackend.services.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -55,59 +56,20 @@ public class EventController {
         eventService.save(request,eventCreateDTO,multipartFile);
 
     }
-//    public void addEvent(HttpServletRequest request , @Valid @RequestBody Event event,@RequestPart(value = "file", required = false) MultipartFile multipartFile) {
-//
-//        int categoryId = event.getEventCategory().getId();
-//        EventCategory eventCategory = eventCategoryRepository.findById(categoryId).orElseThrow(()->new ResponseStatusException(
-//                HttpStatus.NOT_FOUND, "Category id "+ categoryId+
-//                "Does Not Exist !!!"
-//        ));
-//        LocalDateTime time = event.getEventStartTime();
-//        String formattedDate = time.format(DateTimeFormatter.ofPattern("E MMM dd, yyyy HH:mm").withZone(ZoneId.of("UTC")));
-//        String header = "You have made a new appointment ." + '\n';
-////        String body = "Your appointment has been registered successfully. \n \n" +
-////                "Details  \n" + "Name : " + event.getBookingName() + "\n" +"Clinic : " + eventCategory.getEventCategoryName() +
-////                "\n" + "Date : " + formattedDate + "\n" + "Note : " + event.getEventNote();
-//
-//        String body =
-//                "Subject : [OASIP]" + " " + event.getEventCategory().getEventCategoryName() +
-//                        " " + "@" + " " + formattedDate + " " + "-" + " " +
-//                        findEndDate(event.getEventStartTime(),event.getEventDuration()).toString().substring(11) +
-//                        " (ICT)" + '\n' +
-//                        "Reply-to : " + "reply@intproj21.sit.kmutt.ac.th" + '\n' +
-//                        "Booking Name : " + event.getBookingName() + '\n' +
-//                        "Event Category : " + event.getEventCategory().getEventCategoryName() + '\n' +
-//                        "When : " + formattedDate + " " + "-" + " " +
-//                        findEndDate(event.getEventStartTime(),event.getEventDuration()).toString().substring(11) + " (ICT)" + '\n' +
-////                          "When : " + " " + e.getEventStartTime().toString().replace("T" , " ")+ " " + "-" + " " + findEndDate(e.getEventStartTime(),e.getEventDuration()).toString().substring(11) + '\n' +
-////                          "Event duration : " + e.getEventDuration() + "Minutes" + '\n' +
-//                        "Event note : "  + event.getEventNote();
-//
-//        eventService.save(request,event,multipartFile);
-//
-//        emailSenderService.sendEmail(event.getBookingEmail(),header,body);
-//    }
-
-    public LocalDateTime findEndDate(LocalDateTime date, Integer duration){
-        return date.plusMinutes(duration);
-    }
-//    @DeleteMapping("/{id}")
-//    public void delete(@PathVariable Integer id) {
-//        eventService.delete(id);
-//    }
 
     @DeleteMapping("/{id}")
     public void deleteEvent(@PathVariable Integer id,HttpServletRequest request) { eventService.delete(id,request);}
 
+
 //    @PutMapping("/{id}")
 //    @ResponseStatus(code = HttpStatus.OK)
-//    public Object reschedule(@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
-//        return eventService.reschedule(updateData, id);
+//    public Object reschedule(@Valid HttpServletRequest request,@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
+//        return eventService.reschedule(request,updateData, id);
 //    }
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Object reschedule(@Valid HttpServletRequest request,@Valid @RequestBody EventRescheduleDTO updateData, @PathVariable Integer id) {
-        return eventService.reschedule(request,updateData, id);
+    public Object reschedule(HttpServletRequest request,@Valid @RequestPart("event")  EventRescheduleDTO updateData, @PathVariable Integer id,@RequestPart(value = "file" , required = false) MultipartFile multipartFile) throws IOException {
+        return eventService.reschedule(request,updateData, id,multipartFile);
     }
 
 
