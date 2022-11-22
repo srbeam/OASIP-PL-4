@@ -176,7 +176,8 @@ public void sendFile(MultipartFile multipartFile , Integer id){
         //ไม่เจอ directory = event นั้นไม่มีไฟล์
         if (directoryPath.isDirectory() == true) {
 
-            //multipartFile เป็น null คือไม่ส่ง file มา
+
+
             if (multipartFile == null) {
                 //  check file in folder
                 for (File f : files) {
@@ -259,7 +260,7 @@ public void sendFile(MultipartFile multipartFile , Integer id){
 //            }
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please Sign in again");}
-
+        fileStorageService.Deletefile(id);
         eventRepository.deleteById(id);
 //        return id;
     }

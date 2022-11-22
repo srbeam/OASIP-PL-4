@@ -139,24 +139,41 @@ const confirm = () => {
 		isInvalidDateFuture.value = false
 		isBlank.value = false
 	} else {
-		const date = new Date(newStartTime.value)
-		const updateStartTime = [
-			date.getFullYear(),
-			date.getMonth() + 1,
-			date.getDate(),
-			date.getHours(),
-			date.getMinutes()
-		]
-		// const updateNote = newNote.value
-		// event.value.eventStartTime = date
-		// editingNote.value = newNote.value
-
-		rescheduleEvent(
-			updateStartTime,
-			newNote.value,
-			event.value.eventCategory,
-			event.value.id
-		)
+		// const date = new Date(newStartTime.value)
+		const date = new Date(newStartTime.value).toLocaleString('en-GB')
+		// const updateStartTime = [
+		// 	date.getFullYear(),
+		// 	date.getMonth() + 1,
+		// 	date.getDate(),
+		// 	date.getHours(),
+		// 	date.getMinutes()
+		// ]
+		// const updateData = {
+		// 	id: event.value.id,
+		// 	eventStartTime: updateStartTime,
+		// 	eventNote: newNote.value,
+		// 	eventDuration: event.value.eventDuration,
+		// 	eventCategory: event.value.eventCategory
+		// }
+		const updateData = {
+			id: event.value.id,
+			bookingName: event.value.bookingName.trim(),
+			bookingEmail: event.value.bookingEmail.trim(),
+			eventStartTime: date,
+			eventDuration: event.value.eventDuration,
+			eventNote: newNote.value,
+			eventCategory: {
+				id: event.value.eventCategory.id
+			}
+		}
+		console.log(updateData)
+		rescheduleEvent(updateData)
+		// rescheduleEvent(
+		// 	updateStartTime,
+		// 	newNote.value,
+		// 	event.value.eventCategory,
+		// 	event.value.id
+		// )
 	}
 }
 const isRescheduleSuccess = ref()
@@ -165,40 +182,74 @@ let refreshToken = localStorage.getItem('refreshToken')
 const token = ref()
 const is401 = ref()
 const filePath = ref()
-const rescheduleEvent = async (
-	updateStartTime,
-	updateNote,
-	eventCategory,
-	eventId
-) => {
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events/${eventId}`, {
-		method: 'PUT',
-		headers: {
-			'content-type': 'application/json',
-			Authorization: `Bearer ${author}`
-		},
-		body: JSON.stringify({
-			eventStartTime: updateStartTime,
-			eventNote: updateNote,
-			eventDuration: event.value.eventDuration,
-			eventCategory: eventCategory
-		})
+const rescheduleEvent = async (updateData) => {
+	let formData = new FormData()
+	const blob = new Blob([JSON.stringify(updateData)], {
+		type: 'application/json'
 	})
-	console.log(updateStartTime)
-	console.log(updateNote)
+	formData.append('file', newFile.value)
+	formData.append('event', blob)
 
-	if (res.status === 200) {
-		console.log('edited successfully')
-		// cancel()
+	if (isChang.value) {
+		const res = await fetch(
+			`${import.meta.env.VITE_BACK_URL}/events/${updateData.id}`,
+			{
+				method: 'PUT',
+				headers: {
+					Authorization: `Bearer ${author}`
+				},
+				body: formData
+			}
+		)
 
+		if (res.status === 200) {
+			isEditMode.value = false
+			isRescheduleSuccess.value = true
+			setTimeout(toggleRescheduleSuccess, 3000)
+		} else if (res.status == 401) {
+			getRefreshToken()
+			isRescheduleSuccess.value = false
+		} else console.log('error, cannot be added')
+	} else {
 		isEditMode.value = false
 		isRescheduleSuccess.value = true
 		setTimeout(toggleRescheduleSuccess, 3000)
-	} else if (res.status == 401) {
-		getRefreshToken()
-		isRescheduleSuccess.value = false
-	} else console.log('error, cannot be added')
+	}
 }
+// const rescheduleEvent = async (
+// 	updateStartTime,
+// 	updateNote,
+// 	eventCategory,
+// 	eventId
+// ) => {
+// 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events/${eventId}`, {
+// 		method: 'PUT',
+// 		headers: {
+// 			'content-type': 'application/json',
+// 			Authorization: `Bearer ${author}`
+// 		},
+// 		body: JSON.stringify({
+// 			eventStartTime: updateStartTime,
+// 			eventNote: updateNote,
+// 			eventDuration: event.value.eventDuration,
+// 			eventCategory: eventCategory
+// 		})
+// 	})
+// 	console.log(updateStartTime)
+// 	console.log(updateNote)
+
+// 	if (res.status === 200) {
+// 		console.log('edited successfully')
+// 		// cancel()
+
+// 		isEditMode.value = false
+// 		isRescheduleSuccess.value = true
+// 		setTimeout(toggleRescheduleSuccess, 3000)
+// 	} else if (res.status == 401) {
+// 		getRefreshToken()
+// 		isRescheduleSuccess.value = false
+// 	} else console.log('error, cannot be added')
+// }
 const getRefreshToken = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
 		method: 'GET',
@@ -232,6 +283,10 @@ const editMode = () => {
 	// console.log(newStartTime.value)
 	isEditMode.value = true
 	newNote.value = event.value.eventNote
+	isChang.value = false
+	isFileToobig.value = false
+	newFile.value = null
+	isAttachFile.value = false
 }
 
 const toggleRescheduleSuccess = () => {
@@ -268,6 +323,135 @@ const downloadFile = async (eventId, fileName) => {
 	} else {
 		console.log('Error,cannot download file')
 	}
+}
+const isFileToobig = ref()
+const editFile = (e) => {
+	let maxFileSize = 10 * 1024 * 1024 //10MB
+	if (e.target.files[0] != undefined) {
+		if (e.target.files[0].size > maxFileSize) {
+			isFileToobig.value = true
+			setTimeout(() => (isFileToobig.value = false), 4000)
+			if (newFile.value === undefined || newFile.value === '') {
+				clearFileInput()
+				isAttachFile.value = false
+				isFileToobig.value = true
+				isChang.value = false
+				setTimeout(() => (isFileToobig.value = false), 4000)
+			}
+		} else {
+			fileupload.value = e.target.files[0]
+			isAttachFile.value = true
+			newFile.value = fileupload.value
+			isFileToobig.value = false
+			isChang.value = true
+		}
+	} else {
+		isAttachFile.value = false
+		isChang.value = false
+	}
+}
+// const editFile = (e) => {
+// 	let maxFileSize = 10 * 1024 * 1024 //10MB
+// 	if (e.target.files[0] != undefined) {
+// 		if (e.target.files[0].size > maxFileSize) {
+// 			isFileToobig.value = true
+// 			setTimeout(() => (isFileToobig.value = false), 4000)
+// 			if (fileupload.value === undefined || fileupload.value === '') {
+// 				clearFileInput()
+// 				isAttachFile.value = false
+// 				isFileToobig.value = true
+// 				isChang.value = false
+// 				setTimeout(() => (isFileToobig.value = false), 4000)
+// 			}
+// 		} else {
+// 			fileupload.value = e.target.files[0]
+// 			isAttachFile.value = true
+// 			newFile.value = fileupload.value
+// 			isFileToobig.value = false
+// 			isChang.value = true
+// 		}
+// 	} else {
+// 		isAttachFile.value = false
+// 		isChang.value = false
+// 	}
+// }
+let dataTransfer = new DataTransfer()
+const clearFileInput = () => {
+	fileupload.value = ''
+	isAttachFile.value = false
+	dataTransfer.items.clear()
+	isFileToobig.value = false
+	// newFile.value = ''
+	isChang.value = false
+}
+
+const isAttachFile = ref()
+const fileupload = ref()
+const newFile = ref()
+
+// const dragOver = (e) => {
+// 	e.stopPropagation()
+// 	e.preventDefault()
+// }
+// const drop = (e) => {
+// 	e.stopPropagation()
+// 	e.preventDefault()
+// 	let maxFileSize = 10 * 1024 * 1024 //10MB
+// 	if (e.dataTransfer.files[0] != undefined) {
+// 		if (e.dataTransfer.files[0] > maxFileSize) {
+// 			isFileToobig.value = true
+// 			setTimeout(() => (isFileToobig.value = false), 4000)
+// 			if (fileupload.value === undefined || fileupload.value === '') {
+// 				clearFileInput()
+// 				isAttachFile.value = false
+// 				isFileToobig.value = true
+// 				isChang.value = false
+// 				setTimeout(() => (isFileToobig.value = false), 4000)
+// 			}
+// 		} else {
+// 			fileupload.value = e.dataTransfer.files[0]
+// 			isAttachFile.value = true
+// 			newFile.value = fileupload.value
+// 			isFileToobig.value = false
+// 			isChang.value = true
+// 		}
+// 	} else {
+// 		isAttachFile.value = false
+// 		isChang.value = false
+// 	}
+// let maxFileSize = 10 * 1024 * 1024 //10MB
+// if (e.dataTransfer.files[0] != undefined) {
+// 	if (e.dataTransfer.files[0].size > maxFileSize) {
+// 		isFileToobig.value = true
+// 		setTimeout(() => (isFileToobig.value = false), 4000)
+
+// 		if (fileupload.value === undefined || fileupload.value === '') {
+// 			clearFileInput()
+// 			isAttachFile.value = false
+// 			isFileToobig.value = true
+// 			setTimeout(() => (isFileToobig.value = false), 4000)
+// 		} else {
+// 		}
+// 	} else {
+// 		fileupload.value = e.dataTransfer.files[0]
+// 		isAttachFile.value = true
+// 		newFile.value = fileupload.value
+// 		isFileToobig.value = false
+// 	}
+// } else {
+// 	if (fileupload.value === undefined || fileupload.value === '') {
+// 		clearFileInput()
+// 		isAttachFile.value = false
+// 	} else {
+// 	}
+// }
+// }
+const isRemoveFile = ref(false)
+const isChang = ref(false)
+const deleteFile = () => {
+	isRemoveFile.value = true
+	newFile.value = null
+	isChang.value = true
 }
 </script>
 
@@ -355,8 +539,8 @@ const downloadFile = async (eventId, fileName) => {
 						/>
 					</div>
 
-					<div class="mb-16">
-						Add Note :
+					<div class="mb-4">
+						Note :
 						<span class="text-sm"
 							>(No more than 100 characters / ไม่เกิน 100 ตัวอักษร)</span
 						>
@@ -368,6 +552,97 @@ const downloadFile = async (eventId, fileName) => {
 							v-model="newNote"
 						/>
 					</div>
+					<div class="mb-4">
+						<div>
+							<span>Attachment : </span>
+
+							<span v-if="isRemoveFile" class="line-through">
+								{{ event.fileName }}</span
+							>
+							<span v-else> {{ event.fileName }}</span>
+							<span
+								class="text-red-600 cursor-pointer ml-2 text-xs"
+								@click="deleteFile"
+								v-if="event.fileName != null"
+								>remove</span
+							>
+						</div>
+
+						<div class="max-w-xl">
+							<div
+								class="flex flex-col justify-center items-center h-32 px-4 bg-white border-2 border-gray-300 hover:border-gray-500 border-dashed rounded-md appearance-none focus:outline-none"
+							>
+								<label
+									class="flex justify-center items-center w-full h-full cursor-pointer"
+								>
+									<!-- <label
+									class="flex justify-center items-center w-full"
+									@dragover="dragOver($event)"
+									@drop="drop($event)"
+								> -->
+									<span class="flex flex-col items-center space-x-2">
+										<span v-if="isFileToobig" class="text-red-600"
+											>The file size cannot be larger than 10 MB.</span
+										>
+										<div class="flex">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												class="w-6 h-6 text-gray-600"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke="currentColor"
+												stroke-width="2"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+												/>
+											</svg>
+
+											<span class="font-medium text-gray-600 ml-2">
+												<span class="text-blue-600 underline cursor-pointer">Click</span>
+												to upload new file
+											</span>
+										</div>
+										<div
+											v-if="isAttachFile"
+											class="border-2 border-gray-300 rounded-md py-1 px-3 mt-2 flex items-center"
+										>
+											<i class="fa fa-file" aria-hidden="true"></i>
+											<span class="text-sm ml-3">{{ newFile.name }}</span>
+										</div>
+									</span>
+									<input
+										type="file"
+										name="file_upload"
+										class="hidden"
+										id="fileInput"
+										@change="editFile($event)"
+									/>
+								</label>
+								<span
+									@click="clearFileInput"
+									class="text-gray-500 hover:text-red-700 hover:cursor-pointer hover:underline text-sm"
+									v-if="isAttachFile"
+								>
+									Remove Selected File
+								</span>
+							</div>
+						</div>
+					</div>
+					<!-- <div class="mb-4">
+						Attachment :
+
+						<input type="file" id="fileInput" @change="uploadFile($event)" />
+						<p
+							@click="clearFileInput"
+							class="text-gray-500 hover:text-red-700 hover:cursor-pointer hover:underline text-sm"
+							v-if="isAttachFile"
+						>
+							Remove Selected File
+						</p>
+					</div> -->
 
 					<div id="button" class="">
 						<button

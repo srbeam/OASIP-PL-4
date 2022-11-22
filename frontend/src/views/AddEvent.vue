@@ -168,6 +168,7 @@ const addEventToDB = async (newEvent) => {
 	const blob = new Blob([JSON.stringify(newEvent)], { type: 'application/json' })
 	formData.append('file', fileupload.value)
 	formData.append('event', blob)
+	console.log(newEvent)
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
 		headers: {
@@ -215,11 +216,26 @@ const clearError = () => {
 }
 const uploadFile = (e) => {
 	let maxFileSize = 10 * 1024 * 1024 //10MB
-	if (e.target.files[0].size > maxFileSize) {
-		let fileInput = document.getElementById('fileInput')
-		fileInput.setCustomValidity('The file size cannot be larger than 10 MB.')
-		fileInput.reportValidity()
+	if (e.target.files[0] != undefined) {
+		if (e.target.files[0].size > maxFileSize) {
+			let fileInput = document.getElementById('fileInput')
+			fileInput.setCustomValidity('The file size cannot be larger than 10 MB.')
+			fileInput.reportValidity()
 
+			if (fileupload.value === undefined || fileupload.value === '') {
+				clearFileInput()
+				isAttachFile.value = false
+			} else {
+				dataTransfer.items.clear()
+				dataTransfer.items.add(fileupload.value)
+				fileInput.files = dataTransfer.files
+			}
+		} else {
+			fileupload.value = e.target.files[0]
+			fileInput.setCustomValidity('')
+			isAttachFile.value = true
+		}
+	} else {
 		if (fileupload.value === undefined || fileupload.value === '') {
 			clearFileInput()
 			isAttachFile.value = false
@@ -228,10 +244,6 @@ const uploadFile = (e) => {
 			dataTransfer.items.add(fileupload.value)
 			fileInput.files = dataTransfer.files
 		}
-	} else {
-		fileupload.value = e.target.files[0]
-		fileInput.setCustomValidity('')
-		isAttachFile.value = true
 	}
 }
 

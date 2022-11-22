@@ -83,4 +83,12 @@ public class FileStorageService {
         return pathbyid;
     }
 
+    public void Deletefile(Integer id){
+        try{
+            FileUtils.deleteDirectory(new File(getPathFile(id).toUri()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
