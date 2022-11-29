@@ -30,4 +30,6 @@ public class EventRescheduleDTO {
 
     @NotNull(message = "Category must not be null")
     private EventCategory EventCategory;
+
+    private Boolean isDeleteFile;
 }

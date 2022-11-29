@@ -168,10 +168,14 @@ public void sendFile(MultipartFile multipartFile , Integer id){
         File directoryPath = new File(getPath.toString());
         File[] files = directoryPath.listFiles();
 
-        if (multipartFile == null && directoryPath.isDirectory() == false) {
+        if (multipartFile == null && updateData.getIsDeleteFile() == false) {
             eventRepository.saveAndFlush(existingEvent);
             return updateData;
         }
+//        if (multipartFile == null && directoryPath.isDirectory() == false) {
+//            eventRepository.saveAndFlush(existingEvent);
+//            return updateData;
+//        }
 
         //ไม่เจอ directory = event นั้นไม่มีไฟล์
         if (directoryPath.isDirectory() == true) {
@@ -420,18 +424,14 @@ public void sendFile(MultipartFile multipartFile , Integer id){
     private Boolean validateOverLab(LocalDateTime startDTNew, EventCategory category, Integer durationNew, Integer eventId) {
         List<Event> events = eventRepository.findAll();
         filterCategory(events, category.getEventCategoryName(), eventId);
-        System.out.println(filterEvents);
-
         for (Event event : filterEvents) {
             if (!checkOverLab(startDTNew,event.getEventStartTime(), durationNew, event.getEventDuration())) {
                 System.out.println("false ซ้อน");
                 return false;
             }
         }
-
         System.out.println("true ไม่ซ้อน");
         return true;
-
     }
 
     private void filterCategory(List<Event> events, String categoryName, Integer eventId) {
@@ -441,6 +441,7 @@ public void sendFile(MultipartFile multipartFile , Integer id){
             System.out.println(event.getId());
             System.out.println(eventId);
             System.out.println(event.getId().intValue() != eventId.intValue());
+            System.out.println(event.getId().compareTo(eventId));
             if (event.getEventCategory().getEventCategoryName().equalsIgnoreCase(categoryName) && event.getId().compareTo(eventId) != 0) {
                 filterEvents.add(event);
             }
