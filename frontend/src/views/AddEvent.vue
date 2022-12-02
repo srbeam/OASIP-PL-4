@@ -5,7 +5,6 @@ import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
 import VueJwtDecode from 'vue-jwt-decode'
 import LecAddEventModal from '../components/LecAddEventModal.vue'
-// import AddEventSuccessModal from '../components/AddEventSuccessModal.vue'
 import SuccessModal from '../components/SuccessModal.vue'
 const events = ref([])
 let filterEvents = ref([])
@@ -327,26 +326,34 @@ const toggleAddEventSuccess = () => {
 </script>
 <template>
 	<div>
-		<NoLoginModal v-if="is401" />
+		<!-- <NoLoginModal v-if="is401" /> -->
 		<BaseNavBar />
-		<div id="add-event-container" v-if="!is401">
-			<div id="add">
-				<div class="error pb-2" v-if="isBlank">
+		<div class="flex items-center justify-center flex-col py-4">
+			<div class="text-black w-10/12 py-4 lg:w-3/5">
+				<div class="text-red-500 pb-2" v-if="isBlank">
 					Please fill out the information completely. | กรุณากรอกข้อมูลให้ครบด้วยค่ะ
 				</div>
-				<div class="error pb-2" v-if="isInvalidEmail">
+				<div class="text-red-500 pb-2" v-if="isInvalidEmail">
 					Enter incorrect email information. | กรุณากรอก email ให้ถูกต้อง (ตัวอย่าง:
 					example@gmail.com)
 				</div>
-				<div class="error pb-2" v-if="isInvalidDateFuture">
+				<div class="text-red-500 pb-2" v-if="isInvalidDateFuture">
 					Appointment time in the past. | วันเวลานัดหมายไม่ถูกต้อง
 				</div>
-				<div class="error pb-2" v-if="isInvalidOverLab">
+				<div class="text-red-500 pb-2" v-if="isInvalidOverLab">
 					Have an appointment during this time. | มีการนัดในช่วงเวลานี้
 				</div>
 				<div>
-					<label for="name">Booking nameInput</label><span class="error"> * </span>
-					<span class="lenght">100 character | 100 ตัวอักษร</span>
+					<div class="flex flex-col sm:flex-row">
+						<div>
+							<label for="name">Booking name</label
+							><span class="text-red-500"> * </span>
+						</div>
+						<span class="sm:ml-1 text-gray-500 text-sm"
+							>100 character | 100 ตัวอักษร</span
+						>
+					</div>
+
 					<input
 						class="form-control mb-3"
 						type="text"
@@ -354,16 +361,23 @@ const toggleAddEventSuccess = () => {
 						maxlength="100"
 					/>
 					<div>
-						<label for="email">Booking Email address</label>
-						<span class="error"> * </span>
-						<span class="lenght">100 character | 100 ตัวอักษร</span>
+						<div class="flex flex-col sm:flex-row">
+							<div>
+								<label for="email">Booking Email </label>
+								<span class="text-red-500"> * </span>
+							</div>
+
+							<span class="sm:ml-1 text-gray-500 text-sm"
+								>100 character | 100 ตัวอักษร</span
+							>
+						</div>
+
 						<div class="flex">
 							<input
 								v-if="
 									getUserFromToken != undefined &&
 									getUserFromToken.Roles === 'ROLE_student'
 								"
-								id="email"
 								name="email"
 								type="text"
 								class="form-control mb-3"
@@ -372,7 +386,6 @@ const toggleAddEventSuccess = () => {
 							/>
 							<input
 								v-else
-								id="email"
 								name="email"
 								type="email"
 								class="form-control mb-3"
@@ -386,7 +399,7 @@ const toggleAddEventSuccess = () => {
 					<div>
 						<select
 							v-model="eventCategory"
-							class="border-2 border-gray-200 rounded-md p-1"
+							class="border-2 border-gray-200 rounded-md p-1 w-full"
 						>
 							<option value="" disabled>Please Select Clinic Category</option>
 							<option
@@ -397,36 +410,46 @@ const toggleAddEventSuccess = () => {
 								{{ category.eventCategoryName }}
 							</option>
 						</select>
-						<span class="error"> *</span>&emsp; Duration
-						<span class="border-2 border-gray-200 rounded-md p-1 px-2 bg-gray-100">
-							{{ eventDuration }}
-						</span>
-						<br />
-						<br />
 					</div>
-					Appointment Date&Time <span class="error">*</span> <br />
+				</div>
+				<div class="mt-3" v-if="eventCategory != ''">
+					<span>Duration</span>
+					<span
+						class="mx-2 border-2 border-gray-200 rounded-md p-1 px-2 bg-gray-100"
+					>
+						{{ eventDuration }}
+					</span>
+					<span>min.</span>
+				</div>
+				<div class="mt-4">
+					<span> Appointment Date&Time </span>
+					<span class="text-red-500">*</span>
 					<input
 						id="date"
 						type="datetime-local"
 						v-model="eventStartTime"
-						class="border-2 border-gray-200 rounded-md p-1 px-2 mt-1 bg-white"
+						class="form-control w-full"
 						:min="currentDateTime"
 					/>
 				</div>
-				<br />
-				Add Note
-				<span class="lenght">500 character | 500 ตัวอักษร</span>
-				<input
-					class="form-control"
-					type="text"
-					id="bookingname"
-					v-model="note"
-					maxlength="500"
-				/>
-				<div class="file">
-					<span>Attach File : </span>
+				<div class="mt-4">
+					<span>Add Note</span>
+					<span class="text-gray-500 text-sm ml-2"
+						>500 character | 500 ตัวอักษร</span
+					>
+					<input
+						class="form-control"
+						type="text"
+						id="bookingname"
+						v-model="note"
+						maxlength="500"
+					/>
+				</div>
 
+				<div class="mt-4">
+					<span>Attach File : </span>
 					<input type="file" id="fileInput" @change="uploadFile($event)" />
+
 					<p
 						@click="clearFileInput"
 						class="text-gray-500 hover:text-red-700 hover:cursor-pointer hover:underline text-sm"
@@ -435,20 +458,18 @@ const toggleAddEventSuccess = () => {
 						Remove Selected File
 					</p>
 				</div>
-				<div id="click">
+				<div class="mt-5 flex justify-center">
 					<button
 						type="button"
-						class="btn btn-dark"
-						style="opacity: 1; color: white"
+						class="mr-3 btn btn-dark text-white"
 						@click="addEvent"
 					>
 						ADD NEW EVENT
 					</button>
-					&ensp;
+
 					<button
 						type="button"
-						class="btn btn-danger"
-						style="opacity: 1; color: white"
+						class="btn btn-danger text-white"
 						@click="clearInput"
 					>
 						CLEAR INPUT
@@ -457,49 +478,7 @@ const toggleAddEventSuccess = () => {
 			</div>
 		</div>
 		<LecAddEventModal v-if="isLecAddEvent" @closeModal="closeLecAddEventModal" />
-		<!-- <AddEventSuccessModal v-if="isAddEventSuccess" /> -->
 		<SuccessModal v-if="isAddEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
-<style>
-#add-event-container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	padding: 3% 0;
-}
-#add {
-	width: 78%;
-	min-height: 550px;
-	padding: 30px 40px;
-	color: black;
-	border-radius: 10px;
-}
-#click {
-	display: flex;
-	justify-content: center;
-	margin-top: 45px;
-}
-.error {
-	color: red;
-}
-input:invalid + span::before {
-	content: '✘';
-	color: red;
-}
-input:valid + span::before {
-	content: '✔';
-	color: green;
-}
-.lenght {
-	color: grey;
-	font-size: 0.8em;
-}
-input {
-	margin-top: 5px;
-}
-.file {
-	margin-top: 16px;
-}
-</style>
+<style scoped></style>
