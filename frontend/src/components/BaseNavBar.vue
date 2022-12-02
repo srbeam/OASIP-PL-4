@@ -48,7 +48,7 @@ const signOut = () => {
 	localStorage.clear()
 	checkToken()
 	appRouter.push({ name: 'Home' })
-	window.location.reload()
+	// window.location.reload()
 }
 </script>
 
@@ -139,7 +139,7 @@ const signOut = () => {
 								<router-link :to="{ name: 'Home' }" class="py-2.5 px-4">
 									<button
 										class="btn btn-warning rounded-md text-black"
-										@click="$emit('signOut'), signOut()"
+										@click="signOut()"
 									>
 										SignOut
 									</button>

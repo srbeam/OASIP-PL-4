@@ -1,9 +1,8 @@
 <script setup>
 import { onBeforeMount, ref, computed } from 'vue'
-import SignUpForm from '../components/SignUpForm.vue'
 import SignInForm from '../components/SignInForm.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
-import Welcome from './Welcome.vue'
+
 const hasToken = ref()
 const checkToken = () => {
 	localStorage.getItem('token') === null
@@ -18,12 +17,7 @@ onBeforeMount(async () => {
 <template>
 	<div>
 		<BaseNavBar @signOut="checkToken" />
-
 		<SignInForm />
-		<!-- <SignInForm v-if="hasToken" /> -->
-		<!-- <Welcome v-else /> -->
-
-		<!-- <SignUpForm></SignUpForm> -->
 	</div>
 </template>
 

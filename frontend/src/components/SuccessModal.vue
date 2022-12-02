@@ -18,6 +18,8 @@ const props = defineProps({
 					<h3 v-if="typeOfModal === 'deleteUser'">Delete User Success</h3>
 					<h3 v-if="typeOfModal === 'addEvent'">Add Event Success</h3>
 					<h3 v-if="typeOfModal === 'deleteEvent'">Delete Event Success</h3>
+					<h3 v-if="typeOfModal === 'login'">Login Successful</h3>
+					<h3 v-if="typeOfModal === 'reschedule'">Reschedule Success</h3>
 				</div>
 			</div>
 		</div>

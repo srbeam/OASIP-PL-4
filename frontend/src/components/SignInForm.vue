@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
-import PasswordMatchModal from './PasswordMatchModal.vue'
 import { useRouter } from 'vue-router'
+import VueJwtDecode from 'vue-jwt-decode'
+import SuccessModal from './SuccessModal.vue'
 defineEmits(['isHasToken'])
 const userEmail = ref('')
 const userPass = ref('')
@@ -9,6 +10,8 @@ const validateMsg = ref('')
 const isPasswordMatch = ref(false)
 const isInvalidEmail = ref(false)
 const token = ref()
+const getUserFromToken = ref()
+
 const fetchMatchPass = async () => {
 	if (userEmail.value === '' || userPass.value === '') {
 		isInvalidEmail.value = true
@@ -39,13 +42,16 @@ const fetchMatchPass = async () => {
 		// console.log(res.status)
 		if (res.status === 200) {
 			// console.log('Password Matched')
+
 			isPasswordMatch.value = true
-			setTimeout(togglePassMatch, 3000)
+
 			userEmail.value = ''
 			userPass.value = ''
 			validateMsg.value = ''
 			token.value = await res.json()
 			saveLocal()
+			getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+			setTimeout(togglePassMatch, 3000)
 		} else if (res.status === 401) {
 			isPasswordMatch.value = false
 			validateMsg.value = 'Password Incorrect'
@@ -65,10 +71,14 @@ const saveLocal = () => {
 const togglePassMatch = () => {
 	if (isPasswordMatch.value === true) {
 		isPasswordMatch.value = false
+		if (getUserFromToken.value.Roles != 'ROLE_lecturer') {
+			appRouter.push({ name: 'AddEvent' })
+		} else {
+			appRouter.push({ name: 'ListAll' })
+		}
 	} else {
 		isPasswordMatch.value = true
 	}
-	appRouter.push({ name: 'AddEvent' })
 }
 const validateEmail = (email) => {
 	const reg =
@@ -141,28 +151,14 @@ const appRouter = useRouter()
 										Sign In
 									</button>
 								</div>
-
-								<!-- <router-link :to="{ name: 'Page', params: { page: 1 } }">
-												<div>
-													<button class="text-white btn btn-primary">Sign In</button>
-													<button class="text-white btn btn-primary" id="getstart">
-														Get Start !
-													</button>
-												</div>
-											</router-link> -->
 							</div>
-							<!-- <div id="go-to-signUp">
-								<p>
-									Not have an account?
-									<router-link :to="{ name: 'SignUpForm' }">SIGN UP</router-link>
-								</p>
-							</div> -->
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<PasswordMatchModal v-if="isPasswordMatch" />
+
+		<SuccessModal v-if="isPasswordMatch" typeOfModal="login" />
 	</div>
 </template>
 

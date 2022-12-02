@@ -1,9 +1,8 @@
 <script setup>
 import { onBeforeMount, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import RescheduleSuccess from './RescheduleSuccess.vue'
-
 import VueJwtDecode from 'vue-jwt-decode'
+import SuccessModal from './SuccessModal.vue'
 
 const getUserFromToken = ref()
 const getUser = () => {
@@ -572,7 +571,7 @@ const cancelRemoveFile = () => {
 				</div>
 			</div>
 		</div>
-		<RescheduleSuccess v-if="isRescheduleSuccess" />
+		<SuccessModal v-if="isRescheduleSuccess" typeOfModal="reschedule" />
 	</div>
 </template>
 
