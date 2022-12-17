@@ -78,7 +78,6 @@ onBeforeMount(async () => {
 			:pevent="event"
 			:pevents="events"
 		></EventDetailComponent>
-		<!-- <EventDetailComponent :event="event" :events="events" @formatDate="formatDate" @formatTime="formatTime" @formatDateTiem="formatDateTime"></EventDetailComponent> -->
 	</div>
 </template>
 

@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import ListCategory from '../components/ListCateComponent.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
@@ -58,29 +57,4 @@ const saveLocal = () => {
 	</div>
 </template>
 
-<style scoped>
-.category-box {
-	background-color: rgba(255, 255, 255, 0.5);
-	width: 150%;
-	height: 12em;
-	color: #383838;
-	margin-left: 20%;
-	margin-bottom: 3%;
-	padding: 3%;
-}
-
-#duration {
-	background-color: #eee385;
-}
-
-.edit {
-	width: 79.5%;
-	margin-bottom: 3%;
-}
-
-.Btn {
-	text-align: center;
-}
-@media screen and (max-width: 768px) {
-}
-</style>
+<style scoped></style>

@@ -3,108 +3,64 @@ import BaseNavBar from '../components/BaseNavBar.vue'
 </script>
 
 <template>
-	<div id="root">
+	<div>
 		<BaseNavBar />
-		<div class="aboutus-container">
-			<div class="aboutus-container-grid">
-				<div class="girl">
-					<img src="../assets/images/about-us/baimon.jpg" class="girl-img" />
+		<div class="py-14 flex justify-center items-center">
+			<div
+				class="grid grid-rows-3 gap-y-16 text-[#495ab6] sm:text-lg lg:flex xl:w-11/12 2xl:w-10/12 xl:mt-10"
+			>
+				<div
+					class="flex flex-col items-center justify-center border-2 shadow-md rounded-xl mx-5 lg:h-[350px] xl:h-[420px]"
+				>
+					<img
+						src="../assets/images/about-us/baimon.jpg"
+						class="w-2/5 rounded-full sm:w-1/4 lg:w-5/12 2xl:w-1/2"
+					/>
 
-					<p>Nitchakarn Pasanee<br />63130500036</p>
+					<p class="text-center mt-3.5 mb-2.5">
+						Nitchakarn Pasanee<br />63130500036
+					</p>
 					<a href="https://github.com/baimorn" target="_blank">
-						<!-- <img src="../assets/images/git.png" width="30" /> -->
-						<i class="fa fa-github" aria-hidden="true"></i>
+						<i
+							class="fa fa-github text-2xl sm:text-3xl hover:text-[#5669d1]"
+							aria-hidden="true"
+						></i>
 					</a>
 				</div>
-				<div class="girl">
-					<img src="../assets/images/about-us/beam.jpg" class="girl-img" />
-					<p>Sarisa Phulakorn<br />63130500116</p>
+				<div
+					class="flex flex-col items-center justify-center border-2 shadow-md rounded-xl py-4 mx-5"
+				>
+					<img
+						src="../assets/images/about-us/beam.jpg"
+						class="w-2/5 rounded-full sm:w-1/4 lg:w-5/12 2xl:w-1/2"
+					/>
+					<p class="text-center mt-3.5 mb-2.5">Sarisa Phulakorn<br />63130500116</p>
 					<a href="https://github.com/srbeam" target="_blank">
-						<!-- <img src="../assets/images/git.png" width="30" /> -->
-						<i class="fa fa-github" aria-hidden="true"></i>
+						<i
+							class="fa fa-github text-2xl sm:text-3xl hover:text-[#5669d1]"
+							aria-hidden="true"
+						></i>
 					</a>
 				</div>
-				<div class="girl">
-					<img src="../assets/images/about-us/spy.jpg" class="girl-img" />
+				<div
+					class="flex flex-col items-center justify-center border-2 shadow-md rounded-xl py-4 mx-5"
+				>
+					<img
+						src="../assets/images/about-us/spy.jpg"
+						class="w-2/5 rounded-full sm:w-1/4 lg:w-5/12 2xl:w-1/2"
+					/>
 
-					<p>Supichaya Muennuch<br />63130500123</p>
+					<p class="text-center mt-3.5 mb-2.5">
+						Supichaya Muennuch<br />63130500123
+					</p>
 					<a href="https://github.com/spyy18" target="_blank">
-						<!-- <img src="../assets/images/git.png" width="30" /> -->
-						<i class="fa fa-github" aria-hidden="true"></i>
+						<i
+							class="fa fa-github text-2xl sm:text-3xl hover:text-[#5669d1]"
+							aria-hidden="true"
+						></i>
 					</a>
 				</div>
 			</div>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-#root {
-	height: 100vh;
-}
-.aboutus-container {
-	height: 85%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-.aboutus-container-grid {
-	display: grid;
-	grid-template-columns: repeat(3, auto);
-	grid-column-gap: 80px;
-	width: 75%;
-	height: 65%;
-}
-.girl {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	border: 1px solid lightgrey;
-	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-	border-radius: 10px;
-}
-.girl i {
-	color: #495ab6;
-	font-size: 25px;
-}
-.girl i:hover {
-	color: #5669d1;
-}
-
-.girl-img {
-	width: 50%;
-	border-radius: 50%;
-}
-p {
-	margin: 20px 0 10px 0;
-	text-align: center;
-	color: #495ab6;
-}
-
-@media screen and (max-width: 768px) {
-	#root {
-		height: 100%;
-	}
-	.aboutus-container {
-		padding: 30px 0 60px 0;
-	}
-	.aboutus-container-grid {
-		grid-template-columns: none;
-		grid-template-rows: repeat(3, auto);
-		grid-row-gap: 70px;
-	}
-	.girl {
-		min-height: auto;
-	}
-	.girl-img {
-		width: 30%;
-	}
-}
-@media screen and (max-width: 640px) {
-}
-@media screen and (max-width: 480px) {
-}
-@media screen and (max-width: 375px) {
-}
-</style>

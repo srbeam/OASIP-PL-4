@@ -144,7 +144,7 @@ onBeforeMount(async () => {
 	<div>
 		<!-- The Modal -->
 		<div
-			class="fixed z-[2] left-0 top-0 w-full h-full overflow-auto flex justify-center items-center pop-up"
+			class="fixed z-[2] left-0 top-0 w-full h-full overflow-auto flex justify-center items-center bg-black/50"
 			v-if="showForm"
 		>
 			<div class="bg-[#fefefe] absolute rounded text-[#383838] p-5 mx-4 sm:mx-0">
@@ -272,8 +272,4 @@ onBeforeMount(async () => {
 	</div>
 </template>
 
-<style scoped>
-.pop-up {
-	background-color: rgba(0, 0, 0, 0.4);
-}
-</style>
+<style scoped></style>

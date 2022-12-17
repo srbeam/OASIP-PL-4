@@ -102,25 +102,30 @@ const appRouter = useRouter()
 
 <template>
 	<div>
-		<div id="home">
-			<div id="left">
-				<p id="web-name">BOOKIING</p>
+		<div class="flex flex-col py-5 md:mt-10 lg:flex-row lg:px-20">
+			<div
+				class="text-[#495ab6] flex flex-col justify-center= items-center lg:w-full lg:justify-center"
+			>
+				<h1 class="text-6xl">BOOKIING</h1>
 
-				<p>
+				<p class="text-center text-sm m-0 xl:text-base">
 					OASIP-PL4 Website for booking clinics <br />
 					INT222 Integrated IT Project II
 				</p>
 
-				<img src="../assets/images/home2.png" />
+				<img
+					class="w-11/12 sm:w-4/6 lg:w-11/12 2xl:w-8/12 mt-2 mb-[-35px]"
+					src="../assets/images/home2.png"
+				/>
 			</div>
-			<div id="right">
-				<div id="logIn">
-					<div class="title">
-						<h3>Sign In</h3>
-					</div>
+			<div class="w-full flex justify-center items-center bg-white">
+				<div
+					class="w-4/5 sm:w-2/3 md:w-4/5 2xl:w-8/12 xl:h-[425px] border border-1 rounded-lg shadow-md text-[#495ab6] flex flex-col justify-center items-center py-5 text-sm"
+				>
+					<h3 class="m-0">Sign In</h3>
 
-					<div id="signIn">
-						<div class="input">
+					<div class="w-4/5">
+						<div class="mt-4">
 							<label for="email">E-MAIL : </label>
 							<input
 								type="text"
@@ -129,9 +134,10 @@ const appRouter = useRouter()
 								placeholder="YOUR E-MAIL"
 								v-model="userEmail"
 								maxlength="50"
+								class="w-full rounded text-[#636363] mt-1 py-1.5 px-3.5 border-1 border-gray-300"
 							/>
 						</div>
-						<div class="input">
+						<div class="mt-4">
 							<label for="passwd">PASSWORD : </label>
 							<input
 								type="password"
@@ -140,14 +146,18 @@ const appRouter = useRouter()
 								placeholder="YOUR PASSWORD"
 								v-model="userPass"
 								maxlength="14"
+								class="w-full rounded text-[#636363] mt-1 py-1.5 px-3.5 border-1 border-gray-300"
 							/>
 						</div>
 
-						<div class="btn-area">
-							<p class="error">{{ validateMsg }}</p>
+						<div class="text-center mt-7">
+							<p class="text-red-500 text-start">{{ validateMsg }}</p>
 							<div>
 								<div>
-									<button class="text-white btn btn-primary" @click="fetchMatchPass">
+									<button
+										class="text-white btn btn-primary w-full mb-2.5"
+										@click="fetchMatchPass"
+									>
 										Sign In
 									</button>
 								</div>
@@ -162,105 +172,4 @@ const appRouter = useRouter()
 	</div>
 </template>
 
-<style scoped>
-#home {
-	background-color: rgb(255, 255, 255, 0);
-	color: black;
-	display: flex;
-	padding: 5% 13%;
-	min-height: 575px;
-}
-#left {
-	width: 50%;
-	color: #495ab6;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-}
-#web-name {
-	font-size: 65px;
-	margin: 0;
-}
-img {
-	width: 90%;
-}
-#right {
-	width: 50%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-#logIn {
-	/* background-color: #c7c7c780; */
-	color: #495ab6;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	padding: 20px 0;
-	width: 80%;
-	border-radius: 10px;
-	min-height: 480px;
-	border: 1px solid lightgrey;
-	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-	font-size: 14px;
-}
-#signIn {
-	width: 80%;
-}
-.input {
-	margin-top: 20px;
-}
-input {
-	width: 100%;
-	padding: 7px 15px;
-	box-sizing: border-box;
-	/* border: 2px solid white; */
-	border-radius: 4px;
-	color: #636363;
-	/* background-color: #ecececa1; */
-	margin-top: 5px;
-	border: 1px solid lightgray;
-}
-
-.btn-area {
-	text-align: center;
-	margin-top: 25px;
-}
-.btn-area button {
-	width: 100%;
-	margin-bottom: 10px;
-}
-.error {
-	color: red;
-	margin: 0;
-	text-align: left;
-}
-#go-to-signUp a {
-	background-color: rgb(255, 255, 255, 0);
-}
-#go-to-signUp a:hover {
-	background-color: rgb(255, 255, 255, 0);
-}
-@media screen and (max-width: 768px) {
-	#home {
-		flex-direction: column;
-		padding: 10%;
-	}
-	#left {
-		width: 100%;
-		align-items: center;
-		margin: 0 0 -38px 0;
-	}
-	#web-name {
-		text-align: center;
-	}
-	.description {
-		text-align: center;
-	}
-	#right {
-		width: 100%;
-	}
-}
-</style>
+<style scoped></style>

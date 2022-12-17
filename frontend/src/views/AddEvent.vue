@@ -2,7 +2,6 @@
 import { ref, onBeforeMount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseNavBar from '../components/BaseNavBar.vue'
-import NoLoginModal from '../components/NoLoginModal.vue'
 import VueJwtDecode from 'vue-jwt-decode'
 import LecAddEventModal from '../components/LecAddEventModal.vue'
 import SuccessModal from '../components/SuccessModal.vue'

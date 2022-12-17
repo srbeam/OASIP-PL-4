@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
 import SuccessModal from './SuccessModal.vue'
-// import AddSuccessModal from './AddSuccessModal.vue'
 defineEmits(['closeModal'])
 
 const users = ref([])
@@ -307,7 +306,6 @@ const validateMatchPass = () => {
 				</div>
 			</div>
 		</div>
-		<!-- <AddSuccessModal v-if="isAddSuccess" :typeOfModal="typeofModal" /> -->
 		<SuccessModal v-if="isAddSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>

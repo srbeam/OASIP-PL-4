@@ -559,7 +559,7 @@ const typeOfModal = ref('none')
 				</div>
 			</div>
 			<i
-				class="fa fa-user-plus"
+				class="fa fa-user-plus p-3.5 bg-amber-500 rounded-full text-black absolute bottom-8 right-8 cursor-pointer hover:bg-amber-400"
 				aria-hidden="true"
 				@click="showAddModal"
 				v-if="!is401"
@@ -568,18 +568,4 @@ const typeOfModal = ref('none')
 	</div>
 </template>
 
-<style scoped>
-i {
-	padding: 15px;
-	background-color: orange;
-	border-radius: 50%;
-	color: black;
-	position: absolute;
-	bottom: 2rem;
-	right: 2rem;
-	cursor: pointer;
-}
-i:hover {
-	background-color: rgb(255, 176, 31);
-}
-</style>
+<style scoped></style>

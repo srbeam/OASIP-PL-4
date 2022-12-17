@@ -8,9 +8,6 @@ const signOut = () => {
 	<div>
 		<div class="modal">
 			<div class="modal-container">
-				<!-- <div class="close">
-					<p>X</p>
-				</div> -->
 				<div class="modal-content">
 					<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 					<h3>Admin Only</h3>

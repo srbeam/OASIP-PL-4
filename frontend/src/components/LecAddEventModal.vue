@@ -16,9 +16,6 @@ defineEmits(['closeModal'])
 					<router-link :to="{ name: 'ListAll' }">
 						<button class="view-event-btn">View Event</button>
 					</router-link>
-					<!-- <router-link :to="{ name: 'Home' }">
-						<button @click="signOut">Sing in again with admin accout</button>
-					</router-link> -->
 				</div>
 			</div>
 		</div>

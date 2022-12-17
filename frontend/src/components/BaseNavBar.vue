@@ -2,7 +2,6 @@
 import { onBeforeMount, ref } from 'vue'
 import VueJwtDecode from 'vue-jwt-decode'
 import { useRouter } from 'vue-router'
-defineEmits(['signOut'])
 const author = localStorage.getItem('token')
 const getUserFromToken = ref()
 const getUser = () => {

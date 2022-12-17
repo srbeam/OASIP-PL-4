@@ -12,8 +12,6 @@ const token = ref()
 const is401 = ref()
 const is403 = ref()
 const getEvents = async () => {
-	// const res = await fetch('http://localhost:8080/api/events')
-	// const res = await fetch('http://10.4.56.124:8081/api/events')
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'GET',
 		headers: {
@@ -116,7 +114,6 @@ const toggleDeleteEventSuccess = () => {
 			:events="events"
 			@deleteEvent="deleteEvent"
 		></ListallComponent>
-		<!-- <router-view> </router-view> -->
 		<SuccessModal v-if="isDeleteEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>

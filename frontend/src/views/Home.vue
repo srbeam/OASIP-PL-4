@@ -16,7 +16,7 @@ onBeforeMount(async () => {
 
 <template>
 	<div>
-		<BaseNavBar @signOut="checkToken" />
+		<BaseNavBar />
 		<SignInForm />
 	</div>
 </template>

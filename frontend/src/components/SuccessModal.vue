@@ -9,10 +9,12 @@ const props = defineProps({
 
 <template>
 	<div>
-		<div class="modal">
-			<div class="modal-container">
-				<div class="modal-content">
-					<i class="fa fa-check-circle fa-4x"></i>
+		<div
+			class="top-0 left-0 bg-black/70 fixed w-full h-full flex justify-center items-center"
+		>
+			<div class="border-1 bg-white rounded-xl min-w-[250px]">
+				<div class="p-6 my-6 text-center text-black border-y-2 border-gray-300">
+					<i class="fa fa-check-circle fa-4x text-green-700"></i>
 					<h3 v-if="typeOfModal === 'addUser'">Add User Success</h3>
 					<h3 v-if="typeOfModal === 'editUser'">Edit User Success</h3>
 					<h3 v-if="typeOfModal === 'deleteUser'">Delete User Success</h3>
@@ -26,33 +28,4 @@ const props = defineProps({
 	</div>
 </template>
 
-<style scoped>
-.modal {
-	top: 0;
-	left: 0;
-	background-color: rgba(0, 0, 0, 0.8);
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-.modal-container {
-	border: 1px solid black;
-	background-color: white;
-	border-radius: 10px;
-	min-width: 250px;
-}
-.modal-content {
-	text-align: center;
-	margin: 25px 0;
-	padding: 25px;
-}
-i {
-	color: green;
-}
-h3 {
-	color: black;
-}
-</style>
+<style scoped></style>
