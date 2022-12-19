@@ -23,4 +23,35 @@ const routes = [
 ]
 
 const router = createRouter({ history, routes })
+router.beforeEach((to, from, next) => {
+	if (!localStorage.getItem('token')) {
+		if (
+			to.path === '/' ||
+			to.path === '/events/add' ||
+			to.path === '/categories' ||
+			to.path === '/about-us'
+		) {
+			next()
+		} else {
+			next({ name: 'Home' })
+		}
+	} else {
+		if (localStorage.getItem('role') == 'ROLE_student') {
+			if (to.path === '/listalluser') {
+				next('/events/add')
+			} else {
+				next()
+			}
+		} else if (localStorage.getItem('role') == 'ROLE_lecturer') {
+			if (to.path === '/events/add' || to.path === '/listalluser') {
+				next('/events')
+			} else {
+				next()
+			}
+		} else {
+			next()
+		}
+	}
+})
+
 export default router

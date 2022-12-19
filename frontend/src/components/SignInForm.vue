@@ -8,49 +8,44 @@ const userEmail = ref('')
 const userPass = ref('')
 const validateMsg = ref('')
 const isPasswordMatch = ref(false)
-const isInvalidEmail = ref(false)
+const isInvalidForm = ref(false)
 const token = ref()
 const getUserFromToken = ref()
+const appRouter = useRouter()
 
 const fetchMatchPass = async () => {
 	if (userEmail.value === '' || userPass.value === '') {
-		isInvalidEmail.value = true
+		isInvalidForm.value = true
 		validateMsg.value = 'Please fill out both fields.'
 	} else if (!validateEmail(userEmail.value.trim())) {
-		isInvalidEmail.value = true
+		isInvalidForm.value = true
 		validateMsg.value = 'Email is not valid'
 	} else {
-		isInvalidEmail.value = false
+		isInvalidForm.value = false
 		validateMsg.value = ''
 		checklengthPass()
 	}
-
 	const user = {
 		email: userEmail.value.trim(),
 		password: userPass.value
 	}
-	//ใช้ตัวแปร env แทนการเขียน path
-	if (isInvalidEmail.value === false) {
+	if (isInvalidForm.value === false) {
 		const res = await fetch(`${import.meta.env.VITE_BACK_URL}/login`, {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json'
 			},
-
 			body: JSON.stringify(user)
 		})
-		// console.log(res.status)
 		if (res.status === 200) {
-			// console.log('Password Matched')
-
 			isPasswordMatch.value = true
-
 			userEmail.value = ''
 			userPass.value = ''
 			validateMsg.value = ''
 			token.value = await res.json()
 			saveLocal()
-			getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+			// getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+
 			setTimeout(togglePassMatch, 3000)
 		} else if (res.status === 401) {
 			isPasswordMatch.value = false
@@ -66,6 +61,8 @@ const fetchMatchPass = async () => {
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`),
 		localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+	localStorage.setItem('role', `${getUserFromToken.value.Roles}`)
 }
 
 const togglePassMatch = () => {
@@ -85,19 +82,16 @@ const validateEmail = (email) => {
 		/^(([^<>()[\]\\.,;:\s*$&!#?@"]+(\.[^<>()[\]\\.,;:\s*$&!#?@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	return reg.test(String(email).toLocaleLowerCase())
 }
-const passLengthNotValid = ref(false)
-const passLengthNotValidMsg = ref(' Password must be at least 8')
 
 const checklengthPass = () => {
 	if (userPass.value.length < 8) {
-		isInvalidEmail.value = true
+		isInvalidForm.value = true
 		validateMsg.value = 'Password must be at least 8'
 	} else {
-		isInvalidEmail.value = false
+		isInvalidForm.value = false
 		validateMsg.value = ''
 	}
 }
-const appRouter = useRouter()
 </script>
 
 <template>

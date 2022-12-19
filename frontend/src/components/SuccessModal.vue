@@ -10,7 +10,7 @@ const props = defineProps({
 <template>
 	<div>
 		<div
-			class="top-0 left-0 bg-black/70 fixed w-full h-full flex justify-center items-center"
+			class="top-0 left-0 bg-black/70 fixed w-full h-full flex justify-center items-center absolute z-10"
 		>
 			<div class="border-1 bg-white rounded-xl min-w-[250px]">
 				<div class="p-6 my-6 text-center text-black border-y-2 border-gray-300">

@@ -76,7 +76,6 @@ const editCategory = async () => {
 	)
 	if (res.status === 200) {
 		console.log('edited successfully')
-		// cancelEdit()
 		goSuccess()
 	} else if (res.status == 401) {
 		getRefreshToken()
@@ -102,6 +101,8 @@ const getRefreshToken = async () => {
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+	localStorage.setItem('role', `${getUserFromToken.value.Roles}`)
 }
 const validateDuration = (duration) => {
 	return duration <= 480 && duration >= 1

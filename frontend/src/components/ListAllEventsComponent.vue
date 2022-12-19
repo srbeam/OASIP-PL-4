@@ -4,7 +4,9 @@ import NoLoginModal from './NoLoginModal.vue'
 import VueJwtDecode from 'vue-jwt-decode'
 const getUserFromToken = ref()
 const getUser = () => {
-	getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+	if (localStorage.getItem('token') != null) {
+		getUserFromToken.value = VueJwtDecode.decode(localStorage.getItem('token'))
+	}
 }
 onBeforeMount(async () => {
 	await getUser()
@@ -13,6 +15,10 @@ defineEmits(['deleteEvent'])
 const props = defineProps({
 	events: {
 		type: Array,
+		require: true
+	},
+	category: {
+		type: String,
 		require: true
 	}
 })
@@ -28,13 +34,18 @@ const formatDate = (dateTime) => {
 const formatTime = (dateTime) => {
 	return dateTime.toLocaleString('th-TH', { hour: '2-digit', minute: '2-digit' })
 }
+console.log(props.category)
 </script>
 
 <template>
 	<div class="py-8">
-		<h4 class="lg:hidden text-gray-500 text-center" v-show="events.length != 0">
-			List All Users
+		<h4 class="text-gray-500 text-center" v-if="category != undefined">
+			{{ category }}
 		</h4>
+
+		<!-- <h4 class="lg:hidden text-gray-500 text-center" v-show="events.length != 0">
+			List All Users
+		</h4> -->
 		<div class="flex justify-center">
 			<div class="text-[#495ab6]" v-show="events.length == 0">
 				<h1>No Scheduled Events</h1>

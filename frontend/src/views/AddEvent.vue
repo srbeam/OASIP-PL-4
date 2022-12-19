@@ -29,7 +29,7 @@ const getUserFromToken = ref()
 const token = ref()
 let author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
-const is401 = ref()
+// const is401 = ref()
 const isAttachFile = ref()
 const isLecAddEvent = ref()
 const typeOfModal = ref()
@@ -39,12 +39,14 @@ onBeforeMount(async () => {
 	getUser()
 	getCurDateTime()
 })
+
 const getUser = () => {
 	if (author != undefined || author != null) {
 		getUserFromToken.value = VueJwtDecode.decode(author)
 		author = localStorage.getItem('token')
 	}
 }
+
 const getCategory = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/categories`, {
 		method: 'GET'
@@ -55,6 +57,7 @@ const getCategory = async () => {
 		getRefreshToken()
 	} else console.log('error, cannot get data')
 }
+
 const getRefreshToken = async () => {
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/refresh`, {
 		method: 'GET',
@@ -63,27 +66,163 @@ const getRefreshToken = async () => {
 		}
 	})
 	if (res.status === 200) {
-		is401.value = false
+		// is401.value = false
 		token.value = await res.json()
 		saveLocal()
 	} else if (res.status === 401) {
-		is401.value = true
+		// is401.value = true
+		localStorage.clear()
+		appRouter.push({ name: 'Home' })
 	} else {
 		console.log('Error,cannot get refresh token from backend')
 	}
 }
+
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+	localStorage.setItem('role', `${getUserFromToken.value.Roles}`)
 }
+
+//fetch สำหรับ guest
+const guestAddEventToDB = async (newEvent) => {
+	let formData = new FormData()
+	const blob = new Blob([JSON.stringify(newEvent)], { type: 'application/json' })
+	formData.append('file', fileupload.value)
+	formData.append('event', blob)
+	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
+		method: 'POST',
+		body: formData
+	})
+	if (res.status === 201) {
+		console.log('added sucessfully')
+		console.log(newEvent)
+		typeOfModal.value = 'addEvent'
+		isAddEventSuccess.value = true
+		setTimeout(toggleAddEventSuccess, 3000)
+		clearInput()
+		clearFileInput()
+		clearError()
+	} else if (res.status == 401) {
+		getRefreshToken()
+		typeOfModal.value = ''
+	} else console.log('error, cannot be added')
+}
+
+const clearInput = () => {
+	bookingName.value = ''
+	bookingEmail.value = ''
+	eventCategory.value = ''
+	eventStartTime.value = ''
+	note.value = ''
+	clearFileInput()
+}
+
+let dataTransfer = new DataTransfer()
+const clearFileInput = () => {
+	let fileInput = document.getElementById('fileInput')
+	fileInput.type = 'text'
+	fileInput.type = 'file'
+	fileupload.value = ''
+	isAttachFile.value = false
+	dataTransfer.items.clear()
+}
+
+const clearError = () => {
+	isBlank.value = false
+	isInvalidEmail.value = false
+	isInvalidDateFuture.value = false
+	isInvalidOverLab.value = false
+}
+
+const validateEmail = (email) => {
+	const re =
+		/^(([^<>()[\]\\.,;:\s*$&!#?@"]+(\.[^<>()[\]\\.,;:\s*$&!#?@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	return re.test(String(email).toLocaleLowerCase())
+}
+
+const validateDateFuture = (dateTime) => {
+	const currentDateTime = new Date()
+	dateTime = new Date(dateTime)
+	return dateTime > currentDateTime ? true : false
+}
+
+const validateNonOverlab = (category, startDTNew, durationNew) => {
+	filterCategory(category)
+	startDTNew = new Date(startDTNew)
+	for (let event of filterEvents.value) {
+		if (
+			!checkOverLab(
+				startDTNew,
+				event.eventStartTime,
+				durationNew,
+				event.eventDuration
+			)
+		)
+			return false
+	}
+	return true
+}
+
+const checkOverLab = (startDTNew, startDTOld, durationNew, durationOld) => {
+	const endDTOld = new Date(
+		new Date(startDTOld.getTime() + Number(durationOld) * 60000)
+	)
+	const startDanger = new Date(
+		new Date(startDTOld.getTime() - Number(durationNew) * 60000)
+	)
+	if (startDTNew > endDTOld) {
+		return true
+	} else {
+		if (startDTNew < startDanger) {
+			return true
+		} else {
+			return false
+		}
+	}
+}
+
+const filterCategory = (category) => {
+	filterEvents.value = events.value.filter((event) => {
+		return event.eventCategoryName == category
+	})
+}
+const appRouter = useRouter()
+
+const closeLecAddEventModal = () => {
+	isLecAddEvent.value = false
+}
+const currentDateTime = ref()
+const getCurDateTime = () => {
+	let fullTime = new Date()
+	let date = fullTime.getDate()
+	date < 10 ? (date = '0' + date) : ''
+	let month = fullTime.getMonth() + 1
+	month < 10 ? (month = '0' + month) : ''
+	let year = fullTime.getFullYear()
+	let hours = fullTime.getHours()
+	hours < 10 ? (hours = '0' + hours) : ''
+	let min = fullTime.getMinutes()
+	min < 10 ? (min = '0' + min) : ''
+	currentDateTime.value =
+		year + '-' + month + '-' + date + 'T' + hours + ':' + min
+}
+const toggleAddEventSuccess = () => {
+	if (isAddEventSuccess.value === true) {
+		isAddEventSuccess.value = false
+		// getUsers()
+	} else {
+		isAddEventSuccess.value = true
+	}
+}
+
 const addEvent = () => {
 	if (getUserFromToken.value != undefined) {
 		if (getUserFromToken.value.Roles === 'ROLE_student') {
 			bookingEmail.value = getUserFromToken.value.sub
 		}
 	}
-
-	console.log(bookingEmail.value)
 	if (
 		bookingName.value == '' ||
 		bookingEmail.value == '' ||
@@ -94,7 +233,6 @@ const addEvent = () => {
 		isInvalidEmail.value = false
 		isInvalidDateFuture.value = false
 		isInvalidOverLab.value = false
-		console.log(isBlank.value)
 	} else if (!validateEmail(bookingEmail.value)) {
 		isInvalidEmail.value = true
 		isBlank.value = false
@@ -136,29 +274,37 @@ const addEvent = () => {
 		}
 	}
 }
-//fetch สำหรับ guest
-const guestAddEventToDB = async (newEvent) => {
-	let formData = new FormData()
-	const blob = new Blob([JSON.stringify(newEvent)], { type: 'application/json' })
-	formData.append('file', fileupload.value)
-	formData.append('event', blob)
-	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
-		method: 'POST',
-		body: formData
-	})
-	if (res.status === 201) {
-		console.log('added sucessfully')
-		console.log(newEvent)
-		typeOfModal.value = 'addEvent'
-		isAddEventSuccess.value = true
-		setTimeout(toggleAddEventSuccess, 3000)
-		clearInput()
-		clearFileInput()
-		clearError()
-	} else if (res.status == 401) {
-		// getRefreshToken()
-		typeOfModal.value = ''
-	} else console.log('error, cannot be added')
+
+const uploadFile = (e) => {
+	let maxFileSize = 10 * 1024 * 1024
+	if (e.target.files[0] != undefined) {
+		if (e.target.files[0].size > maxFileSize) {
+			let fileInput = document.getElementById('fileInput')
+			fileInput.setCustomValidity('The file size cannot be larger than 10 MB.')
+			fileInput.reportValidity()
+
+			if (fileupload.value === undefined || fileupload.value === '') {
+				clearFileInput()
+				isAttachFile.value = false
+				console.log('เกินตั้งแต่ครั้งแรก')
+			} else {
+				dataTransfer.items.clear()
+				dataTransfer.items.add(fileupload.value)
+				fileInput.files = dataTransfer.files
+				console.log('เกิน')
+			}
+		} else {
+			fileupload.value = e.target.files[0]
+			fileInput.setCustomValidity('')
+			isAttachFile.value = true
+			console.log('ไม่เกิน')
+		}
+	} else {
+		dataTransfer.items.clear()
+		dataTransfer.items.add(fileupload.value)
+		fileInput.files = dataTransfer.files
+		console.log('มีไฟล์ใน input แล้ว กด cancel ')
+	}
 }
 //fetch สำหรับ user
 const addEventToDB = async (newEvent) => {
@@ -166,7 +312,6 @@ const addEventToDB = async (newEvent) => {
 	const blob = new Blob([JSON.stringify(newEvent)], { type: 'application/json' })
 	formData.append('file', fileupload.value)
 	formData.append('event', blob)
-	console.log(newEvent)
 	const res = await fetch(`${import.meta.env.VITE_BACK_URL}/events`, {
 		method: 'POST',
 		headers: {
@@ -176,8 +321,6 @@ const addEventToDB = async (newEvent) => {
 	})
 	if (res.status === 201) {
 		console.log('added sucessfully')
-		console.log(newEvent)
-		// goSuccess()
 		typeOfModal.value = 'addEvent'
 		isAddEventSuccess.value = true
 		setTimeout(toggleAddEventSuccess, 3000)
@@ -188,139 +331,6 @@ const addEventToDB = async (newEvent) => {
 		getRefreshToken()
 		typeOfModal.value = ''
 	} else console.log('error, cannot be added')
-}
-const clearInput = () => {
-	bookingName.value = ''
-	bookingEmail.value = ''
-	eventCategory.value = ''
-	eventStartTime.value = ''
-	note.value = ''
-	clearFileInput()
-}
-let dataTransfer = new DataTransfer()
-const clearFileInput = () => {
-	let fileInput = document.getElementById('fileInput')
-	fileInput.type = 'text'
-	fileInput.type = 'file'
-	fileupload.value = ''
-	isAttachFile.value = false
-	dataTransfer.items.clear()
-}
-const clearError = () => {
-	isBlank.value = false
-	isInvalidEmail.value = false
-	isInvalidDateFuture.value = false
-	isInvalidOverLab.value = false
-}
-const uploadFile = (e) => {
-	let maxFileSize = 10 * 1024 * 1024 //10MB
-	if (e.target.files[0] != undefined) {
-		if (e.target.files[0].size > maxFileSize) {
-			let fileInput = document.getElementById('fileInput')
-			fileInput.setCustomValidity('The file size cannot be larger than 10 MB.')
-			fileInput.reportValidity()
-
-			if (fileupload.value === undefined || fileupload.value === '') {
-				clearFileInput()
-				isAttachFile.value = false
-			} else {
-				dataTransfer.items.clear()
-				dataTransfer.items.add(fileupload.value)
-				fileInput.files = dataTransfer.files
-			}
-		} else {
-			fileupload.value = e.target.files[0]
-			fileInput.setCustomValidity('')
-			isAttachFile.value = true
-		}
-	} else {
-		if (fileupload.value === undefined || fileupload.value === '') {
-			clearFileInput()
-			isAttachFile.value = false
-		} else {
-			dataTransfer.items.clear()
-			dataTransfer.items.add(fileupload.value)
-			fileInput.files = dataTransfer.files
-		}
-	}
-}
-
-const validateEmail = (email) => {
-	const re =
-		/^(([^<>()[\]\\.,;:\s*$&!#?@"]+(\.[^<>()[\]\\.,;:\s*$&!#?@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-	return re.test(String(email).toLocaleLowerCase())
-}
-const validateDateFuture = (dateTime) => {
-	const currentDateTime = new Date()
-	dateTime = new Date(dateTime)
-	return dateTime > currentDateTime ? true : false
-}
-const validateNonOverlab = (category, startDTNew, durationNew) => {
-	filterCategory(category)
-	startDTNew = new Date(startDTNew)
-	for (let event of filterEvents.value) {
-		if (
-			!checkOverLab(
-				startDTNew,
-				event.eventStartTime,
-				durationNew,
-				event.eventDuration
-			)
-		)
-			return false
-	}
-	return true
-}
-const checkOverLab = (startDTNew, startDTOld, durationNew, durationOld) => {
-	const endDTOld = new Date(
-		new Date(startDTOld.getTime() + Number(durationOld) * 60000)
-	)
-	const startDanger = new Date(
-		new Date(startDTOld.getTime() - Number(durationNew) * 60000)
-	)
-	if (startDTNew > endDTOld) {
-		return true
-	} else {
-		if (startDTNew < startDanger) {
-			return true
-		} else {
-			return false
-		}
-	}
-}
-const filterCategory = (category) => {
-	filterEvents.value = events.value.filter((event) => {
-		return event.eventCategoryName == category
-	})
-}
-const appRouter = useRouter()
-const goSuccess = () => appRouter.push({ name: 'AddSuccess' })
-const goAllEvent = () => appRouter.push({ name: 'Page', params: { page: 1 } })
-const closeLecAddEventModal = () => {
-	isLecAddEvent.value = false
-}
-const currentDateTime = ref()
-const getCurDateTime = () => {
-	let fullTime = new Date()
-	let date = fullTime.getDate()
-	date < 10 ? (date = '0' + date) : ''
-	let month = fullTime.getMonth() + 1
-	month < 10 ? (month = '0' + month) : ''
-	let year = fullTime.getFullYear()
-	let hours = fullTime.getHours()
-	hours < 10 ? (hours = '0' + hours) : ''
-	let min = fullTime.getMinutes()
-	min < 10 ? (min = '0' + min) : ''
-	currentDateTime.value =
-		year + '-' + month + '-' + date + 'T' + hours + ':' + min
-}
-const toggleAddEventSuccess = () => {
-	if (isAddEventSuccess.value === true) {
-		isAddEventSuccess.value = false
-		// getUsers()
-	} else {
-		isAddEventSuccess.value = true
-	}
 }
 </script>
 <template>
@@ -476,7 +486,7 @@ const toggleAddEventSuccess = () => {
 				</div>
 			</div>
 		</div>
-		<LecAddEventModal v-if="isLecAddEvent" @closeModal="closeLecAddEventModal" />
+		<!-- <LecAddEventModal v-if="isLecAddEvent" @closeModal="closeLecAddEventModal" /> -->
 		<SuccessModal v-if="isAddEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>

@@ -203,6 +203,8 @@ const getRefreshToken = async () => {
 		saveLocal()
 	} else if (res.status === 401) {
 		is401.value = true
+		localStorage.clear()
+		appRouter.push({ name: 'Home' })
 	} else {
 		console.log('Error,cannot get refresh token from backend')
 	}
@@ -210,6 +212,8 @@ const getRefreshToken = async () => {
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+	localStorage.setItem('role', `${getUserFromToken.value.Roles}`)
 }
 const cancel = () => {
 	newStartTime.value = ''

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import ListallComponent from '../components/ListallComponent.vue'
+import ListAllEventsComponent from '../components/ListAllEventsComponent.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
 import SuccessModal from '../components/SuccessModal.vue'
@@ -26,10 +26,7 @@ const getEvents = async () => {
 		filterEvents.value = events.value.reverse()
 		for (let event of events.value) {
 			event.eventStartTime = new Date(event.eventStartTime)
-			// const dd = new Date(event.eventStartTime)
-			// console.log(event.eventStartTime)
 		}
-		console.log(filterEvents.value)
 	} else if (res.status === 401) {
 		getRefreshToken()
 	} else console.log('error, cannot get data')
@@ -46,14 +43,19 @@ const getRefreshToken = async () => {
 		token.value = await res.json()
 		saveLocal()
 	} else if (res.status === 401) {
-		is401.value = true
+		// is401.value = true
+		localStorage.clear()
+		appRouter.push({ name: 'Home' })
 	} else {
 		console.log('Error,cannot get refresh token from backend')
 	}
 }
+const getUserFromToken = ref()
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+	localStorage.setItem('role', `${getUserFromToken.value.Roles}`)
 }
 onBeforeMount(async () => {
 	await getEvents()
@@ -87,8 +89,6 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 		const res = await fetch(
 			`${import.meta.env.VITE_BACK_URL}/events/${eventId}`,
 			{
-				// method: 'DELETE',
-				// Authorization: `Bearer ${author}`
 				method: 'DELETE',
 				headers: {
 					Authorization: `Bearer ${author}`
@@ -101,8 +101,6 @@ const deleteEvent = async (eventId, bookingName, eventStartTime) => {
 			setTimeout(toggleDeleteEventSuccess, 3000)
 			getEvents()
 			events.value = events.value.filter((event) => event.id !== eventId)
-			// appRouter.go(0)
-			// console.log('deleted successfully')
 		} else if (res.status === 401) {
 			getRefreshToken()
 		} else console.log('error, cannot delete data')
@@ -211,10 +209,10 @@ const cancel = () => {
 				</div>
 
 				<div v-if="filterEvents.length > 0">
-					<ListallComponent
+					<ListAllEventsComponent
 						:events="filterEvents"
 						@deleteEvent="deleteEvent"
-					></ListallComponent>
+					></ListAllEventsComponent>
 				</div>
 			</div>
 		</div>

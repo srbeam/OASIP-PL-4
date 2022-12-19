@@ -22,12 +22,10 @@ import sit.int221.oasipbackend.customException.CustomAccessDeniedHandler;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService jwtUserDetailsService;
+    private final Argon2PasswordEncoder argon2PasswordEncoder;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
     private final JwtRequestFilter jwtRequestFilter;
-
-    private final Argon2PasswordEncoder argon2PasswordEncoder;
 
     @Autowired
     public WebSecurityConfig(UserDetailsService jwtUserDetailsService, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtRequestFilter jwtRequestFilter, Argon2PasswordEncoder argon2PasswordEncoder) {
@@ -36,6 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwtRequestFilter = jwtRequestFilter;
         this.argon2PasswordEncoder = argon2PasswordEncoder;
     }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(jwtUserDetailsService).passwordEncoder(argon2PasswordEncoder);
@@ -48,13 +47,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(accessDeniedHandler())
                 .and()
 
-                .anonymous().principal("guest").authorities("ROLE_guest").and()
+//                .anonymous().principal("guest").authorities("ROLE_guest").and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 
                 .authorizeRequests()
                 .antMatchers("/api/users/**","/api/match/**").hasRole("admin")
 
-                .antMatchers("/api/login","/api/users/signup").permitAll()
+                .antMatchers("/api/login").permitAll()
 
                 .antMatchers(HttpMethod.POST, "/api/events").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/events","/api/events/{id}").hasAnyRole("admin","student","lecturer")

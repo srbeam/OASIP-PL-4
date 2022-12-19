@@ -1,15 +1,16 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 import ConfirmDeleteUserModal from './ConfirmDeleteUserModal.vue'
 import NoLoginModal from './NoLoginModal.vue'
 import ForAdminModal from './ForAdminModal.vue'
-import ListallComponent from './ListallComponent.vue'
+
 import AddUserModal from './AddUserModal.vue'
 
 import EditUserModal from './EditUserModal.vue'
 import SuccessModal from './SuccessModal.vue'
-
+const appRouter = useRouter()
 const users = ref([])
 let author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
@@ -51,13 +52,18 @@ const getRefreshToken = async () => {
 	} else if (res.status === 401) {
 		// window.location.reload()
 		is401.value = true
+		localStorage.clear()
+		appRouter.push({ name: 'Home' })
 	} else {
 		console.log('Error,cannot get refresh token from backend')
 	}
 }
+const getUserFromToken = ref()
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+	localStorage.setItem('role', `${getUserFromToken.value.Roles}`)
 }
 const userName = ref('')
 const userEmail = ref('')
@@ -430,7 +436,7 @@ const typeOfModal = ref('none')
 	<div>
 		<AddUserModal v-if="isShowAddModal" @closeModal="closeAddModal" />
 		<NoLoginModal v-if="is401" />
-		<ForAdminModal v-if="is403" />
+		<!-- <ForAdminModal v-if="is403" /> -->
 		<!-- <DeleteSuccessModal v-if="isDeleteSuccess" /> -->
 		<ConfirmDeleteUserModal
 			v-if="isShowConfirm"

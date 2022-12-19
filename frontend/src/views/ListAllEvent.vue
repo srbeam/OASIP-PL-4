@@ -1,10 +1,11 @@
 <script setup>
-import { ref, onBeforeMount, resolveDirective } from 'vue'
-import ListallComponent from '../components/ListallComponent.vue'
+import { ref, onBeforeMount } from 'vue'
+import ListAllEventsComponent from '../components/ListAllEventsComponent.vue'
 import BaseNavBar from '../components/BaseNavBar.vue'
 import NoLoginModal from '../components/NoLoginModal.vue'
 import SuccessModal from '../components/SuccessModal.vue'
-
+import { useRouter } from 'vue-router'
+const appRouter = useRouter()
 const events = ref([])
 const author = localStorage.getItem('token')
 let refreshToken = localStorage.getItem('refreshToken')
@@ -46,14 +47,19 @@ const getRefreshToken = async () => {
 		saveLocal()
 	} else if (res.status === 401) {
 		// window.location.reload()
-		is401.value = true
+		// is401.value = true
+		localStorage.clear()
+		appRouter.push({ name: 'Home' })
 	} else {
 		console.log('Error,cannot get refresh token from backend')
 	}
 }
+const getUserFromToken = ref()
 const saveLocal = () => {
 	localStorage.setItem('token', `${token.value.accessToken}`)
 	localStorage.setItem('refreshToken', `${token.value.refreshToken}`)
+	getUserFromToken.value = VueJwtDecode.decode(token.value.accessToken)
+	localStorage.setItem('role', `${getUserFromToken.value.Roles}`)
 }
 
 const formatDate = (dateTime) => {
@@ -109,11 +115,11 @@ const toggleDeleteEventSuccess = () => {
 	<div>
 		<BaseNavBar />
 		<NoLoginModal v-if="is401" />
-		<ListallComponent
+		<ListAllEventsComponent
 			v-else
 			:events="events"
 			@deleteEvent="deleteEvent"
-		></ListallComponent>
+		></ListAllEventsComponent>
 		<SuccessModal v-if="isDeleteEventSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>

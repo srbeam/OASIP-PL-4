@@ -34,7 +34,7 @@ public class UsersController {
     public UserDTO getUserById(@PathVariable Integer id){return userService.getUserById(id);}
 
     @PostMapping("")
-    public Object addEvent(@RequestBody @Valid UserCreateDTO newUser){
+    public Object addUser(@RequestBody @Valid UserCreateDTO newUser){
         return userService.create(newUser);
     }
 

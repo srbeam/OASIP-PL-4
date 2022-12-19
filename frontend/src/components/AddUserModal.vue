@@ -184,6 +184,8 @@ const validateMatchPass = () => {
 
 <template>
 	<div>
+		<SuccessModal v-if="isAddSuccess" :typeOfModal="typeOfModal" />
+
 		<div class="modal">
 			<div class="modal-container">
 				<div class="close">
@@ -306,7 +308,6 @@ const validateMatchPass = () => {
 				</div>
 			</div>
 		</div>
-		<SuccessModal v-if="isAddSuccess" :typeOfModal="typeOfModal" />
 	</div>
 </template>
 
@@ -321,6 +322,7 @@ const validateMatchPass = () => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	z-index: 1;
 }
 .modal-container {
 	border: 1px solid black;

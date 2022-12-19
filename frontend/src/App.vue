@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+import BaseNavBar from './components/BaseNavBar.vue'
+</script>
 
 <template>
 	<div id="gameWindow">
